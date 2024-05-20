@@ -50,7 +50,7 @@ class UserService {
                 COMMUNE: commune,
                 DESC: desc,
                 FROM_DATE: new Date(),
-                TO_DATE: new Date(),
+                TO_DATE: null,
                 IS_DEFAULT: true,
               },
             },
@@ -69,14 +69,14 @@ class UserService {
                 COMMUNE: commune,
                 DESC: desc,
                 FROM_DATE: new Date(),
-                TO_DATE: new Date(),
+                TO_DATE: null,
                 IS_DEFAULT: false,
               },
             },
           }
         );
       }
-      return user;
+      return result;
     } catch (error) {
       res.status(400).json(error);
     }
