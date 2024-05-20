@@ -1,7 +1,9 @@
 const addressController = require("../controllers/addressController");
+const verify = require("../middleware/verifyToken");
 const router = require("express").Router();
-router.get("/:id");
-router.post("/:id", addressController.addAddress);
-router.put("/:id", addressController.updateAddress);
+// router.get("/", verify.verityToken, addressController.showAddress);
+router.post("/", verify.verityToken, addressController.addAddress);
+router.put("/:id", verify.verityToken, addressController.updateAddress);
+router.get("/", verify.verityToken, addressController.getAddress);
 router.delete("/:id");
 module.exports = router;

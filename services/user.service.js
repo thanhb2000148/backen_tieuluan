@@ -4,11 +4,13 @@ const ObjectId = require("mongoose").Types.ObjectId;
 class UserService {
   static addUser = async (payload) => {
     const newUser = new UserModel(payload);
+    await newUser.save();
     return newUser;
   };
 
   static addAccount = async (payload) => {
     const newAccount = new AccountModel(payload);
+    await newAccount.save();
     return newAccount;
   };
 
@@ -81,32 +83,50 @@ class UserService {
       res.status(400).json(error);
     }
   };
-  static updateAddress = async (
+  static updateAddress = async ({
     address_id,
+    user_id,
     province,
     district,
     commune,
-    desc
-  ) => {
+    desc,
+  }) => {
     try {
       const ADDRESS_ID = new ObjectId(address_id);
+      const USER_ID = new ObjectId(user_id);
       const update = UserModel.findByIdAndUpdate(
         {
-          _id: ADDRESS_ID,
+          _id: USER_ID,
+          "LIST_ADDRES_USER._id": ADDRESS_ID,
         },
         {
-          $push: {
-            LIST_ADDRES_USER: {
-              PROVINCE: province,
-              DISTRICT: district,
-              COMMUNE: commune,
-              DESC: desc,
-              TO_DATE: new Date(),
-            },
+          $set: {
+            "LIST_ADDRES_USER.$[element].PROVINCE": province,
+            "LIST_ADDRES_USER.$[element].DISTRICT": district,
+            "LIST_ADDRES_USER.$[element].COMMUNE": commune,
+            "LIST_ADDRES_USER.$[element].DESC": desc,
           },
+        },
+        {
+          new: true,
+          arrayFilters: [
+            {
+              "element._id": ADDRESS_ID,
+              "element.TO_DATE": null,
+            },
+          ],
         }
       );
       return update;
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  };
+  static getAddress = async (user_id) => {
+    const USER_ID = new ObjectId(user_id);
+    try {
+      const addressUser = await UserModel.findById(USER_ID);
+      return addressUser.LIST_ADDRES_USER;
     } catch (error) {
       res.status(400).json(error);
     }
