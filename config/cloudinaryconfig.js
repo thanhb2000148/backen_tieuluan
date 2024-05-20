@@ -24,4 +24,4 @@ const storage = new CloudinaryStorage({
 // Khởi tạo Multer với cấu hình lưu trữ đã tạo
 const uploadCloud = multer({ storage });
 
-module.exports = uploadCloud;
+module.exports = cloudinary;
