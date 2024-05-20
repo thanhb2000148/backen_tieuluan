@@ -3,11 +3,6 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const authRouter = require("./router/authRouter");
-const userRouter = require("./router/userRouter");
-const emailRouter = require("./router/sendMailRouter");
-const addressRouter = require("./router/addressRouter");
 const connectDB = require("./database/connectDB");
 
 // Load environment variables from .env file
