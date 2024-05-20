@@ -37,5 +37,13 @@ const addressController = {
       res.status(400).json(error);
     }
   },
+  deleteAddress: async (req, res, next) => {
+    try {
+      await UserService.deleteAddress(req.user.id_user, req.params.id);
+      res.status(200).json("xóa thành công");
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
 };
 module.exports = addressController;

@@ -131,5 +131,27 @@ class UserService {
       res.status(400).json(error);
     }
   };
+  static deleteAddress = async (user_id, address_id) => {
+    const USER_ID = new ObjectId(user_id);
+    console.log(USER_ID);
+    const ADDRESS_ID = new ObjectId(address_id);
+    try {
+      const updateResult = await UserModel.updateOne(
+        {
+          _id: USER_ID,
+        },
+        {
+          $pull: { LIST_ADDRES_USER: { _id: ADDRESS_ID } },
+        }
+      );
+
+      if (updateResult.length == 0) {
+        throw new Error("không còn địa chỉ nào để xóa");
+      }
+      return { message: "xóa địa chỉ thành công" };
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 module.exports = UserService;

@@ -5,5 +5,5 @@ const router = require("express").Router();
 router.post("/", verify.verityToken, addressController.addAddress);
 router.put("/:id", verify.verityToken, addressController.updateAddress);
 router.get("/", verify.verityToken, addressController.getAddress);
-router.delete("/:id");
+router.delete("/:id", verify.verityToken, addressController.deleteAddress);
 module.exports = router;
