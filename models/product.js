@@ -54,3 +54,4 @@ var PRODUCT = new Schema({
     required: true,
   },
 });
+module.exports = mongoose.model("product", PRODUCT);

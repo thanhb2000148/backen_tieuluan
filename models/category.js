@@ -11,3 +11,4 @@ var CATEGORY = new Schema({
     type: Date,
   },
 });
+module.exports = mongoose.model("category", CATEGORY);
