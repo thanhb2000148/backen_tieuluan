@@ -92,6 +92,7 @@ const authController = {
           {
             id: loginAccount.id,
             admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
+            id_user: loginAccount.USER_ID,
           },
           process.env.JWT_ACCESS_KEY, // key để đăng nhập vào
           { expiresIn: "1h" } // thời gian token hết hạn
@@ -100,6 +101,7 @@ const authController = {
           {
             id: loginAccount.id,
             admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
+            id_user: loginAccount.USER_ID,
           },
           process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
           { expiresIn: "365d" } // thời gian token hết hạn
