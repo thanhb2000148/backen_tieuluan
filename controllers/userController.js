@@ -12,16 +12,6 @@ const userController = {
       });
     }
   },
-  getAUser: async (req, res) => {
-    try {
-      const User = await account.findById(req.params.id).populate("USER_ID");
-      res.status(200).json(User);
-    } catch (err) {
-      res.status(500).json({
-        message: err.message,
-      });
-    }
-  },
   deleteUser: async (req, res) => {
     try {
       const accountToDelete = await account.findByIdAndDelete(req.params.id);

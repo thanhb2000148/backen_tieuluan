@@ -1,8 +1,8 @@
-const UserService = require("../services/user.service");
+const AddressService = require("../services/address.services");
 const addressController = {
   addAddress: async (req, res, next) => {
     try {
-      const addAddress = await UserService.addAddress(
+      const addAddress = await AddressService.addAddress(
         req.user.id_user,
         req.body.provide,
         req.body.district,
@@ -16,9 +16,9 @@ const addressController = {
   },
   updateAddress: async (req, res, next) => {
     try {
-      const addAddress = await UserService.updateAddress({
+      const addAddress = await AddressService.updateAddress({
         address_id: req.params.id,
-        user_id: req.user.id,
+        user_id: req.user.id_user,
         province: req.body.provide,
         district: req.body.district,
         commune: req.body.commune,
@@ -31,7 +31,11 @@ const addressController = {
   },
   getAddress: async (req, res, next) => {
     try {
-      const getAddressUser = await UserService.getAddress(req.user.id_user);
+      const getAddressUser = await AddressService.getAddress(
+        req.user.id_user,
+        req.query.page,
+        req.query.limit
+      );
       res.status(200).json(getAddressUser);
     } catch (error) {
       res.status(400).json(error);
@@ -39,7 +43,7 @@ const addressController = {
   },
   deleteAddress: async (req, res, next) => {
     try {
-      await UserService.deleteAddress(req.user.id_user, req.params.id);
+      await AddressService.deleteAddress(req.user.id_user, req.params.id);
       res.status(200).json("xóa thành công");
     } catch (error) {
       res.status(400).json(error);
