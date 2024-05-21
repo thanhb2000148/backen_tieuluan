@@ -16,31 +16,6 @@ var USER = new Schema({
   EMAIL_USER: {
     type: String,
   },
-  LIST_ADDRES_USER: [
-    {
-      PROVINCE: {
-        type: String,
-      },
-      DISTRICT: {
-        type: String,
-      },
-      COMMUNE: {
-        type: String,
-      },
-      DESC: {
-        type: String,
-      },
-      FROM_DATE: {
-        type: Date,
-      },
-      TO_DATE: {
-        type: Date,
-      },
-      IS_DEFAULT: {
-        type: Boolean,
-      },
-    },
-  ],
   PHONE_NUMBER: {
     type: Number,
   },

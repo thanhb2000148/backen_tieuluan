@@ -18,7 +18,6 @@ app.use(bodyParser.json());
 
 // MongoDB connection
 connectDB();
-
 // Routes
 app.use(require("./router"));
 // Start server

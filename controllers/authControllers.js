@@ -106,7 +106,7 @@ const authController = {
           process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
           { expiresIn: "365d" } // thời gian token hết hạn
         );
-        // bỏ password ra khỏi res
+
         res.status(200).json({ accessToken, refreshToken });
       }
     } catch (e) {
