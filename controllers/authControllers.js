@@ -2,8 +2,10 @@ const account = require("../models/account");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { randomCode } = require("../utils/index");
+const randomCode = require("../utils/code");
 const UserService = require("../services/user.service");
+const sendEmailServices = require("../services/emailService");
+
 const {
   registerUserSchema,
   loginUserSchema,
@@ -47,13 +49,9 @@ const authController = {
       };
       // save the account
       const newAccount = await UserService.addAccount(payloadAccount);
-
-      const newCodeActive = await UserService.addCodeActive(
-        newUser._id,
-        randomCode(),
-        "ACTIVE",
-        120
-      );
+      const OTP = randomCode();
+      await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 120);
+      await sendEmailServices(req.body.email_user, OTP);
       res.status(201).json({ account: newAccount, user: newUser });
     } catch (e) {
       res.status(500).json({
@@ -62,7 +60,6 @@ const authController = {
     }
   },
   // generate access token
-
   // Login
   loginUser: async (req, res) => {
     try {
@@ -106,9 +103,8 @@ const authController = {
           process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
           { expiresIn: "365d" } // thời gian token hết hạn
         );
-
-        res.status(200).json({ accessToken, refreshToken });
       }
+      res.status(200).json({ accessToken, refreshToken });
     } catch (e) {
       res.status(500).json({
         message: e.message,
