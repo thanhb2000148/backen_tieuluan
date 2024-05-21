@@ -1,7 +1,14 @@
 const AddressService = require("../services/address.services");
+const addressValidator = require("../validation/addressValidator");
 const addressController = {
   addAddress: async (req, res, next) => {
     try {
+      const { error } = addressValidator.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          message: error.details[0].message,
+        });
+      }
       const addAddress = await AddressService.addAddress(
         req.user.id_user,
         req.body.provide,
@@ -11,6 +18,7 @@ const addressController = {
       );
       res.status(200).json(addAddress);
     } catch (error) {
+      console.error(error);
       res.status(400).json(error);
     }
   },

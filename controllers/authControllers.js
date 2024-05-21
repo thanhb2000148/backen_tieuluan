@@ -115,6 +115,7 @@ const authController = {
       });
     }
   },
+  acviteAccount: async (req, res) => {},
 
   // Logout
 };
