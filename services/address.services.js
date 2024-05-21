@@ -5,7 +5,7 @@ class AddressService {
     const USER_ID = new ObjectId(user_id);
     try {
       let result;
-      const checkFirstAddress = AddressModel.findOne(
+      const checkFirstAddress = await AddressModel.findOne(
         {
           USER_ID: USER_ID,
           LIST_ADDRESS: {
@@ -15,7 +15,7 @@ class AddressService {
           },
         },
         { USER_ID: 1 }
-      );
+      ).lean();
       result = await AddressModel.updateOne(
         {
           USER_ID: USER_ID,
@@ -32,7 +32,7 @@ class AddressService {
               DESC: desc,
               FROM_DATE: new Date(),
               TO_DATE: null,
-              IS_DEFAULT: checkFirstAddress ? true : false,
+              IS_DEFAULT: checkFirstAddress ? false : true,
             },
           },
           $inc: {
