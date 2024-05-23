@@ -4,9 +4,6 @@ var PRODUCT = new Schema({
   NAME_PRODUCT: {
     type: String,
   },
-  CODE_PRODUCT: {
-    type: Number,
-  },
   SHORT_DESC: {
     type: String,
   },
@@ -24,6 +21,7 @@ var PRODUCT = new Schema({
   },
   CATEGORY_ID: {
     type: Schema.Types.ObjectId,
+    ref: 'category',
   },
   LIST_PRODUCT_METADATA: [
     {
