@@ -1,6 +1,7 @@
 const sendEmailServices = require("../services/emailService");
 const UserService = require("../services/user.service");
 const random = require("../utils/code");
+const { message } = require("../validation/addressValidator");
 const sendMailController = {
   sendMail: async (req, res) => {
     try {
@@ -15,7 +16,10 @@ const sendMailController = {
         "ACTIVE",
         300
       );
-      res.status(200).json("gửi OTP kích hoạt tài khoản thành công");
+      res.status(200).json({
+        message: "gửi OTP kích hoạt tài khoản thành công",
+        success: true,
+      });
     } catch (e) {
       res.status(500).json({
         message: e.message,

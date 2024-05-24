@@ -103,6 +103,7 @@ class UserService {
             },
             {
               $project: {
+                ID_CODE: "$LIST_CODE_ACTIVE._id",
                 CODE: "$LIST_CODE_ACTIVE.CODE",
                 EXP_DATE: "$LIST_CODE_ACTIVE.EXP_DATE",
                 CREATED_AT: "$LIST_CODE_ACTIVE.CREATED_AT",
@@ -133,6 +134,7 @@ class UserService {
       {
         $project: {
           _id: 1,
+          ID_CODE: 1,
           CODE: 1,
           EXP_DATE: 1,
           CREATED_AT: 1,
@@ -141,8 +143,8 @@ class UserService {
     ]);
     return Account[0];
   };
-  static activeAccountById = async (accounts_id) => {
-    const ACCOUNT_ID = new ObjectId(accounts_id);
+  static activeAccountById = async (account_id) => {
+    const ACCOUNT_ID = new ObjectId(account_id);
     await AccountModel.findOneAndUpdate(
       {
         _id: ACCOUNT_ID,
@@ -153,6 +155,27 @@ class UserService {
         },
       }
     );
+  };
+  static updateListCodeById = async (accounts_id, id_list_code_active) => {
+    const ID_LIST_CODE_ACTIVE = new ObjectId(id_list_code_active);
+    const ACCOUNT_ID = new ObjectId(accounts_id);
+    const active = await AccountModel.updateOne(
+      {
+        _id: ACCOUNT_ID,
+        LIST_CODE_ACTIVE: {
+          $elemMatch: {
+            _id: ID_LIST_CODE_ACTIVE,
+          },
+        },
+      },
+      {
+        $set: {
+          "LIST_CODE_ACTIVE.$.IS_USING": true,
+          "LIST_CODE_ACTIVE.$.TIME_USING": new Date(),
+        },
+      }
+    );
+    return active;
   };
   static checkActiveByEmail = async (email) => {
     const checkActive = UserModel.aggregate([
