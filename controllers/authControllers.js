@@ -5,11 +5,12 @@ const jwt = require("jsonwebtoken");
 const randomCode = require("../utils/code");
 const UserService = require("../services/user.service");
 const sendEmailServices = require("../services/emailService");
-
+const TIME_NOW = new Date();
 const {
   registerUserSchema,
   loginUserSchema,
 } = require("../validation/authValidator");
+const { message, error } = require("../validation/addressValidator");
 const authController = {
   registerUser: async (req, res) => {
     try {
@@ -20,10 +21,18 @@ const authController = {
       const existingAccount = await account.findOne({
         USER_NAME: req.body.user_name,
       });
+      const existingEmail = await User.findOne({
+        EMAIL_USER: req.body.email_user,
+      });
       if (existingAccount) {
         return res
           .status(400)
           .json({ message: "tên đăng nhập đã tồn tại trên hệ thống" });
+      }
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ message: "email đã tồn tại trên hệ thống" });
       }
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -50,9 +59,9 @@ const authController = {
       // save the account
       const newAccount = await UserService.addAccount(payloadAccount);
       const OTP = randomCode();
-      await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 120);
-      await sendEmailServices(req.body.email_user, OTP);
-      res.status(201).json({ account: newAccount, user: newUser });
+      await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 1);
+      await sendEmailServices.sendEmail(req.body.email_user, OTP);
+      res.status(200).json({ newAccount });
     } catch (e) {
       res.status(500).json({
         message: e.message,
@@ -84,34 +93,79 @@ const authController = {
           message: "sai mật khẩu",
         });
       }
-      if (loginAccount && validPassword) {
-        const accessToken = jwt.sign(
-          {
-            id: loginAccount.id,
-            admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
-            id_user: loginAccount.USER_ID,
-          },
-          process.env.JWT_ACCESS_KEY, // key để đăng nhập vào
-          { expiresIn: "1h" } // thời gian token hết hạn
-        );
-        const refreshToken = jwt.sign(
-          {
-            id: loginAccount.id,
-            admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
-            id_user: loginAccount.USER_ID,
-          },
-          process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
-          { expiresIn: "365d" } // thời gian token hết hạn
-        );
+      const is_active = await UserService.checkActiveById(loginAccount.id);
+      if (is_active[0].IS_ACTIVE == true) {
+        if (loginAccount && validPassword) {
+          const accessToken = jwt.sign(
+            {
+              id: loginAccount.id,
+              admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
+              id_user: loginAccount.USER_ID,
+            },
+            process.env.JWT_ACCESS_KEY, // key để đăng nhập vào
+            { expiresIn: "1h" } // thời gian token hết hạn
+          );
+          const refreshToken = jwt.sign(
+            {
+              id: loginAccount.id,
+              admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
+              id_user: loginAccount.USER_ID,
+            },
+            process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
+            { expiresIn: "365d" } // thời gian token hết hạn
+          );
+
+          res.status(200).json({ accessToken, refreshToken });
+        }
+      } else {
+        return res.status(400).json({
+          message: "tài khoản chưa được kích hoạt",
+        });
       }
-      res.status(200).json({ accessToken, refreshToken });
     } catch (e) {
       res.status(500).json({
         message: e.message,
       });
     }
   },
-  acviteAccount: async (req, res) => {},
+  activeAccount: async (req, res) => {
+    try {
+      const activeAccount = await UserService.getCodeByEmail(
+        req.body.email,
+        "ACTIVE"
+      );
+      if (activeAccount.CODE == req.body.code) {
+        const checkActiveUser = await UserService.checkActiveByEmail(
+          req.body.email
+        );
+        // const exp_date = new Date(activeAccount.EXP_DATE);
+        // if (TIME_NOW.getTime() > exp_date.getTime()) {
+        //   res.status(403).json({
+        //     message: "hết thời gian kích hoạt tài khoản",
+        //     success: false,
+        //   });
+        // }
+        if (checkActiveUser[0].IS_ACTIVE == false) {
+          await UserService.activeAccountById(checkActiveUser[0].ACCOUNT_ID);
+          return res.status(200).json({
+            message: "tài khoản của bạn đã được kích hoạt",
+            success: true,
+          });
+        } else {
+          return res.status(400).json({
+            message: "tài khoản của bạn đã được kích hoạt từ trước đó",
+            success: false,
+          });
+        }
+      } else {
+        return res
+          .status(400)
+          .json({ message: "bạn nhập sai mã kích hoạt", success: false });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 
   // Logout
 };

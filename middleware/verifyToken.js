@@ -12,7 +12,7 @@ const verify = {
         next();
       });
     } else {
-      return res.status(403).json("bạn chưa được xác thực");
+      return res.status(403).json("bạn chưa xđược xác thực");
     }
   },
 };
