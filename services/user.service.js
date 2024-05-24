@@ -1,6 +1,7 @@
 const UserModel = require("../models/user");
 const AccountModel = require("../models/account");
 const AddressModel = require("../models/address");
+const { json } = require("express");
 const ObjectId = require("mongoose").Types.ObjectId;
 class UserService {
   static addUser = async (payload) => {
@@ -35,5 +36,200 @@ class UserService {
       }
     );
   };
+  static getCodeByUserId = async (user_id, type) => {
+    const USER_ID = new ObjectId(user_id);
+    const Account = await AccountModel.aggregate([
+      {
+        $match: {
+          USER_ID: USER_ID,
+          LIST_CODE_ACTIVE: {
+            $elemMatch: {
+              TYPE: type,
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$LIST_CODE_ACTIVE",
+      },
+      {
+        $sort: {
+          "LIST_CODE_ACTIVE.CREATED_AT": -1,
+        },
+      },
+      {
+        $limit: 1,
+      },
+      {
+        $project: {
+          CODE: "$LIST_CODE_ACTIVE.CODE",
+          EXP_DATE: "$LIST_CODE_ACTIVE.EXP_DATE",
+          _id: 0,
+        },
+      },
+    ]);
+    return Account;
+  };
+  static getCodeByEmail = async (email, type) => {
+    const Account = await UserModel.aggregate([
+      {
+        $match: {
+          EMAIL_USER: email,
+        },
+      },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "_id",
+          foreignField: "USER_ID",
+          as: "userAccount",
+          pipeline: [
+            {
+              $match: {
+                LIST_CODE_ACTIVE: {
+                  $elemMatch: {
+                    TYPE: type,
+                  },
+                },
+              },
+            },
+            {
+              $unwind: "$LIST_CODE_ACTIVE",
+            },
+            {
+              $sort: {
+                "LIST_CODE_ACTIVE.CREATED_AT": -1,
+              },
+            },
+            {
+              $project: {
+                CODE: "$LIST_CODE_ACTIVE.CODE",
+                EXP_DATE: "$LIST_CODE_ACTIVE.EXP_DATE",
+                CREATED_AT: "$LIST_CODE_ACTIVE.CREATED_AT",
+                _id: 0,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $sort: {
+          "userAccount[0].CREATED_AT": -1,
+        },
+      },
+      {
+        $unwind: {
+          path: "$userAccount",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$$ROOT", "$userAccount"],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          CODE: 1,
+          EXP_DATE: 1,
+          CREATED_AT: 1,
+        },
+      },
+    ]);
+    return Account[0];
+  };
+  static activeAccountById = async (accounts_id) => {
+    const ACCOUNT_ID = new ObjectId(accounts_id);
+    await AccountModel.findOneAndUpdate(
+      {
+        _id: ACCOUNT_ID,
+      },
+      {
+        $set: {
+          IS_ACTIVE: true,
+        },
+      }
+    );
+  };
+  static checkActiveByEmail = async (email) => {
+    const checkActive = UserModel.aggregate([
+      {
+        $match: {
+          EMAIL_USER: email,
+        },
+      },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "_id",
+          foreignField: "USER_ID",
+          as: "userAccount",
+          pipeline: [
+            {
+              $project: {
+                IS_ACTIVE: 1,
+                _id: 0,
+                ACCOUNT_ID: "$_id",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: {
+          path: "$userAccount",
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$$ROOT", "$userAccount"],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          IS_ACTIVE: 1,
+          ACCOUNT_ID: 1,
+        },
+      },
+    ]);
+    return checkActive;
+  };
+  static checkActiveById = async (account_id) => {
+    const ACCOUNT_ID = new ObjectId(account_id);
+    const checkActive = AccountModel.aggregate([
+      {
+        $match: {
+          _id: ACCOUNT_ID,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_CODE_ACTIVE",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$$ROOT", "$LIST_CODE_ACTIVE"],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          IS_ACTIVE: 1,
+        },
+      },
+    ]);
+    return checkActive;
+  };
 }
+
 module.exports = UserService;
