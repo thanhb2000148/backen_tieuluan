@@ -59,7 +59,7 @@ const authController = {
       // save the account
       const newAccount = await UserService.addAccount(payloadAccount);
       const OTP = randomCode();
-      await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 1);
+      await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 300);
       await sendEmailServices.sendEmail(req.body.email_user, OTP);
       res.status(200).json({ newAccount });
     } catch (e) {
@@ -138,22 +138,27 @@ const authController = {
         const checkActiveUser = await UserService.checkActiveByEmail(
           req.body.email
         );
-        // const exp_date = new Date(activeAccount.EXP_DATE);
-        // if (TIME_NOW.getTime() > exp_date.getTime()) {
-        //   res.status(403).json({
-        //     message: "hết thời gian kích hoạt tài khoản",
-        //     success: false,
-        //   });
-        // }
-        if (checkActiveUser[0].IS_ACTIVE == false) {
-          await UserService.activeAccountById(checkActiveUser[0].ACCOUNT_ID);
-          return res.status(200).json({
-            message: "tài khoản của bạn đã được kích hoạt",
-            success: true,
-          });
+        const exp_date = new Date(activeAccount.EXP_DATE);
+        if (TIME_NOW.getTime() <= exp_date.getTime()) {
+          if (checkActiveUser[0].IS_ACTIVE == false) {
+            await UserService.updateListCodeById(
+              checkActiveUser[0].ACCOUNT_ID,
+              activeAccount.ID_CODE
+            );
+            await UserService.activeAccountById(checkActiveUser[0].ACCOUNT_ID);
+            return res.status(200).json({
+              message: "tài khoản của bạn đã được kích hoạt",
+              success: true,
+            });
+          } else {
+            return res.status(400).json({
+              message: "tài khoản của bạn đã được kích hoạt từ trước đó",
+              success: false,
+            });
+          }
         } else {
-          return res.status(400).json({
-            message: "tài khoản của bạn đã được kích hoạt từ trước đó",
+          res.status(403).json({
+            message: "hết thời gian kích hoạt tài khoản",
             success: false,
           });
         }
