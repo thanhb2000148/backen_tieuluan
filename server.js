@@ -18,6 +18,7 @@ app.use(bodyParser.json());
 
 // MongoDB connection
 connectDB();
+app.use("/", (req, res) => res.send("hello world"));
 // Routes
 app.use(require("./router"));
 // Start server
