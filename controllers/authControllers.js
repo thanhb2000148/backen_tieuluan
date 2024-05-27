@@ -48,6 +48,7 @@ const authController = {
         FULL_NAME: req.body.full_name,
         AVT_URL: req.body.avt,
       };
+
       const newUser = await UserService.addUser(payload);
 
       // create a new account link it to the user
