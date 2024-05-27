@@ -2,10 +2,10 @@ const PriceService = require("../services/price.service");
 const priceController = {
   addPrice: async (req, res) => {
     try {
-      const payload = {
-        ID_PRODUCT: req.params.id,
-      };
-      const newPrice = await PriceService.addPrice(payload);
+      const newPrice = await PriceService.addPrice(
+        req.params.id,
+        req.body.price_number
+      );
       res.status(200).json({
         message: "Thêm giá thành công",
         success: true,
