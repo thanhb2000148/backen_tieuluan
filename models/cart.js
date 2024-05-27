@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var CART = new Schema({
   USER_ID: {
-    type: String,
+    type: Schema.Types.ObjectId,
   },
   LIST_PRODUCT: [
     {
