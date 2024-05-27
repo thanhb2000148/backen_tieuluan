@@ -59,31 +59,30 @@ class AddressService {
     try {
       const ADDRESS_ID = new ObjectId(address_id);
       const USER_ID = new ObjectId(user_id);
-      const update = await AddressModel.findByIdAndUpdate(
+      const update = await AddressModel.updateOne(
         {
           USER_ID: USER_ID,
         },
         {
           $set: {
-            "LIST_ADDRES_USER.$[element].PROVINCE": province,
-            "LIST_ADDRES_USER.$[element].DISTRICT": district,
-            "LIST_ADDRES_USER.$[element].COMMUNE": commune,
-            "LIST_ADDRES_USER.$[element].DESC": desc,
+            "LIST_ADDRESS.$[element].PROVINCE": province,
+            "LIST_ADDRESS.$[element].DISTRICT": district,
+            "LIST_ADDRESS.$[element].COMMUNE": commune,
+            "LIST_ADDRESS.$[element].DESC": desc,
           },
         },
         {
-          new: true,
           arrayFilters: [
             {
-              "element._id": ADDRESS_ID,
               "element.TO_DATE": null,
+              "element._id": ADDRESS_ID,
             },
           ],
         }
       );
       return update;
     } catch (error) {
-      res.status(400).json(error);
+      console.log(error);
     }
   };
   static getAddress = async (user_id, page, limit) => {
