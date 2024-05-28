@@ -4,7 +4,9 @@ const priceController = {
     try {
       const newPrice = await PriceService.addPrice(
         req.params.id,
-        req.body.price_number
+        req.body.price_number,
+        req.body.key,
+        req.body.value
       );
       res.status(200).json({
         message: "Thêm giá thành công",
@@ -15,21 +17,6 @@ const priceController = {
       res.status(500).json({
         message: e.message,
       });
-    }
-  },
-  deletePrice: async (req, res) => {
-    try {
-      const deletedPrice = await PriceService.deletePrice(
-        req.params.id_product,
-        req.params.id_list_price
-      );
-      res.status(200).json({
-        message: "Xóa giá thành công",
-        success: true,
-        data: deletedPrice,
-      });
-    } catch (error) {
-      res.status(500).json(error);
     }
   },
   getPrice: async (req, res) => {
