@@ -3,7 +3,7 @@ const cloudinary = require('../config/cloudinaryconfig');
 exports.uploadImages = async (req, res) => {
   try {
     const file = req.file.path;
-    const response = await cloudinary.uploader.upload(file, {folder: 'test_folder'});
+    const response = await cloudinary.uploader.upload(file, { folder: 'test_folder' });
     return res.status(200).json({
       message: 'Uploaded images thành công!',
       data: response,
