@@ -1,7 +1,7 @@
-const PriceModel = require("../models/pirce");
+const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
 class PriceService {
-  static addPrice = async (id_product, price_number) => {
+  static addPrice = async (id_product, price_number, key, value) => {
     const ID_PRODUCT = new ObjectId(id_product);
     await PriceModel.create({
       ID_PRODUCT: ID_PRODUCT,
@@ -10,34 +10,13 @@ class PriceService {
           PRICE_NUMBER: price_number,
           FROM_DATE: new Date(),
           TO_DATE: null,
+          LIST_MATCH_KEY: {
+            KEY: key,
+            VALUE: value,
+          },
         },
       ],
     });
-  };
-  static deletePrice = async (id_product, id_list_price) => {
-    const ID_PRODUCT = new ObjectId(id_product);
-    const ID_LIST_PRICE = new ObjectId(id_list_price);
-    await PriceModel.updateOne(
-      {
-        ID_PRODUCT: ID_PRODUCT,
-        LIST_PRICE: {
-          $elemMatch: {
-            TO_DATE: null,
-            _id: ID_LIST_PRICE,
-          },
-        },
-      },
-      {
-        $set: { "LIST_PRICE.$[element].TO_DATE": new Date() },
-      },
-      {
-        arrayFilters: [
-          {
-            "element._id": ID_LIST_PRICE,
-          },
-        ],
-      }
-    );
   };
   static getPrice = async (id_product) => {
     const ID_PRODUCT = new ObjectId(id_product);
@@ -59,11 +38,6 @@ class PriceService {
         $unwind: {
           path: "$PRODUCT",
           preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $match: {
-          "LIST_PRICE.TO_DATE": null,
         },
       },
       {
@@ -94,7 +68,10 @@ class PriceService {
         },
       },
       {
-        $set: { "LIST_PRICE.$[element].PRICE_NUMBER": price_number },
+        $set: {
+          "LIST_PRICE.$[element].PRICE_NUMBER": price_number,
+          "LIST_PRICE.$[element].TO_DATE": new Date(),
+        },
       },
       {
         arrayFilters: [

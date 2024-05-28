@@ -1,7 +1,6 @@
 const sendEmailServices = require("../services/emailService");
 const UserService = require("../services/user.service");
 const random = require("../utils/code");
-const { message } = require("../validation/addressValidator");
 const sendMailController = {
   sendMail: async (req, res) => {
     try {

@@ -15,10 +15,11 @@ var CART = new Schema({
       TO_DATE: {
         type: Date,
       },
-      QLT: {
-        type: String,
+      QUANTITY: {
+        type: Number,
+        default: 1,
       },
-      UNITPRICES: {
+      PRICE: {
         type: Number,
       },
     },
