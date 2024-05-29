@@ -89,6 +89,26 @@ class CartService {
     ]);
     return getCart;
   };
+  static updateCart = async (id_user, id_product, body) => {
+    const ID_USER = new ObjectId(id_user);
+    const ID_PRODUCT = new ObjectId(id_product);
+    const updateCart = await CartModel.updateOne(
+      {
+        USER_ID: ID_USER,
+        LIST_PRODUCT: {
+          $elemMatch: {
+            ID_PRODUCT: ID_PRODUCT,
+          },
+        },
+      },
+      {
+        $set: {
+          "LIST_PRODUCT.$.QUANTITY": body,
+        },
+      }
+    );
+    return updateCart;
+  };
   static getPriceProduct = async (id_product) => {
     const ID_PRODUCT = new ObjectId(id_product);
     const getPrice = await PriceModel.aggregate([
