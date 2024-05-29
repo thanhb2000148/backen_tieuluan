@@ -1,14 +1,11 @@
 const router = require("express").Router();
 const productController = require('../controllers/productController');
-const type_product = require("../models/type_product");
+const verify = require("../middleware/verifyToken");
 
-
-router.get('/', productController.getAllProducts);
-router.get('/:id', productController.getProductByid);
-router.post('/', productController.createProduct);
+router.get('/',verify.verityToken, productController.getAllProducts);
+router.get('/:id', productController.getProductById);
+router.post('/',verify.verityToken, productController.createProduct);
 router.put('/:id', productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
-router.get('/type_product', productController.getAllTYPE_PRODUCT);
-
 
 module.exports = router;
