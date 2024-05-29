@@ -35,7 +35,7 @@ class CartService {
         {
           USER_ID: ID_USER,
           LIST_PRODUCT_MAX_NUMBER: {
-            $lt: 3,
+            $lt: 10,
           },
         },
         {
@@ -59,7 +59,9 @@ class CartService {
       return addCart;
     }
   };
-  static getCart = async (id_user) => {
+  static getCart = async (id_user, page, limit) => {
+    page = Number(page);
+    limit = Number(limit);
     const ID_USER = new ObjectId(id_user);
     const getCart = await CartModel.aggregate([
       {
@@ -67,12 +69,56 @@ class CartService {
           USER_ID: ID_USER,
         },
       },
+      { $unwind: "$LIST_PRODUCT" },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $project: {
+          LIST_PRODUCT_MAX_NUMBER: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "LIST_PRODUCT.ID_PRODUCT",
+          foreignField: "_id",
+          as: "PRODUCT",
+        },
+      },
+      {
+        $unwind: {
+          path: "$PRODUCT",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          USER_ID: 1,
+          ITEM: {
+            $mergeObjects: [
+              "$LIST_PRODUCT",
+              {
+                PRODUCT_DETAILS: "$PRODUCT",
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          USER_ID: { $first: "$USER_ID" },
+          ITEMS: { $push: "$ITEM" },
+        },
+      },
+
       // {
-      //   $lookup: {
-      //     from: "products",
-      //     localField: "LIST_PRODUCT.ID_PRODUCT",
-      //     foreignField: "_id",
-      //     as: "PRODUCT",
+      //   $group: {
+      //     _id: "$_id",
+      //     USER_ID: { $first: "$USER_ID" },
+      //     LIST_PRODUCTS: { $push: "$LIST_PRODUCT" },
+      //     PRODUCTS: { $push: { $arrayElemAt: ["$PRODUCT", 0] } },
       //   },
       // },
       // {

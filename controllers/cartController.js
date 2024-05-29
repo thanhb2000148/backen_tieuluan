@@ -17,7 +17,11 @@ const cartController = {
   },
   getCart: async (req, res) => {
     try {
-      const getCart = await CartService.getCart(req.user.id_user);
+      const getCart = await CartService.getCart(
+        req.user.id_user,
+        req.query.page,
+        req.query.limit
+      );
       res.status(200).json({
         message: "Lấy giỏ hàng thành công",
         success: true,

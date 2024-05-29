@@ -8,6 +8,7 @@ const uploadRouter = require("../router/uploadRouter");
 const priceRouter = require("../router/priceRouter");
 const cartRouter = require("../router/cartRouter");
 const paymentRouter = require("../router/paymentRouter");
+const suppliersRouter = require("../router/suppliersRouter");
 
 router.use("/v1/auth", authRouter);
 router.use("/v1/user", userRouter);
