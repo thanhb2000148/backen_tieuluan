@@ -1,10 +1,13 @@
 const CartModel = require("../models/cart");
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
+const PriceService = require("../services/price.service");
 class CartService {
-  static addCart = async (id_user, id_product) => {
+  static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
+    const getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    console.log(getPrice[0].PRICE_NUMBER);
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -45,7 +48,7 @@ class CartService {
               FROM_DATE: new Date(),
               TO_DATE: null,
               QUANTITY: 1,
-              PRICE: 0,
+              PRICE: getPrice[0].PRICE_NUMBER,
             },
           },
           $inc: {
@@ -112,26 +115,6 @@ class CartService {
           ITEMS: { $push: "$ITEM" },
         },
       },
-
-      // {
-      //   $group: {
-      //     _id: "$_id",
-      //     USER_ID: { $first: "$USER_ID" },
-      //     LIST_PRODUCTS: { $push: "$LIST_PRODUCT" },
-      //     PRODUCTS: { $push: { $arrayElemAt: ["$PRODUCT", 0] } },
-      //   },
-      // },
-      // {
-      //   $unwind: {
-      //     path: "$PRODUCT",
-      //     preserveNullAndEmptyArrays: true,
-      //   },
-      // },
-      // {
-      //   $replaceRoot: {
-      //     newRoot: "$PRODUCT",
-      //   },
-      // },
     ]);
     return getCart;
   };

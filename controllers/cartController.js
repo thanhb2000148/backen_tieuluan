@@ -4,7 +4,9 @@ const cartController = {
     try {
       const newCart = await CartService.addCart(
         req.user.id_user,
-        req.params.id
+        req.params.id,
+        req.body.key,
+        req.body.value
       );
       res.status(200).json({
         message: "Thêm sản phẩm thành công",
