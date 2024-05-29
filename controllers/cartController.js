@@ -27,5 +27,21 @@ const cartController = {
       res.status(500).json(error);
     }
   },
+  updateCart: async (req, res) => {
+    try {
+      const updateCart = await CartService.updateCart(
+        req.user.id_user,
+        req.params.id,
+        req.body.price
+      );
+      res.status(200).json({
+        message: "Cập nhật giỏ hàng thành công",
+        success: true,
+        data: updateCart,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 module.exports = cartController;
