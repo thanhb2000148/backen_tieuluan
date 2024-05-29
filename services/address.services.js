@@ -48,6 +48,7 @@ class AddressService {
       res.status(400).json(error);
     }
   };
+  
   static updateAddress = async ({
     address_id,
     user_id,
