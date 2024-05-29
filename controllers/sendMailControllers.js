@@ -1,17 +1,25 @@
-const { sendEmailServices } = require("../services/emailService");
-
+const sendEmailServices = require("../services/emailService");
+const UserService = require("../services/user.service");
+const random = require("../utils/code");
+const { message } = require("../validation/addressValidator");
 const sendMailController = {
   sendMail: async (req, res) => {
     try {
-      const { email } = req.body;
-      if (email) {
-        const response = await sendEmailServices(email);
-        return res.status(200).json(response);
-      } else {
-        return res.status(400).json({
-          message: "email is required",
-        });
-      }
+      const code = random();
+      await sendEmailServices.sendEmail(req.body.email, code);
+      const activeAccount = await UserService.checkActiveByEmail(
+        req.body.email
+      );
+      await UserService.addCodeActive(
+        activeAccount[0]._id,
+        code,
+        "ACTIVE",
+        300
+      );
+      res.status(200).json({
+        message: "gửi OTP kích hoạt tài khoản thành công",
+        success: true,
+      });
     } catch (e) {
       res.status(500).json({
         message: e.message,

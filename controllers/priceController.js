@@ -1,0 +1,65 @@
+const PriceService = require("../services/price.service");
+const priceController = {
+  addPrice: async (req, res) => {
+    try {
+      const newPrice = await PriceService.addPrice(
+        req.params.id,
+        req.body.price_number
+      );
+      res.status(200).json({
+        message: "Thêm giá thành công",
+        success: true,
+        data: newPrice,
+      });
+    } catch (e) {
+      res.status(500).json({
+        message: e.message,
+      });
+    }
+  },
+  deletePrice: async (req, res) => {
+    try {
+      const deletedPrice = await PriceService.deletePrice(
+        req.params.id_product,
+        req.params.id_list_price
+      );
+      res.status(200).json({
+        message: "Xóa giá thành công",
+        success: true,
+        data: deletedPrice,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getPrice: async (req, res) => {
+    try {
+      const getPrice = await PriceService.getPrice(req.params.id);
+      res.status(200).json({
+        message: "Lấy giá thành công",
+        success: true,
+        data: getPrice,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+      console.log(error);
+    }
+  },
+  updatePrice: async (req, res) => {
+    try {
+      const updatePrice = await PriceService.updatePrice(
+        req.params.id_product,
+        req.params.id_list_price,
+        req.body.price_number
+      );
+      res.status(200).json({
+        message: "Cập nhật giá thành công",
+        success: true,
+        data: updatePrice,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+};
+module.exports = priceController;
