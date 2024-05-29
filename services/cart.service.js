@@ -1,10 +1,13 @@
 const CartModel = require("../models/cart");
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
+const PriceService = require("../services/price.service");
 class CartService {
-  static addCart = async (id_user, id_product) => {
+  static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
+    const getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    console.log(getPrice[0].PRICE_NUMBER);
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -35,7 +38,7 @@ class CartService {
         {
           USER_ID: ID_USER,
           LIST_PRODUCT_MAX_NUMBER: {
-            $lt: 3,
+            $lt: 10,
           },
         },
         {
@@ -45,7 +48,7 @@ class CartService {
               FROM_DATE: new Date(),
               TO_DATE: null,
               QUANTITY: 1,
-              PRICE: 0,
+              PRICE: getPrice[0].PRICE_NUMBER,
             },
           },
           $inc: {
@@ -59,7 +62,9 @@ class CartService {
       return addCart;
     }
   };
-  static getCart = async (id_user) => {
+  static getCart = async (id_user, page, limit) => {
+    page = Number(page);
+    limit = Number(limit);
     const ID_USER = new ObjectId(id_user);
     const getCart = await CartModel.aggregate([
       {
@@ -67,25 +72,49 @@ class CartService {
           USER_ID: ID_USER,
         },
       },
-      // {
-      //   $lookup: {
-      //     from: "products",
-      //     localField: "LIST_PRODUCT.ID_PRODUCT",
-      //     foreignField: "_id",
-      //     as: "PRODUCT",
-      //   },
-      // },
-      // {
-      //   $unwind: {
-      //     path: "$PRODUCT",
-      //     preserveNullAndEmptyArrays: true,
-      //   },
-      // },
-      // {
-      //   $replaceRoot: {
-      //     newRoot: "$PRODUCT",
-      //   },
-      // },
+      { $unwind: "$LIST_PRODUCT" },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $project: {
+          LIST_PRODUCT_MAX_NUMBER: 0,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "LIST_PRODUCT.ID_PRODUCT",
+          foreignField: "_id",
+          as: "PRODUCT",
+        },
+      },
+      {
+        $unwind: {
+          path: "$PRODUCT",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          USER_ID: 1,
+          ITEM: {
+            $mergeObjects: [
+              "$LIST_PRODUCT",
+              {
+                PRODUCT_DETAILS: "$PRODUCT",
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          USER_ID: { $first: "$USER_ID" },
+          ITEMS: { $push: "$ITEM" },
+        },
+      },
     ]);
     return getCart;
   };
