@@ -7,7 +7,6 @@ class CartService {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
     const getPrice = await PriceService.getPriceProduct(id_product, key, value);
-    console.log(getPrice[0].PRICE_NUMBER);
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -15,21 +14,42 @@ class CartService {
           ID_PRODUCT: ID_PRODUCT,
         },
       },
+      "LIST_PRODUCT.LIST_MATCH_KEY": {
+        $elemMatch: {
+          KEY: key,
+          VALUE: value,
+        },
+      },
     });
     if (cart) {
       const updateCart = await CartModel.updateOne(
         {
           USER_ID: ID_USER,
-          LIST_PRODUCT: {
+          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+          "LIST_PRODUCT.LIST_MATCH_KEY": {
             $elemMatch: {
-              ID_PRODUCT: ID_PRODUCT,
+              KEY: key,
+              VALUE: value,
             },
           },
         },
         {
           $inc: {
-            "LIST_PRODUCT.$.QUANTITY": 1,
+            "LIST_PRODUCT.$[element].QUANTITY": 1,
           },
+        },
+        {
+          arrayFilters: [
+            {
+              "element.ID_PRODUCT": ID_PRODUCT,
+              "element.LIST_MATCH_KEY": {
+                $elemMatch: {
+                  KEY: key,
+                  VALUE: value,
+                },
+              },
+            },
+          ],
         }
       );
       return updateCart;
@@ -49,6 +69,7 @@ class CartService {
               TO_DATE: null,
               QUANTITY: 1,
               PRICE: getPrice[0].PRICE_NUMBER,
+              LIST_MATCH_KEY: { KEY: key, VALUE: value },
             },
           },
           $inc: {
@@ -117,6 +138,35 @@ class CartService {
       },
     ]);
     return getCart;
+  };
+  static getPriceCart = async (id_user) => {
+    const ID_USER = new ObjectId(id_user);
+    const getCart = await CartModel.aggregate([
+      {
+        $match: {
+          USER_ID: ID_USER,
+        },
+      },
+      {
+        $project: {
+          LIST_PRODUCT_MAX_NUMBER: 0,
+          _id: 0,
+          "LIST_PRODUCT.ID_PRODUCT": 0,
+          "LIST_PRODUCT.FROM_DATE": 0,
+          "LIST_PRODUCT.TO_DATE": 0,
+          "LIST_PRODUCT.LIST_MATCH_KEY": 0,
+        },
+      },
+      {
+        $unwind: "$LIST_PRODUCT",
+      },
+    ]);
+    let totalCart = 0;
+    getCart.forEach((item) => {
+      totalCart =
+        totalCart + item.LIST_PRODUCT.QUANTITY * item.LIST_PRODUCT.PRICE;
+    });
+    return totalCart;
   };
   static updateCart = async (id_user, id_product, body) => {
     const ID_USER = new ObjectId(id_user);
