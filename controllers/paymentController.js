@@ -1,8 +1,10 @@
 const PaymentMethod = require("../services/payment.service");
+const CartService = require("../services/cart.service");
 const paymentController = {
   payment: async (req, res) => {
+    const price = await CartService.getPriceCart(req.user.id_user);
     try {
-      const payment = await PaymentMethod.payment();
+      const payment = await PaymentMethod.payment(price);
       res.status(200).json({
         message: "Thanh toán thành công",
         success: true,

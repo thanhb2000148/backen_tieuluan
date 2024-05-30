@@ -1,7 +1,7 @@
 //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
 //parameters
 class PaymentMethod {
-  static payment = async () => {
+  static payment = async (price) => {
     var accessKey = "F8BBA842ECF85";
     var secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     var orderInfo = "pay with MoMo";
@@ -11,7 +11,7 @@ class PaymentMethod {
     var ipnUrl =
       "https://746d-2402-800-6343-c89b-acab-ca39-170a-88c.ngrok-free.app/v1/payment/callback";
     var requestType = "payWithMethod";
-    var amount = "50000";
+    var amount = price;
     var orderId = partnerCode + new Date().getTime();
     var requestId = orderId;
     var extraData = "";
