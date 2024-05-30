@@ -136,6 +136,12 @@ class CartService {
           ITEMS: { $push: "$ITEM" },
         },
       },
+      {
+        $project: {
+          "ITEMS.LIST_MATCH_KEY": 0,
+          "ITEMS.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
+        },
+      },
     ]);
     return getCart;
   };
