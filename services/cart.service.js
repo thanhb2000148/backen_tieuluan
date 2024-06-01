@@ -1,7 +1,9 @@
+const { json } = require("express");
 const CartModel = require("../models/cart");
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
 const PriceService = require("../services/price.service");
+const { message } = require("../validation/addressValidator");
 class CartService {
   static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
@@ -93,9 +95,80 @@ class CartService {
           USER_ID: ID_USER,
         },
       },
-      { $unwind: "$LIST_PRODUCT" },
+      {
+        $project: {
+          LIST_PRODUCT: {
+            $filter: {
+              input: "$LIST_PRODUCT",
+              as: "product",
+              cond: {
+                $eq: ["$$product.TO_DATE", null],
+              },
+            },
+          },
+        },
+      },
       { $skip: (page - 1) * limit },
       { $limit: limit },
+      {
+        $project: {
+          LIST_PRODUCT_MAX_NUMBER: 0,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_PRODUCT",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "LIST_PRODUCT.ID_PRODUCT",
+          foreignField: "_id",
+          as: "PRODUCT",
+        },
+      },
+      {
+        $unwind: {
+          path: "$PRODUCT",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          USER_ID: 1,
+          ITEM: {
+            $mergeObjects: [
+              "$LIST_PRODUCT",
+              {
+                PRODUCT_DETAILS: "$PRODUCT",
+              },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          "ITEM._id": 0,
+          "ITEM.PRODUCT_DETAILS._id": 0,
+          "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
+        },
+      },
+    ]);
+    return getCart;
+  };
+  static getAllCart = async (id_user) => {
+    const ID_USER = new ObjectId(id_user);
+    const getCart = await CartModel.aggregate([
+      {
+        $match: {
+          USER_ID: ID_USER,
+          "LIST_PRODUCT.TO_DATE": null,
+        },
+      },
+      { $unwind: "$LIST_PRODUCT" },
       {
         $project: {
           LIST_PRODUCT_MAX_NUMBER: 0,
@@ -204,6 +277,23 @@ class CartService {
       },
     ]);
     return getPrice;
+  };
+  static deleteAllCart = async (id_user) => {
+    const ID_USER = new ObjectId(id_user);
+    const deleteAllCart = await CartModel.updateMany(
+      {
+        USER_ID: ID_USER,
+      },
+      {
+        $set: {
+          "LIST_PRODUCT.$[elem].TO_DATE": new Date(),
+        },
+      },
+      {
+        arrayFilters: [{ elem: { $exists: true } }],
+      }
+    );
+    return deleteAllCart;
   };
 }
 module.exports = CartService;

@@ -253,6 +253,41 @@ class UserService {
     ]);
     return checkActive;
   };
+  static getLoginUser = async (id_account) => {
+    const ID_ACCOUNT = new ObjectId(id_account);
+    const user = await AccountModel.findById(ID_ACCOUNT).populate("USER_ID");
+    return user;
+  };
+  static getNumberPhoneUser = async (id_account) => {
+    const ID_ACCOUNT = new ObjectId(id_account);
+    const user = await AccountModel.aggregate([
+      {
+        $match: {
+          _id: ID_ACCOUNT,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "USER_ID",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $project: {
+          OBJECT_ROLE: 0,
+          LIST_CODE_ACTIVE: 0,
+        },
+      },
+    ]);
+    return user[0].user.PHONE_NUMBER;
+  };
 }
 
 module.exports = UserService;
