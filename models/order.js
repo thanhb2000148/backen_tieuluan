@@ -69,14 +69,6 @@ var ORDER = new Schema({
   CANCEL_REASON: {
     type: String,
   },
-  PAYMENT_METADATA: {
-    NAME_PAYMENT: {
-      type: String,
-    },
-    CODE_PAYMENT: {
-      type: String,
-    },
-  },
   ACCOUNT__ID: {
     type: Schema.Types.ObjectId,
     required: true,

@@ -24,11 +24,19 @@ const cartController = {
         req.query.page,
         req.query.limit
       );
-      res.status(200).json({
-        message: "Lấy giỏ hàng thành công",
-        success: true,
-        data: getCart,
-      });
+      if (getCart.length == 0) {
+        res.status(202).json({
+          message: "Không có sản phẩm nào trong giỏ hàng",
+          success: false,
+          data: getCart,
+        });
+      } else {
+        res.status(200).json({
+          message: "Lấy giỏ hàng thành công",
+          success: true,
+          data: getCart,
+        });
+      }
     } catch (error) {
       res.status(500).json(error);
     }
