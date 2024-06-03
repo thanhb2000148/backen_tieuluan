@@ -228,9 +228,21 @@ class CartService {
         },
       },
     ]);
-    // if(getCart.ITEM = )
-
-    return getCart;
+    const processedCart = getCart.map((cart) => {
+      if (Object.keys(cart.ITEM).length === 0) {
+        return {
+          message: "Giỏ hàng rỗng",
+          success: false,
+          data: [],
+        };
+      } else {
+        return {
+          success: true,
+          data: cart,
+        };
+      }
+    });
+    return processedCart;
   };
   static getPriceCart = async (id_user) => {
     const ID_USER = new ObjectId(id_user);

@@ -19,24 +19,17 @@ const cartController = {
   },
   getCart: async (req, res) => {
     try {
-      const getCart = await CartService.getCart(
+      const getCart = await CartService.getAllCart(
         req.user.id_user,
         req.query.page,
         req.query.limit
       );
-      if (getCart.length == 0) {
-        res.status(202).json({
-          message: "Không có sản phẩm nào trong giỏ hàng",
-          success: false,
-          data: getCart,
-        });
-      } else {
-        res.status(200).json({
-          message: "Lấy giỏ hàng thành công",
-          success: true,
-          data: getCart,
-        });
-      }
+      res.status(200).json({
+        message: "Lấy giỏ hàng thành công",
+        success: true,
+        data: getCart,
+      });
+      return getCart;
     } catch (error) {
       res.status(500).json(error);
     }
