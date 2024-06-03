@@ -83,5 +83,40 @@ class PriceService {
     );
     return update;
   };
+  static getPriceProduct = async (id_product, key, value) => {
+    const ID_PRODUCT = new ObjectId(id_product);
+    const getPrice = await PriceModel.aggregate([
+      {
+        $match: {
+          ID_PRODUCT: ID_PRODUCT,
+          "LIST_PRICE.LIST_MATCH_KEY.KEY": key,
+          "LIST_PRICE.LIST_MATCH_KEY.VALUE": value,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_PRICE",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_MATCH_KEY",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          ID_PRODUCT: 1,
+          PRICE_NUMBER: "$LIST_PRICE.PRICE_NUMBER",
+          FROM_DATE: "$LIST_PRICE.FROM_DATE",
+          TO_DATE: "$LIST_PRICE.TO_DATE",
+          KEY: "$LIST_MATCH_KEY.KEY",
+        },
+      },
+    ]);
+    return getPrice;
+  };
 }
 module.exports = PriceService;

@@ -11,6 +11,8 @@ const priceRouter = require("../router/priceRouter");
 const cartRouter = require("../router/cartRouter");
 const paymentRouter = require("../router/paymentRouter");
 const typeProductRouter = require("../router/typeProductRouter");
+// const suppliersRouter = require("../router/suppliersRouter");
+const orderRouter = require("../router/orderRouter");
 
 router.use("/v1/auth", authRouter);
 router.use("/v1/user", userRouter);
@@ -25,4 +27,5 @@ router.use("/v1/typeproduct", typeProductRouter);
 router.use("/v1/price", priceRouter);
 router.use("/v1/cart", cartRouter);
 router.use("/v1/payment", paymentRouter);
+router.use("/v1/order", orderRouter);
 module.exports = router;

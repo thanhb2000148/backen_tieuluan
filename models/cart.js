@@ -22,8 +22,19 @@ var CART = new Schema({
       PRICE: {
         type: Number,
       },
+      LIST_MATCH_KEY: [
+        {
+          KEY: {
+            type: String,
+          },
+          VALUE: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
+
   LIST_PRODUCT_MAX_NUMBER: {
     type: Number,
   },

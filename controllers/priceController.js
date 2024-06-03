@@ -1,3 +1,4 @@
+const { getPriceProduct } = require("../services/cart.service");
 const PriceService = require("../services/price.service");
 const priceController = {
   addPrice: async (req, res) => {
@@ -43,6 +44,22 @@ const priceController = {
         message: "Cập nhật giá thành công",
         success: true,
         data: updatePrice,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getPriceProduct: async (req, res) => {
+    try {
+      const getPriceProduct = await PriceService.getPriceProduct(
+        req.params.id_product,
+        req.body.key,
+        req.body.value
+      );
+      res.status(200).json({
+        message: "Lấy giá thành công",
+        success: true,
+        data: getPriceProduct,
       });
     } catch (error) {
       res.status(500).json(error);

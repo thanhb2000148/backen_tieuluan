@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 const UserModel = require("../models/user");
 const ObjectId = require("mongoose").Types.ObjectId;
-const { findOne } = require("../models/account");
 class sendEmailServices {
   static sendEmail = async (email, code) => {
     const transporter = nodemailer.createTransport({
