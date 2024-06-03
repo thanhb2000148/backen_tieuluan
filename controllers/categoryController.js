@@ -62,7 +62,10 @@ class categoryController  {
         }
       ]);
 
-      res.status(201).json(savedCategory[0]);
+            res.status(201).json({
+                message: "Tạo sản phẩm thành công",
+                success: true, data: savedCategory[0]
+            });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
