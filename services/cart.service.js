@@ -3,7 +3,7 @@ const CartModel = require("../models/cart");
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
 const PriceService = require("../services/price.service");
-const { message } = require("../validation/addressValidator");
+const ProductModel = require("../models/product");
 class CartService {
   static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
@@ -14,6 +14,7 @@ class CartService {
       LIST_PRODUCT: {
         $elemMatch: {
           ID_PRODUCT: ID_PRODUCT,
+          TO_DATE: null,
         },
       },
       "LIST_PRODUCT.LIST_MATCH_KEY": {
@@ -165,13 +166,30 @@ class CartService {
       {
         $match: {
           USER_ID: ID_USER,
-          "LIST_PRODUCT.TO_DATE": null,
         },
       },
-      { $unwind: "$LIST_PRODUCT" },
+      {
+        $project: {
+          LIST_PRODUCT: {
+            $filter: {
+              input: "$LIST_PRODUCT",
+              as: "product",
+              cond: {
+                $eq: ["$$product.TO_DATE", null],
+              },
+            },
+          },
+        },
+      },
       {
         $project: {
           LIST_PRODUCT_MAX_NUMBER: 0,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_PRODUCT",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -203,19 +221,15 @@ class CartService {
         },
       },
       {
-        $group: {
-          _id: "$_id",
-          USER_ID: { $first: "$USER_ID" },
-          ITEMS: { $push: "$ITEM" },
-        },
-      },
-      {
         $project: {
-          "ITEMS.LIST_MATCH_KEY": 0,
-          "ITEMS.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
+          "ITEM._id": 0,
+          "ITEM.PRODUCT_DETAILS._id": 0,
+          "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
         },
       },
     ]);
+    // if(getCart.ITEM = )
+
     return getCart;
   };
   static getPriceCart = async (id_user) => {
@@ -294,6 +308,24 @@ class CartService {
       }
     );
     return deleteAllCart;
+  };
+  static updateNumberProduct = async (id_product) => {
+    const ID_PRODUCT = new ObjectId(id_product);
+    const updateCart = await ProductModel.updateMany(
+      {
+        LIST_PRODUCT: {
+          $elemMatch: {
+            ID_PRODUCT: ID_PRODUCT,
+          },
+        },
+      },
+      {
+        $set: {
+          "LIST_PRODUCT.$.QUANTITY": 0,
+        },
+      }
+    );
+    return updateCart;
   };
 }
 module.exports = CartService;

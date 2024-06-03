@@ -26,6 +26,11 @@ var PRICE = new Schema({
         },
       ],
     },
+    {
+      LIST_PRICE_MAX_NUMBER: {
+        type: Number,
+      },
+    },
   ],
 });
 module.exports = mongoose.model("price", PRICE);

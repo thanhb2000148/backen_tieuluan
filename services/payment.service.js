@@ -11,7 +11,7 @@ class PaymentMethod {
     var redirectUrl =
       "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
     var ipnUrl =
-      "https://1016-14-230-62-193.ngrok-free.app/v1/payment/callback";
+      "https://01a2-14-230-62-193.ngrok-free.app/v1/payment/callback";
     var requestType = "payWithMethod";
     var amount = price;
     var orderId = partnerCode + new Date().getTime();
