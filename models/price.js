@@ -20,9 +20,11 @@ var PRICE = new Schema({
           KEY: {
             type: String,
           },
-          VALUE: {
-            type: String,
-          },
+          VALUE: [
+            {
+              type: String,
+            },
+          ],
         },
       ],
     },

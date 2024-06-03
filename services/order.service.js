@@ -13,14 +13,21 @@ class OrderService {
       const ID_ACCOUNT = new ObjectId(id_account);
       const PhoneUser = await UserService.getNumberPhoneUser(ID_ACCOUNT);
       const ListProductData = await CartService.getAllCart(ID_USER);
-      if (ListProductData.length > 0) {
-        const ListProduct = ListProductData.map((cart) => ({
-          ID_PRODUCT: cart.ITEM.ID_PRODUCT,
-          FROM_DATE: cart.ITEM.FROM_DATE,
-          TO_DATE: cart.ITEM.TO_DATE,
-          UNITPRICES: cart.ITEM.PRICE,
-          QLT: cart.ITEM.QUANTITY,
-        }));
+      if (!ListProductData.some((item) => item.success)) {
+        return {
+          success: false,
+          message: "Không có sản phẩm nào trong giỏ hàng",
+        };
+      } else {
+        const ListProduct = ListProductData.filter((item) => item.success).map(
+          (cart) => ({
+            ID_PRODUCT: cart.data.ITEM.ID_PRODUCT,
+            FROM_DATE: cart.data.ITEM.FROM_DATE,
+            TO_DATE: cart.data.ITEM.TO_DATE,
+            UNITPRICES: cart.data.ITEM.PRICE,
+            QLT: cart.data.ITEM.QUANTITY,
+          })
+        );
         const newOrder = await OrderModel.create({
           ORDER_CODE: null,
           PHONE_USER: PhoneUser,
@@ -33,12 +40,6 @@ class OrderService {
           // ADDRESS_USER: await AddressService.getAddress(ID_ACCOUNT),
         });
         return newOrder;
-      } else {
-        return {
-          message: "Không có sản phẩm trong giỏ hàng",
-          success: false,
-          data: null,
-        };
       }
     } catch (error) {
       console.error("Error in addOrder:", error.message);
