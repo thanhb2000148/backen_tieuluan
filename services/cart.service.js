@@ -8,7 +8,12 @@ class CartService {
   static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
-    const getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    let getPrice;
+    if (!key && !value) {
+      getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
+    } else {
+      getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    }
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -72,7 +77,7 @@ class CartService {
               TO_DATE: null,
               QUANTITY: 1,
               PRICE: getPrice[0].PRICE_NUMBER,
-              LIST_MATCH_KEY: { KEY: key, VALUE: value },
+              LIST_MATCH_KEY: key && value ? { KEY: key, VALUE: value } : [],
             },
           },
           $inc: {
