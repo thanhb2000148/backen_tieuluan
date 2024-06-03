@@ -9,7 +9,8 @@ const paymentController = {
     try {
       const payment = await PaymentMethod.payment(price);
       await OrderService.updateOrderCode(payment.orderId);
-      deleteAllCart = await CartService.deleteAllCart(req.user.id_user);
+      await CartService.deleteAllCart(req.user.id_user);
+      await OrderService.statusOrder2(req.user.id);
       res.status(200).json({
         message: "Thanh toán thành công",
         success: true,
@@ -26,9 +27,9 @@ const paymentController = {
   callbacks: async (req, res) => {
     console.log("callbacks");
     console.log(req.body);
-    const { orderId, resultCode, partnerCode } = req.body;
+    const { orderId, resultCode, partnerCode, orderType } = req.body;
     if (resultCode == 0) {
-      await OrderService.updateStatusOrderMomo(orderId, partnerCode);
+      await OrderService.updateStatusOrderMomo(orderId, orderType);
     }
     return res.status(200).json(req.body);
   },
@@ -52,10 +53,12 @@ const paymentController = {
   paymentCOD: async (req, res) => {
     try {
       const cod = await OrderService.updateStatusCOD(code, "COD");
-      const deleteAllCart = await CartService.deleteAllCart(req.user.id_user);
-      res
-        .status(200)
-        .json({ message: "success", data1: cod, data2: deleteAllCart });
+      CartService.deleteAllCart(req.user.id_user);
+      await OrderService.statusOrder2(req.user.id);
+      res.status(200).json({
+        message: "success",
+        data: cod,
+      });
     } catch (error) {
       res.status(500).json({
         message: error.message,

@@ -6,13 +6,19 @@ const verify = {
       const accessToken = token;
       jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
         if (err) {
-          return res.status(403).json("token không tồn tại");
+          return res.status(403).json({
+            message: "token không tồn tại",
+            success: false,
+          });
         }
         req.user = user;
         next();
       });
     } else {
-      return res.status(403).json("bạn chưa xđược xác thực");
+      return res.status(403).json({
+        message: "bạn chưa xác thực token",
+        success: false,
+      });
     }
   },
 };

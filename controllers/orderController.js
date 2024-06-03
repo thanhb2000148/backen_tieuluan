@@ -7,10 +7,12 @@ class OrderController {
         req.user.id_user,
         req.user.id
       );
+      const statusOrder1 = await OrderService.statusOrder1(req.user.id);
       res.status(200).json({
         success: true,
         message: "Thêm order thành công",
-        data: addOrder,
+        data1: addOrder,
+        data2: statusOrder1,
       });
     } catch (error) {
       console.error("Error in addOrder:", error.message);
