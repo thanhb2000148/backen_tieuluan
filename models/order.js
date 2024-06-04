@@ -36,7 +36,7 @@ var ORDER = new Schema({
         type: Number,
       },
       QLT: {
-        type: String,
+        type: Number,
       },
     },
   ],
