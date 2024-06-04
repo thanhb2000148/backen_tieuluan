@@ -57,13 +57,16 @@ class ProductService {
                 },
                 
             ],
-            LIST_FILE_ATTACHMENT: {
+            LIST_FILE_ATTACHMENT:[
+            {
                 FILE_URL: file_url,
                 FILE_TYPE: file_type,
                 FROM_DATE: new Date(),
                 TO_DATE: null,
 
-            },
+                },
+            ],
+            
             ACCOUNT__ID: ACCOUNT__ID,
         });
         return product;
@@ -215,18 +218,18 @@ class ProductService {
                 }
             }
         );
-        const updatePrice =  await PriceModel.updateMany(
-            { ID_PRODUCT: ID_PRODUCT },
-            {
-                $set: {
-                    "LIST_PRICE.$[elem].TO_DATE": new Date(),
-                },
-            },
-            {
-                arrayFilters: [{ "elem.TO_DATE": null }] ,
-            }
-        );
-        return { deletedProduct,updatePrice };
+        // const updatePrice =  await PriceModel.updateMany(
+        //     { ID_PRODUCT: ID_PRODUCT },
+        //     {
+        //         $set: {
+        //             "LIST_PRICE.$[elem].TO_DATE": new Date(),
+        //         },
+        //     },
+        //     {
+        //         arrayFilters: [{ "elem.TO_DATE": null }] ,
+        //     }
+        // );
+        return { deletedProduct };
         
     };
     

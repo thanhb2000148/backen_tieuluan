@@ -33,7 +33,8 @@ var PRODUCT = new Schema({
       }],
     },
   ],
-  LIST_FILE_ATTACHMENT: {
+  LIST_FILE_ATTACHMENT:[
+  {
     FILE_URL: {
       type: String,
     },
@@ -46,7 +47,8 @@ var PRODUCT = new Schema({
     TO_DATE: {
       type: Date,
     },
-  },
+    },
+  ],
   ACCOUNT__ID: {
     type: Schema.Types.ObjectId,
     required: true,
