@@ -1,7 +1,13 @@
 const { date } = require("joi");
 const ProductService = require("../services/product.service");
-const { message } = require("../validation/addressValidator");
-const TypeProductModel = require("../models/type_product"); // Thêm dòng này để import model type_product
+const TypeProductModel = require("../models/type_product"); 
+const { message, error } = require("../validation/productValidator");
+const PriceModel = require('../models/price');
+
+const {
+  productSchema,
+} = require("../validation/productValidator");
+
 
 class ProductController {
     static getAllProducts = async (req, res) => {
@@ -33,6 +39,10 @@ class ProductController {
 
     static createProductFashion = async (req, res) => {
         try {
+             const { error } = productSchema.validate(req.body);
+            if (error) {
+                return res.status(400).json({ message: error.details[0].message });
+            }
             const { name, code, short_desc, desc_product, number_inventory_product, category_id, size, color, file_url, file_type  } = req.body;
             const metadata = {
                 sizes: size,
@@ -49,7 +59,6 @@ class ProductController {
                 file_url,
                 file_type,
                 req.user.id,
-                req.file.path
             );
             res.status(201).json({
                 message: "Tạo sản phẩm thành công",
@@ -60,7 +69,11 @@ class ProductController {
         }
     }
     static createProductFood = async (req, res) => {
-         try {
+        try {
+            const { error } = productSchema.validate(req.body);
+            if (error) {
+                return res.status(400).json({ message: error.details[0].message });
+            }
             const { name, code, short_desc, desc_product, number_inventory_product, category_id, size, type, file_url, file_type } = req.body;
             const metadata = {
                 sizes: size,
@@ -86,8 +99,12 @@ class ProductController {
             res.status(400).json({ error: error.message });
         }
     }
-     static createProductPhone = async (req, res) => {
+    static createProductPhone = async (req, res) => {
          try {
+              const { error } = productSchema.validate(req.body);
+            if (error) {
+                return res.status(400).json({ message: error.details[0].message });
+            }
             const { name, code, short_desc, desc_product, number_inventory_product, category_id,memory,color, file_url, file_type } = req.body;
              const metadata = {
                 memorys: memory,
@@ -113,6 +130,27 @@ class ProductController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    // static quantityProduct = async (req, res) => {
+    //     try {
+    //     const { size , quantity } = req.body;
+    //     const metadata = {
+    //         size: size,
+    //         quantity: quantity,
+    //     };
+    //     const savequantity = await ProductService.quantityProduct(
+    //         metadata,
+    //     )
+    //     res.status(201).json({
+    //             message: "Them so luong thành công",
+    //             success: true, data: savequantity
+    //         });
+    //     } catch (error) {
+    //         res.status(400).json({ error: error.message });
+    //     }
+    // }
+    
+
 
     static updateProduct = async (req, res) => {
         try {
@@ -150,7 +188,7 @@ class ProductController {
             }
             return res.status(200).json({
                 message: "Xóa sản phẩm thành công!",
-                product: deletedProduct,
+                success: true, product: deletedProduct,
             });
         } catch (error) {
             res.status(400).json({ error: error.message });
