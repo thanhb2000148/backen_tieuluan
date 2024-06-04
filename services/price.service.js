@@ -113,20 +113,18 @@ class PriceService {
       {
         $match: {
           ID_PRODUCT: ID_PRODUCT,
+        },
+      },
+      {
+        $unwind: "$LIST_PRICE",
+      },
+      {
+        $unwind: "$LIST_PRICE.LIST_MATCH_KEY",
+      },
+      {
+        $match: {
           "LIST_PRICE.LIST_MATCH_KEY.KEY": key,
           "LIST_PRICE.LIST_MATCH_KEY.VALUE": value,
-        },
-      },
-      {
-        $unwind: {
-          path: "$LIST_PRICE",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $unwind: {
-          path: "$LIST_MATCH_KEY",
-          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -136,30 +134,40 @@ class PriceService {
           PRICE_NUMBER: "$LIST_PRICE.PRICE_NUMBER",
           FROM_DATE: "$LIST_PRICE.FROM_DATE",
           TO_DATE: "$LIST_PRICE.TO_DATE",
-          KEY: "$LIST_MATCH_KEY.KEY",
+          KEY: "$LIST_PRICE.LIST_MATCH_KEY.KEY",
+          VALUE: "$LIST_PRICE.LIST_MATCH_KEY.VALUE",
         },
       },
     ]);
     return getPrice;
   };
+
   static getPriceWithoutKey = async (id_product) => {
     const ID_PRODUCT = new ObjectId(id_product);
     const getPrice = await PriceModel.aggregate([
       {
         $match: {
           ID_PRODUCT: ID_PRODUCT,
-          "LIST_PRICE.LIST_MATCH_KEY": { $size: 0 },
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_PRICE",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "LIST_PRICE.LIST_MATCH_KEY": [],
         },
       },
       {
         $project: {
-          LIST_PRICE: {
-            $filter: {
-              input: "$LIST_PRICE",
-              as: "price",
-              cond: { $eq: ["$$price.LIST_MATCH_KEY", []] },
-            },
-          },
+          _id: 0,
+          ID_PRODUCT: 1,
+          PRICE_NUMBER: "$LIST_PRICE.PRICE_NUMBER",
+          FROM_DATE: "$LIST_PRICE.FROM_DATE",
+          TO_DATE: "$LIST_PRICE.TO_DATE",
         },
       },
     ]);

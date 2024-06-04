@@ -62,7 +62,11 @@ const authController = {
       const OTP = randomCode();
       await UserService.addCodeActive(newUser._id, OTP, "ACTIVE", 300);
       await sendEmailServices.sendEmail(req.body.email_user, OTP);
-      res.status(200).json({ newAccount });
+      res.status(200).json({
+        message: "tạo tài khoản thành công",
+        success: true,
+        data: newAccount,
+      });
     } catch (e) {
       res.status(500).json({
         message: e.message,
@@ -116,7 +120,12 @@ const authController = {
             { expiresIn: "365d" } // thời gian token hết hạn
           );
 
-          res.status(200).json({ accessToken, refreshToken });
+          res.status(200).json({
+            message: "đăng nhập thành công",
+            success: true,
+            accessToken,
+            refreshToken,
+          });
         }
       } else {
         return res.status(400).json({
