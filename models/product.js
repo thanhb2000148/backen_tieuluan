@@ -58,18 +58,22 @@ var PRODUCT = new Schema({
     type: Boolean,
     default: false,
   },
-  QUANTITY_BY_VALUE_KEY: [
+  QUANTITY_BY_KEY_VALUE: [
     {
-      KEY: {
-        type: String,
-      },
-      VALUE: {
-        type: String,
-      },
       QUANTITY: {
         type: Number,
         default: 0,
       },
+      LIST_MATCH_KEY: [
+        {
+          KEY: {
+            type: String,
+          },
+          VALUE: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 });
