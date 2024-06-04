@@ -1,4 +1,3 @@
-const { getPriceProduct } = require("../services/cart.service");
 const PriceService = require("../services/price.service");
 const priceController = {
   addPrice: async (req, res) => {
@@ -22,7 +21,7 @@ const priceController = {
   },
   getPrice: async (req, res) => {
     try {
-      const getPrice = await PriceService.getPrice(req.params.id);
+      const getPrice = await PriceService.getPriceWithoutKey(req.params.id);
       res.status(200).json({
         message: "Lấy giá thành công",
         success: true,
