@@ -3,12 +3,18 @@ const ObjectId = require("mongoose").Types.ObjectId;
 class PriceService {
   static addPrice = async (id_product, price_number, key, value) => {
     const ID_PRODUCT = new ObjectId(id_product);
-    let listMatchKey = [];
-    if (key && value) {
-      listMatchKey = {
-        KEY: key,
-        VALUE: value,
-      };
+    let listMatchKeys = [];
+    if (
+      Array.isArray(key) &&
+      Array.isArray(value) &&
+      key.length == value.length
+    ) {
+      for (let i = 0; i < key.length; i++) {
+        listMatchKeys.push({
+          KEY: key[i],
+          VALUE: value[i],
+        });
+      }
     }
     const addPrice = await PriceModel.updateOne(
       {
@@ -23,7 +29,7 @@ class PriceService {
             PRICE_NUMBER: price_number,
             FROM_DATE: new Date(),
             TO_DATE: null,
-            LIST_MATCH_KEY: key && value ? [{ KEY: key, VALUE: value }] : [],
+            LIST_MATCH_KEY: listMatchKeys,
           },
         },
         $inc: {

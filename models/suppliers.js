@@ -1,13 +1,10 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var SUPPLIERS = new Schema({
-  NAME_SUPPIERS: {
+  NAME_SUPPLIERS: {
     type: String,
   },
-  NAME_PRODUCT: {
-    type: String,
-  },
-  ADDRES_SUPPIERS: {
+  ADDRESS_SUPPLIERS: {
     PROVINCE: {
       type: String,
     },
@@ -21,8 +18,18 @@ var SUPPLIERS = new Schema({
       type: String,
     },
   },
-  CODE_SUPPIERS: {
-    type: Number,
+  CREATED_AT: {
+    type: Date,
+  },
+  UPDATED_AT: {
+    type: Date,
+  },
+  CODE_SUPPLIERS: {
+    type: String,
+  },
+  IS_DELETED: {
+    type: Boolean,
+    default: false,
   },
 });
-module.exports = mongoose.model("address_suppires", ADDRES_SUPPIERS);
+module.exports = mongoose.model("suppliers", SUPPLIERS);
