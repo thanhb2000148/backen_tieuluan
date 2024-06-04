@@ -9,11 +9,24 @@ var INVENTORYENTRIES = new Schema({
       ID_PRODUCT: {
         type: Schema.Types.ObjectId,
       },
-      UNITPRICES: {
+      UNIT_PRICE: {
         type: Number,
       },
-      QLT: {
-        type: String,
+      QUANTITY: {
+        type: Number,
+        default: 0,
+      },
+      DETAILS: {
+        type: [
+          {
+            KEY: {
+              type: String,
+            },
+            VALUE: {
+              type: String,
+            },
+          },
+        ],
       },
     },
   ],
