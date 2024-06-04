@@ -24,7 +24,7 @@ router.use("/v1/category", categoryRouter);
 // router.use("/v1/typeproduct", productRouter);
 router.use("/v1/typeproduct", typeProductRouter);
 
-router.use("/v1/price", priceRouter);
+router.use("/v1/price", priceRouter);  
 router.use("/v1/cart", cartRouter);
 router.use("/v1/payment", paymentRouter);
 router.use("/v1/order", orderRouter);

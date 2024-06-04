@@ -7,6 +7,9 @@ const TypeProductModel = require("../models/type_product");
 // const ImagesService = require("../services/images.services");
 const { image } = require("../config/cloudinaryconfig");
 // const path = require("path");
+const { json } = require("express");
+const PriceModel = require("../models/price");
+
 class ProductService {
     static async getAllProducts(account_id) {
         const getProduct = await ProductModel.aggregate([
@@ -32,8 +35,8 @@ class ProductService {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { colors,sizes } = metadata;
-        const colorMetadata = colors.map(color => ({ KEY: "COLOR", VALUE: color }));
-        const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
+        // const colorMetadata = colors.map(color => ({ KEY: "COLOR", VALUE: color }));
+        // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
         const product = await ProductModel.create({
             NAME_PRODUCT: name,
             CODE_PRODUCT: code,
@@ -44,8 +47,15 @@ class ProductService {
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
             LIST_PRODUCT_METADATA: [
-                ...colorMetadata,
-                ...sizeMetadata,
+                {
+                    KEY: "COLOR",
+                    VALUE: colors
+                },
+                {
+                    KEY: "SIZE",
+                    VALUE: sizes,
+                },
+                
             ],
             LIST_FILE_ATTACHMENT: {
                 FILE_URL: file_url,
@@ -67,8 +77,8 @@ class ProductService {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { sizes,types} = metadata;
-        const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
-        const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
+        // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
+        // const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
         const product = await ProductModel.create({
             NAME_PRODUCT: name,
             CODE_PRODUCT: code,
@@ -79,8 +89,15 @@ class ProductService {
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
             LIST_PRODUCT_METADATA: [
-                ...sizeMetadata,
-                ...typeMetadata,
+                  {
+                    KEY: "SIZE",
+                    VALUE: sizes
+                },
+                {
+                    KEY: "TYPE",
+                    VALUE: types
+                },
+                
             ],
             LIST_FILE_ATTACHMENT: {
                 FILE_URL: file_url,
@@ -104,8 +121,8 @@ class ProductService {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { memorys,colors} = metadata;
-        const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
-        const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
+        // const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
+        // const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
         const product = await ProductModel.create({
             NAME_PRODUCT: name,
             CODE_PRODUCT: code,
@@ -116,16 +133,23 @@ class ProductService {
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
             LIST_PRODUCT_METADATA: [
-                ...memoryMetadata ,
-                ...colortadata ,
+                {
+                    KEY: "MEMORY",
+                    VALUE: memorys
+                },
+                {
+                    KEY: "COLOR",
+                    VALUE: colors,
+                },
             ],
-            LIST_FILE_ATTACHMENT: {
-                FILE_URL: file_url,
-                FILE_TYPE: file_type,
-                FROM_DATE: new Date(),
-                TO_DATE: null,
-
-            },
+            LIST_FILE_ATTACHMENT: [
+                {
+                    FILE_URL: file_url,
+                    FILE_TYPE: file_type,
+                    FROM_DATE: new Date(),
+                    TO_DATE: null
+                },
+            ],
 
             ACCOUNT__ID: ACCOUNT__ID,
 
@@ -173,16 +197,39 @@ class ProductService {
         return updateProduct;
     }
 
-    static async deleteProduct(id_product) {
+    // static async quantityProduct(
+    //     size, quantity)
+    // {
+    //     const ACCOUNT__ID = new ObjectId(account_id);
+    //     const CATEGORY_ID = new ObjectId(category_id);
+    //     const { size,quantity} = metadata;
+    // }
+
+    static deleteProduct = async (id_product) => {
         const ID_PRODUCT = new ObjectId(id_product);
-        return await ProductModel.updateOne(
-            {_id : ID_PRODUCT },
+        const deletedProduct = await ProductModel.updateOne(
+            { _id: ID_PRODUCT },
             {
-            $set: {
-                IS_DELETED: true,
+                $set: {
+                    IS_DELETED: true,
+                }
             }
-        });
-    }
+        );
+        const updatePrice =  await PriceModel.updateMany(
+            { ID_PRODUCT: ID_PRODUCT },
+            {
+                $set: {
+                    "LIST_PRICE.$[elem].TO_DATE": new Date(),
+                },
+            },
+            {
+                arrayFilters: [{ "elem.TO_DATE": null }] ,
+            }
+        );
+        return { deletedProduct,updatePrice };
+        
+    };
+    
  
 }
 

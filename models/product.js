@@ -28,9 +28,9 @@ var PRODUCT = new Schema({
       KEY: {
         type: String,
       },
-      VALUE: {
+      VALUE: [{
         type: String,
-      },
+      }],
     },
   ],
   LIST_FILE_ATTACHMENT: {
@@ -54,6 +54,16 @@ var PRODUCT = new Schema({
   IS_DELETED: {
     type: Boolean,
     default: false,
-  }
+  },
+  QUANTITY_BY_KEY: [
+    {
+      KEY: {
+        type: String,
+      },
+      QUANTITY: {
+        type: Number,
+      },
+    },
+  ],
 });
 module.exports = mongoose.model("product", PRODUCT);
