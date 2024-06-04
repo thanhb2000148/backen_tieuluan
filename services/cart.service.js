@@ -3,17 +3,23 @@ const CartModel = require("../models/cart");
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
 const PriceService = require("../services/price.service");
-const { message } = require("../validation/addressValidator");
+const ProductModel = require("../models/product");
 class CartService {
   static addCart = async (id_user, id_product, key, value) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
-    const getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    let getPrice;
+    if (!key && !value) {
+      getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
+    } else {
+      getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    }
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
         $elemMatch: {
           ID_PRODUCT: ID_PRODUCT,
+          TO_DATE: null,
         },
       },
       "LIST_PRODUCT.LIST_MATCH_KEY": {
@@ -71,7 +77,7 @@ class CartService {
               TO_DATE: null,
               QUANTITY: 1,
               PRICE: getPrice[0].PRICE_NUMBER,
-              LIST_MATCH_KEY: { KEY: key, VALUE: value },
+              LIST_MATCH_KEY: key && value ? { KEY: key, VALUE: value } : [],
             },
           },
           $inc: {
@@ -165,13 +171,30 @@ class CartService {
       {
         $match: {
           USER_ID: ID_USER,
-          "LIST_PRODUCT.TO_DATE": null,
         },
       },
-      { $unwind: "$LIST_PRODUCT" },
+      {
+        $project: {
+          LIST_PRODUCT: {
+            $filter: {
+              input: "$LIST_PRODUCT",
+              as: "product",
+              cond: {
+                $eq: ["$$product.TO_DATE", null],
+              },
+            },
+          },
+        },
+      },
       {
         $project: {
           LIST_PRODUCT_MAX_NUMBER: 0,
+        },
+      },
+      {
+        $unwind: {
+          path: "$LIST_PRODUCT",
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -203,20 +226,28 @@ class CartService {
         },
       },
       {
-        $group: {
-          _id: "$_id",
-          USER_ID: { $first: "$USER_ID" },
-          ITEMS: { $push: "$ITEM" },
-        },
-      },
-      {
         $project: {
-          "ITEMS.LIST_MATCH_KEY": 0,
-          "ITEMS.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
+          "ITEM._id": 0,
+          "ITEM.PRODUCT_DETAILS._id": 0,
+          "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
         },
       },
     ]);
-    return getCart;
+    const processedCart = getCart.map((cart) => {
+      if (Object.keys(cart.ITEM).length === 0) {
+        return {
+          message: "Giỏ hàng rỗng",
+          success: false,
+          data: [],
+        };
+      } else {
+        return {
+          success: true,
+          data: cart,
+        };
+      }
+    });
+    return processedCart;
   };
   static getPriceCart = async (id_user) => {
     const ID_USER = new ObjectId(id_user);
@@ -294,6 +325,24 @@ class CartService {
       }
     );
     return deleteAllCart;
+  };
+  static updateNumberProduct = async (id_product) => {
+    const ID_PRODUCT = new ObjectId(id_product);
+    const updateCart = await ProductModel.updateMany(
+      {
+        LIST_PRODUCT: {
+          $elemMatch: {
+            ID_PRODUCT: ID_PRODUCT,
+          },
+        },
+      },
+      {
+        $set: {
+          "LIST_PRODUCT.$.QUANTITY": 0,
+        },
+      }
+    );
+    return updateCart;
   };
 }
 module.exports = CartService;

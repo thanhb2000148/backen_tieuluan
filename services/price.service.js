@@ -3,20 +3,38 @@ const ObjectId = require("mongoose").Types.ObjectId;
 class PriceService {
   static addPrice = async (id_product, price_number, key, value) => {
     const ID_PRODUCT = new ObjectId(id_product);
-    await PriceModel.create({
-      ID_PRODUCT: ID_PRODUCT,
-      LIST_PRICE: [
-        {
-          PRICE_NUMBER: price_number,
-          FROM_DATE: new Date(),
-          TO_DATE: null,
-          LIST_MATCH_KEY: {
-            KEY: key,
-            VALUE: value,
+    let listMatchKey = [];
+    if (key && value) {
+      listMatchKey = {
+        KEY: key,
+        VALUE: value,
+      };
+    }
+    const addPrice = await PriceModel.updateOne(
+      {
+        ID_PRODUCT: ID_PRODUCT,
+        LIST_PRICE_MAX_NUMBER: {
+          $lt: 100,
+        },
+      },
+      {
+        $push: {
+          LIST_PRICE: {
+            PRICE_NUMBER: price_number,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+            LIST_MATCH_KEY: key && value ? [{ KEY: key, VALUE: value }] : [],
           },
         },
-      ],
-    });
+        $inc: {
+          LIST_PRICE_MAX_NUMBER: 1,
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
+    return addPrice;
   };
   static getPrice = async (id_product) => {
     const ID_PRODUCT = new ObjectId(id_product);
@@ -113,6 +131,29 @@ class PriceService {
           FROM_DATE: "$LIST_PRICE.FROM_DATE",
           TO_DATE: "$LIST_PRICE.TO_DATE",
           KEY: "$LIST_MATCH_KEY.KEY",
+        },
+      },
+    ]);
+    return getPrice;
+  };
+  static getPriceWithoutKey = async (id_product) => {
+    const ID_PRODUCT = new ObjectId(id_product);
+    const getPrice = await PriceModel.aggregate([
+      {
+        $match: {
+          ID_PRODUCT: ID_PRODUCT,
+          "LIST_PRICE.LIST_MATCH_KEY": { $size: 0 },
+        },
+      },
+      {
+        $project: {
+          LIST_PRICE: {
+            $filter: {
+              input: "$LIST_PRICE",
+              as: "price",
+              cond: { $eq: ["$$price.LIST_MATCH_KEY", []] },
+            },
+          },
         },
       },
     ]);

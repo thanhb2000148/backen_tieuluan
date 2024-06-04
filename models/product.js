@@ -12,6 +12,7 @@ var PRODUCT = new Schema({
   },
   NUMBER_INVENTORY_PRODUCT: {
     type: Number,
+    default: 0,
   },
   CREATED_AT: {
     type: Date,
@@ -21,16 +22,18 @@ var PRODUCT = new Schema({
   },
   CATEGORY_ID: {
     type: Schema.Types.ObjectId,
-    ref: 'category',
+    ref: "category",
   },
   LIST_PRODUCT_METADATA: [
     {
       KEY: {
         type: String,
       },
-      VALUE: [{
-        type: String,
-      }],
+      VALUE: [
+        {
+          type: String,
+        },
+      ],
     },
   ],
   LIST_FILE_ATTACHMENT:[
@@ -57,14 +60,22 @@ var PRODUCT = new Schema({
     type: Boolean,
     default: false,
   },
-  QUANTITY_BY_KEY: [
+  QUANTITY_BY_KEY_VALUE: [
     {
-      KEY: {
-        type: String,
-      },
       QUANTITY: {
         type: Number,
+        default: 0,
       },
+      LIST_MATCH_KEY: [
+        {
+          KEY: {
+            type: String,
+          },
+          VALUE: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
 });

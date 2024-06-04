@@ -4,6 +4,9 @@ var PRICE = new Schema({
   ID_PRODUCT: {
     type: Schema.Types.ObjectId,
   },
+  LIST_PRICE_MAX_NUMBER: {
+    type: Number,
+  },
   LIST_PRICE: [
     {
       PRICE_NUMBER: {
