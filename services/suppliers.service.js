@@ -26,7 +26,7 @@ class Suppliers {
     return newSuppliers;
   };
   static getSuppliers = async () => {
-    const suppliers = await SuppliersSchema.findOne({ IS_DELETED: false });
+    const suppliers = await SuppliersSchema.find({ IS_DELETED: false });
     return suppliers;
   };
   static getSuppliersById = async (id) => {
