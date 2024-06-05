@@ -13,6 +13,7 @@ const paymentRouter = require("../router/paymentRouter");
 const typeProductRouter = require("../router/typeProductRouter");
 const suppliersRouter = require("../router/suppliersRouter");
 const orderRouter = require("../router/orderRouter");
+const inventoryRouter = require("../router/inventory_entriesRouter");
 
 router.use("/v1/auth", authRouter);
 router.use("/v1/user", userRouter);
@@ -24,6 +25,7 @@ router.use("/v1/category", categoryRouter);
 // router.use("/v1/typeproduct", productRouter);
 router.use("/v1/typeproduct", typeProductRouter);
 router.use("/v1/suppliers", suppliersRouter);
+router.use("/v1/inventory", inventoryRouter);
 
 router.use("/v1/price", priceRouter);
 router.use("/v1/cart", cartRouter);
