@@ -26,22 +26,37 @@ class Inventory_EntriesService {
         });
       }
     }
-
-    const newInventory_Entries = await inventory_entriesModel.create({
-      CRATED_DATE: new Date(),
-      UPDATED_AT: null,
-      LIST_PRODUCT_CREATED: [
-        {
-          ID_PRODUCT: id_product,
-          UNIT_PRICE: price,
-          QUANTITY: quantity,
-          DETAILS: details,
+    const ID = new ObjectId(id_supplier);
+    const newInventory_Entries = await inventory_entriesModel.updateOne(
+      {
+        ID_SUPPLIERS: ID,
+        LIST_INVENTORY_MAX_NUMBER: {
+          $lt: 100,
         },
-      ],
-      ID_SUPPLIERS: id_supplier,
-      ACCOUNT__ID: account_id,
-    });
-
+      },
+      {
+        $push: {
+          LIST_PRODUCT_CREATED: {
+            ID_PRODUCT: id_product,
+            UNIT_PRICE: price,
+            QUANTITY: quantity,
+            DETAILS: details,
+          },
+        },
+        CRATED_DATE: new Date(),
+        UPDATED_AT: null,
+        ID_SUPPLIERS: id_supplier,
+        ACCOUNT__ID: account_id,
+        $inc: {
+          LIST_INVENTORY_MAX_NUMBER: 1,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+      }
+    );
     return newInventory_Entries;
   };
 
@@ -101,6 +116,9 @@ class Inventory_EntriesService {
   static updateNumberInventoryProduct = async (id_product) => {
     const ID_PRODUCT = new ObjectId(id_product);
     const product = await ProductModel.findById(ID_PRODUCT);
+    if (!product) {
+      throw new Error("Product not found");
+    }
     let totalQuantity = 0;
     product.QUANTITY_BY_KEY_VALUE.forEach((item) => {
       totalQuantity = totalQuantity + item.QUANTITY;

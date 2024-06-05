@@ -12,23 +12,20 @@ const InventoryController = {
           req.body.id_supplier,
           req.user.id
         );
-      const quantity = newInventory_Entries.LIST_PRODUCT_CREATED[0].QUANTITY;
-      const update = await Inventory_EntriesService.updateInventoryProduct(
+      await Inventory_EntriesService.updateInventoryProduct(
         req.params.id,
         req.body.key,
         req.body.value,
-        quantity
+        req.body.quantity
       );
-      const updateInventoryProduct =
-        await Inventory_EntriesService.updateNumberInventoryProduct(
-          req.params.id
-        );
+
+      await Inventory_EntriesService.updateNumberInventoryProduct(
+        req.params.id
+      );
       res.status(200).json({
-        message: "Thêm thành công",
+        message: "Thêm phiếu nhập kho thành công",
         success: true,
-        data1: newInventory_Entries,
-        data2: update,
-        data3: updateInventoryProduct,
+        data: newInventory_Entries,
       });
     } catch (error) {
       res.status(500).json({
