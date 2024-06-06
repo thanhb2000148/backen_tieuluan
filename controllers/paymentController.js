@@ -1,6 +1,7 @@
 const PaymentMethod = require("../services/payment.service");
 const CartService = require("../services/cart.service");
 const OrderService = require("../services/order.service");
+const UserService = require("../services/user.service");
 const codeOrder = require("../utils/code");
 const code = codeOrder();
 const paymentController = {

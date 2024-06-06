@@ -4,12 +4,6 @@ var INVENTORYENTRIES = new Schema({
   CRATED_DATE: {
     type: Date,
   },
-  UPDATED_AT: {
-    type: Date,
-  },
-  LIST_INVENTORY_MAX_NUMBER: {
-    type: Number,
-  },
   LIST_PRODUCT_CREATED: [
     {
       ID_PRODUCT: {

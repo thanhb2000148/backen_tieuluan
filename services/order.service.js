@@ -5,9 +5,18 @@ const AddressService = require("../services/address.services");
 const CartService = require("../services/cart.service");
 const UserService = require("../services/user.service");
 const payment_method = require("../models/payment_method");
+const { provide } = require("vue");
+const { dropSearchIndex } = require("../models/account");
 const code = randomCode();
 class OrderService {
-  static addOrder = async (id_user, id_account) => {
+  static addOrder = async (
+    id_user,
+    id_account,
+    province,
+    district,
+    commune,
+    desc
+  ) => {
     try {
       const ID_USER = new ObjectId(id_user);
       const ID_ACCOUNT = new ObjectId(id_account);
@@ -37,7 +46,12 @@ class OrderService {
           IS_PAYMENT: false,
           TIME_PAYMENT: null,
           CANCEL_REASON: null,
-          // ADDRESS_USER: await AddressService.getAddress(ID_ACCOUNT),
+          ADDRESS_USER: {
+            PROVINCE: province,
+            DISTRICT: district,
+            COMMUNE: commune,
+            DESC: desc,
+          },
         });
         return newOrder;
       }
@@ -47,14 +61,18 @@ class OrderService {
     }
   };
   static updateOrderCode = async (orderCode) => {
-    const updateCode = await OrderModel.updateOne(
-      {
-        ORDER_CODE: null,
-      },
-      {
-        ORDER_CODE: orderCode,
-      }
-    );
+    const lastOrder = await OrderModel.findOne({ ORDER_CODE: null }).sort({
+      _id: -1,
+    });
+    if (lastOrder) {
+      const update = await OrderModel.updateOne(
+        { _id: lastOrder._id },
+        {
+          ORDER_CODE: orderCode,
+        }
+      );
+      return update;
+    }
   };
   static updateStatusOrderMomo = async (orderCode, payment_method) => {
     const update = await OrderModel.updateOne(

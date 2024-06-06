@@ -21,7 +21,11 @@ const priceController = {
   },
   getPrice: async (req, res) => {
     try {
-      const getPrice = await PriceService.getPrice(req.params.id);
+      const getPrice = await PriceService.getPriceProduct(
+        req.params.id,
+        req.body.key,
+        req.body.value
+      );
       res.status(200).json({
         message: "Lấy giá thành công",
         success: true,

@@ -5,15 +5,34 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const PriceService = require("../services/price.service");
 const ProductModel = require("../models/product");
 class CartService {
-  static addCart = async (id_user, id_product, key, value) => {
+  // xem lai xu ly don gia mac dinh
+  static addCart = async (id_user, id_product, keys, values) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
-    let getPrice;
-    if (!key && !value) {
-      getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
-    } else {
-      getPrice = await PriceService.getPriceProduct(id_product, key, value);
+    let details = [];
+    if (
+      Array.isArray(keys) &&
+      Array.isArray(values) &&
+      keys.length === values.length
+    ) {
+      for (let i = 0; i < keys.length; i++) {
+        details.push({
+          KEY: keys[i],
+          VALUE: values[i],
+        });
+      }
     }
+
+    let getPrice;
+    if (keys && values) {
+      getPrice = await PriceService.getPriceProduct(id_product, keys, values);
+    } else {
+      getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
+    }
+    const matchConditions = keys.map((key, index) => ({
+      "LIST_MATCH_KEY.KEY": key,
+      "LIST_MATCH_KEY.VALUE": values[index],
+    }));
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -22,22 +41,17 @@ class CartService {
           TO_DATE: null,
         },
       },
-      "LIST_PRODUCT.LIST_MATCH_KEY": {
-        $elemMatch: {
-          KEY: key,
-          VALUE: value,
-        },
-      },
     });
+    // return cart;
     if (cart) {
       const updateCart = await CartModel.updateOne(
         {
           USER_ID: ID_USER,
           "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
-          "LIST_PRODUCT.LIST_MATCH_KEY": {
+          "LIST_PRODUCT.TO_DATE": null,
+          LIST_PRODUCT: {
             $elemMatch: {
-              KEY: key,
-              VALUE: value,
+              $and: matchConditions,
             },
           },
         },
@@ -50,11 +64,9 @@ class CartService {
           arrayFilters: [
             {
               "element.ID_PRODUCT": ID_PRODUCT,
+              "element.TO_DATE": null,
               "element.LIST_MATCH_KEY": {
-                $elemMatch: {
-                  KEY: key,
-                  VALUE: value,
-                },
+                $all: details.map((detail) => ({ $elemMatch: detail })), // xem lại chỗ này
               },
             },
           ],
@@ -77,7 +89,7 @@ class CartService {
               TO_DATE: null,
               QUANTITY: 1,
               PRICE: getPrice[0].PRICE_NUMBER,
-              LIST_MATCH_KEY: key && value ? { KEY: key, VALUE: value } : [],
+              LIST_MATCH_KEY: details,
             },
           },
           $inc: {
@@ -91,6 +103,7 @@ class CartService {
       return addCart;
     }
   };
+
   static getCart = async (id_user, page, limit) => {
     page = Number(page);
     limit = Number(limit);
