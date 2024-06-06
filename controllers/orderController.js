@@ -5,7 +5,11 @@ class OrderController {
     try {
       const addOrder = await OrderService.addOrder(
         req.user.id_user,
-        req.user.id
+        req.user.id,
+        req.body.province,
+        req.body.district,
+        req.body.commune,
+        req.body.desc
       );
       if (addOrder.success == false) {
         res.status(200).json({

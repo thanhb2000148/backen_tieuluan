@@ -107,8 +107,13 @@ class PriceService {
     );
     return update;
   };
-  static getPriceProduct = async (id_product, key, value) => {
+  static getPriceProduct = async (id_product, keys, values) => {
     const ID_PRODUCT = new ObjectId(id_product);
+    const matchConditions = keys.map((key, index) => ({
+      "LIST_PRICE.LIST_MATCH_KEY.KEY": key,
+      "LIST_PRICE.LIST_MATCH_KEY.VALUE": values[index],
+    }));
+
     const getPrice = await PriceModel.aggregate([
       {
         $match: {
@@ -119,27 +124,26 @@ class PriceService {
         $unwind: "$LIST_PRICE",
       },
       {
-        $unwind: "$LIST_PRICE.LIST_MATCH_KEY",
-      },
-      {
         $match: {
-          "LIST_PRICE.LIST_MATCH_KEY.KEY": key,
-          "LIST_PRICE.LIST_MATCH_KEY.VALUE": value,
+          $and: matchConditions,
         },
       },
       {
         $project: {
           _id: 0,
-          ID_PRODUCT: 1,
           PRICE_NUMBER: "$LIST_PRICE.PRICE_NUMBER",
           FROM_DATE: "$LIST_PRICE.FROM_DATE",
           TO_DATE: "$LIST_PRICE.TO_DATE",
-          KEY: "$LIST_PRICE.LIST_MATCH_KEY.KEY",
-          VALUE: "$LIST_PRICE.LIST_MATCH_KEY.VALUE",
+          LIST_MATCH_KEY: "$LIST_PRICE.LIST_MATCH_KEY",
         },
       },
     ]);
-    return getPrice;
+
+    if (getPrice.length > 0) {
+      return getPrice;
+    } else {
+      throw new Error("Không tìm thấy giá cho sản phẩm với thông số chỉ định.");
+    }
   };
 
   static getPriceWithoutKey = async (id_product) => {

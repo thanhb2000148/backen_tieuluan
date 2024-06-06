@@ -26,37 +26,17 @@ class Inventory_EntriesService {
         });
       }
     }
-    const ID = new ObjectId(id_supplier);
-    const newInventory_Entries = await inventory_entriesModel.updateOne(
-      {
-        ID_SUPPLIERS: ID,
-        LIST_INVENTORY_MAX_NUMBER: {
-          $lt: 100,
-        },
+    const newInventory_Entries = await inventory_entriesModel.create({
+      LIST_PRODUCT_CREATED: {
+        ID_PRODUCT: id_product,
+        UNIT_PRICE: price,
+        QUANTITY: quantity,
+        DETAILS: details,
       },
-      {
-        $push: {
-          LIST_PRODUCT_CREATED: {
-            ID_PRODUCT: id_product,
-            UNIT_PRICE: price,
-            QUANTITY: quantity,
-            DETAILS: details,
-          },
-        },
-        CRATED_DATE: new Date(),
-        UPDATED_AT: null,
-        ID_SUPPLIERS: id_supplier,
-        ACCOUNT__ID: account_id,
-        $inc: {
-          LIST_INVENTORY_MAX_NUMBER: 1,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        runValidators: true,
-      }
-    );
+      CRATED_DATE: new Date(),
+      ID_SUPPLIERS: id_supplier,
+      ACCOUNT__ID: account_id,
+    });
     return newInventory_Entries;
   };
 
