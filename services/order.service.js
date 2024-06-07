@@ -5,8 +5,6 @@ const AddressService = require("../services/address.services");
 const CartService = require("../services/cart.service");
 const UserService = require("../services/user.service");
 const payment_method = require("../models/payment_method");
-const { provide } = require("vue");
-const { dropSearchIndex } = require("../models/account");
 const code = randomCode();
 class OrderService {
   static addOrder = async (
@@ -35,6 +33,7 @@ class OrderService {
             TO_DATE: cart.data.ITEM.TO_DATE,
             UNITPRICES: cart.data.ITEM.PRICE,
             QLT: cart.data.ITEM.QUANTITY,
+            LIST_MATCH_KEY: cart.data.ITEM.LIST_MATCH_KEY,
           })
         );
         const newOrder = await OrderModel.create({
