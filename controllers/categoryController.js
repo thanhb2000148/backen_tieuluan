@@ -1,7 +1,8 @@
+const { number } = require("joi");
 const CategoryModel = require("../models/category");
 const ObjectId = (require('mongoose').Types).ObjectId;
 class categoryController  {
-    static getAllCategory = async (req, res) => {
+    static getAllCategory = async (req, res,) => {
         try {
             const Categorys = await CategoryModel.aggregate([
          {
@@ -11,6 +12,7 @@ class categoryController  {
             foreignField: '_id',
             as: 'typeProductDetails'
           }
+          
         }
       ]);
 

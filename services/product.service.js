@@ -11,13 +11,20 @@ const { json } = require("express");
 const PriceModel = require("../models/price");
 
 class ProductService {
-    static async getAllProducts(account_id) {
+    static getProducts = async (account_id,page, limit) => {
+        //  console.log("Page:", page);
+        // console.log("Limit:", limit);
+        //  console.log("Account ID:", account_id);
+        page = Number(page);
+        limit = Number(limit);
         const getProduct = await ProductModel.aggregate([
             {
                 $match: {
                    IS_DELETED: false, 
-                } 
+                }, 
             },
+            { $skip: (page - 1) * limit },
+            { $limit: limit },
         ])
         return getProduct;
     }
@@ -26,15 +33,34 @@ class ProductService {
         return await ProductModel.findById(id).populate("CATEGORY_ID");
     }
 
+    
     static async createProductFashion(
         name, code, short_desc,
-        desc_product, number_inventory_product,
-        category_id, metadata, file_url, file_type,
+        desc_product,
+        category_id, metadata, file_attachments,quantity_by_key_value,
         account_id,)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
-        const { colors,sizes } = metadata;
+        const { colors, sizes } = metadata;
+        const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const quantityByKeyValue = quantity_by_key_value.map(item => ({
+            QUANTITY: item.quantity,
+            LIST_MATCH_KEY: item.list_match_key.map(match => ({
+                KEY: match.key,
+                VALUE: match.value,
+            }))
+        }));
+        const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
+        //total: giá trị ban đầu là 0
+        //item.quantity: giá trị của  quantity được nhập
+        // console.log("#tongspluong: " + quantity);
+    
         // const colorMetadata = colors.map(color => ({ KEY: "COLOR", VALUE: color }));
         // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
         const product = await ProductModel.create({
@@ -42,7 +68,7 @@ class ProductService {
             CODE_PRODUCT: code,
             SHORT_DESC: short_desc,
             DESC_PRODUCT: desc_product,
-            NUMBER_INVENTORY_PRODUCT: number_inventory_product,
+            NUMBER_INVENTORY_PRODUCT: quantity,
             CREATED_AT: new Date(),
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
@@ -57,29 +83,34 @@ class ProductService {
                 },
                 
             ],
-            LIST_FILE_ATTACHMENT:[
-            {
-                FILE_URL: file_url,
-                FILE_TYPE: file_type,
-                FROM_DATE: new Date(),
-                TO_DATE: null,
-
-                },
-            ],
-            
+            LIST_FILE_ATTACHMENT: listFileAttachments,
             ACCOUNT__ID: ACCOUNT__ID,
+            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
         });
         return product;
     }
     static async createProductfood(
         name, code, short_desc,
         desc_product, number_inventory_product,
-        category_id, metadata, file_url, file_type,
+        category_id, metadata, file_attachments,quantity_by_key_value,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
-        const { sizes,types} = metadata;
+        const { sizes, types } = metadata;
+        const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const quantityByKeyValue = quantity_by_key_value.map(item => ({
+            QUANTITY: item.quantity,
+            LIST_MATCH_KEY: item.list_match_key.map(match => ({
+                KEY: match.key,
+                VALUE: match.value,
+            }))
+        }));
         // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
         // const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
         const product = await ProductModel.create({
@@ -102,14 +133,8 @@ class ProductService {
                 },
                 
             ],
-            LIST_FILE_ATTACHMENT: {
-                FILE_URL: file_url,
-                FILE_TYPE: file_type,
-                FROM_DATE: new Date(),
-                TO_DATE: null,
-
-            },
-
+            LIST_FILE_ATTACHMENT: listFileAttachments,
+            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
             ACCOUNT__ID: ACCOUNT__ID,
 
         });
@@ -118,12 +143,25 @@ class ProductService {
     static async createProductphone(
         name, code, short_desc,
         desc_product, number_inventory_product,
-        category_id, metadata, file_url, file_type,
+        category_id, metadata, file_attachments,quantity_by_key_value,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
-        const { memorys,colors} = metadata;
+        const { memorys, colors } = metadata;
+        const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const quantityByKeyValue = quantity_by_key_value.map(item => ({
+            QUANTITY: item.quantity,
+            LIST_MATCH_KEY: item.list_match_key.map(match => ({
+                KEY: match.key,
+                VALUE: match.value,
+            }))
+        }));
         // const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
         // const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
         const product = await ProductModel.create({
@@ -145,14 +183,9 @@ class ProductService {
                     VALUE: colors,
                 },
             ],
-            LIST_FILE_ATTACHMENT: [
-                {
-                    FILE_URL: file_url,
-                    FILE_TYPE: file_type,
-                    FROM_DATE: new Date(),
-                    TO_DATE: null
-                },
-            ],
+
+            LIST_FILE_ATTACHMENT: listFileAttachments,
+            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
 
             ACCOUNT__ID: ACCOUNT__ID,
 
@@ -160,14 +193,29 @@ class ProductService {
         return product;
     }
 
-    static async updateProduct(id_product, name, code, short_desc,
+    static async updateProduct(
+        name, code, short_desc,
         desc_product, number_inventory_product,
-        category_id, key, value, file_url, file_type,
+        category_id, metadata, file_attachments,quantity_by_key_value,
         account_id)
     {
         const ID = new ObjectId(id_product);
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
+
+        const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const quantityByKeyValue = quantity_by_key_value.map(item => ({
+            QUANTITY: item.quantity,
+            LIST_MATCH_KEY: item.list_match_key.map(match => ({
+                KEY: match.key,
+                VALUE: match.value,
+            }))
+        }));
         const updateProduct = await ProductModel.updateOne(
             {
                 ACCOUNT__ID: ACCOUNT__ID
@@ -189,24 +237,17 @@ class ProductService {
                         VALUE: value,
                     },
                     LIST_FILE_ATTACHMENT: {
-                        FILE_URL: file_url,
-                        FILE_TYPE: file_type,
-                        FROM_DATE: new Date(),
-                        TO_DATE: new Date(),
+                        $each: listFileAttachments
                     },
+                    QUANTITY_BY_KEY_VALUE: {
+                        $each: quantityByKeyValue
+                    }
                 }
             }
         );
         return updateProduct;
     }
 
-    // static async quantityProduct(
-    //     size, quantity)
-    // {
-    //     const ACCOUNT__ID = new ObjectId(account_id);
-    //     const CATEGORY_ID = new ObjectId(category_id);
-    //     const { size,quantity} = metadata;
-    // }
 
     static deleteProduct = async (id_product) => {
         const ID_PRODUCT = new ObjectId(id_product);
@@ -218,20 +259,23 @@ class ProductService {
                 }
             }
         );
-        // const updatePrice =  await PriceModel.updateMany(
-        //     { ID_PRODUCT: ID_PRODUCT },
-        //     {
-        //         $set: {
-        //             "LIST_PRICE.$[elem].TO_DATE": new Date(),
-        //         },
-        //     },
-        //     {
-        //         arrayFilters: [{ "elem.TO_DATE": null }] ,
-        //     }
-        // );
         return { deletedProduct };
         
     };
+//     static updateNumberInventoryProduct = async (id_product) => {
+//     const ID_PRODUCT = new ObjectId(id_product);
+//     const product = await ProductModel.findById(ID_PRODUCT);
+//     if (!product) {
+//       throw new Error("Product not found");
+//     }
+//     let totalQuantity = 0;
+//     product.QUANTITY_BY_KEY_VALUE.forEach((item) => {
+//       totalQuantity = totalQuantity + item.QUANTITY;
+//     });
+//     product.NUMBER_INVENTORY_PRODUCT = totalQuantity;
+//     product.save();
+//     return product;
+//   };
     
  
 }
