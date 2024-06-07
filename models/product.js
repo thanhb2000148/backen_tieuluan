@@ -71,9 +71,10 @@ var PRODUCT = new Schema({
           KEY: {
             type: String,
           },
-          VALUE: {
+          VALUE:
+            {
             type: String,
-          },
+            } 
         },
       ],
     },

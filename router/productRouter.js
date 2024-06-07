@@ -2,7 +2,7 @@ const router = require("express").Router();
 const productController = require('../controllers/productController');
 const verify = require("../middleware/verifyToken");
 
-router.get('/',verify.verityToken, productController.getAllProducts);
+router.get('/',verify.verityToken, productController.getProducts);
 router.get('/:id', productController.getProductById);
 router.post('/fashion', verify.verityToken, productController.createProductFashion);
 router.post('/food', verify.verityToken, productController.createProductFood);
