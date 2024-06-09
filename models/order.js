@@ -38,6 +38,16 @@ var ORDER = new Schema({
       QLT: {
         type: Number,
       },
+      LIST_MATCH_KEY: [
+        {
+          KEY: {
+            type: String,
+          },
+          VALUE: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   LIST_STATUS: [

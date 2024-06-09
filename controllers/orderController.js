@@ -26,6 +26,10 @@ class OrderController {
           data2: statusOrder1,
         });
       }
+      // const numberOrder = await OrderService.updateNumberProduct(
+      //   req.user.id_user
+      // );
+      // res.status(200).json({ data: numberOrder });
     } catch (error) {
       console.error("Error in addOrder:", error.message);
       res.status(400).json({ error: error.message }); // Trả về lỗi chi tiết hơn

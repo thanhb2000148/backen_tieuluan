@@ -5,8 +5,6 @@ const AddressService = require("../services/address.services");
 const CartService = require("../services/cart.service");
 const UserService = require("../services/user.service");
 const payment_method = require("../models/payment_method");
-const { provide } = require("vue");
-const { dropSearchIndex } = require("../models/account");
 const code = randomCode();
 class OrderService {
   static addOrder = async (
@@ -35,6 +33,7 @@ class OrderService {
             TO_DATE: cart.data.ITEM.TO_DATE,
             UNITPRICES: cart.data.ITEM.PRICE,
             QLT: cart.data.ITEM.QUANTITY,
+            LIST_MATCH_KEY: cart.data.ITEM.LIST_MATCH_KEY,
           })
         );
         const newOrder = await OrderModel.create({
@@ -165,6 +164,36 @@ class OrderService {
       );
       return updateStatus;
     }
+  };
+  static updateNumberProduct = async (id_user, keys, values) => {
+    const ID_USER = new ObjectId(id_user);
+    const Cart = CartService.getAllCart(ID_USER);
+    const NumberProduct = (await Cart)
+      .filter((item) => item.success)
+      .map((cart) => ({
+        QUANTITY: cart.data.ITEM.QUANTITY,
+      }));
+   
+    let matchCondition = {
+      $and: keys.map((key, index) => ({
+        "LIST_MATCH_KEY.KEY": key,
+        "LIST_MATCH_KEY.VALUE": values[index],
+      })),
+    };
+    const updateQuantity = await ProductModel.findOneAndUpdate(
+      {
+        _id: ID,
+        QUANTITY_BY_KEY_VALUE: {
+          $elemMatch: matchCondition,
+        },
+      },
+      {
+        $inc: {
+          "QUANTITY_BY_KEY_VALUE.$.QUANTITY": quantity,
+        },
+      },
+      { new: true, runValidators: true }
+    );
   };
 }
 
