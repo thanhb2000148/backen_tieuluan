@@ -11,7 +11,7 @@ const { json } = require("express");
 const PriceModel = require("../models/price");
 
 class ProductService {
-    static getProducts = async (account_id,page, limit) => {
+    static getProducts = async (page, limit) => {
         //  console.log("Page:", page);
         // console.log("Limit:", limit);
         //  console.log("Account ID:", account_id);
@@ -37,7 +37,7 @@ class ProductService {
     static async createProductFashion(
         name, code, short_desc,
         desc_product,
-        category_id, metadata, file_attachments,quantity_by_key_value,
+        category_id, metadata, file_attachments,
         account_id,)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
@@ -49,14 +49,14 @@ class ProductService {
             FROM_DATE: new Date(),
             TO_DATE: null,
         }));
-        const quantityByKeyValue = quantity_by_key_value.map(item => ({
-            QUANTITY: item.quantity,
-            LIST_MATCH_KEY: item.list_match_key.map(match => ({
-                KEY: match.key,
-                VALUE: match.value,
-            }))
-        }));
-        const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
+        // const quantityByKeyValue = quantity_by_key_value.map(item => ({
+        //     QUANTITY: item.quantity,
+        //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
+        //         KEY: match.key,
+        //         VALUE: match.value,
+        //     }))
+        // }));
+        // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
         //total: giá trị ban đầu là 0
         //item.quantity: giá trị của  quantity được nhập
         // console.log("#tongspluong: " + quantity);
@@ -68,7 +68,7 @@ class ProductService {
             CODE_PRODUCT: code,
             SHORT_DESC: short_desc,
             DESC_PRODUCT: desc_product,
-            NUMBER_INVENTORY_PRODUCT: quantity,
+            // NUMBER_INVENTORY_PRODUCT: ,
             CREATED_AT: new Date(),
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
@@ -85,14 +85,14 @@ class ProductService {
             ],
             LIST_FILE_ATTACHMENT: listFileAttachments,
             ACCOUNT__ID: ACCOUNT__ID,
-            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
+            // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
         });
         return product;
     }
     static async createProductfood(
         name, code, short_desc,
-        desc_product, number_inventory_product,
-        category_id, metadata, file_attachments,quantity_by_key_value,
+        desc_product, 
+        category_id, metadata, file_attachments,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
@@ -104,13 +104,15 @@ class ProductService {
             FROM_DATE: new Date(),
             TO_DATE: null,
         }));
-        const quantityByKeyValue = quantity_by_key_value.map(item => ({
-            QUANTITY: item.quantity,
-            LIST_MATCH_KEY: item.list_match_key.map(match => ({
-                KEY: match.key,
-                VALUE: match.value,
-            }))
-        }));
+        // const quantityByKeyValue = quantity_by_key_value.map(item => ({
+        //     QUANTITY: item.quantity,
+        //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
+        //         KEY: match.key,
+        //         VALUE: match.value,
+        //     }))
+        // }));
+        // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
+
         // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
         // const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
         const product = await ProductModel.create({
@@ -118,7 +120,7 @@ class ProductService {
             CODE_PRODUCT: code,
             SHORT_DESC: short_desc,
             DESC_PRODUCT: desc_product,
-            NUMBER_INVENTORY_PRODUCT: number_inventory_product,
+            // NUMBER_INVENTORY_PRODUCT: quantity,
             CREATED_AT: new Date(),
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
@@ -134,16 +136,15 @@ class ProductService {
                 
             ],
             LIST_FILE_ATTACHMENT: listFileAttachments,
-            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
             ACCOUNT__ID: ACCOUNT__ID,
-
+            // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
         });
         return product;
     }
     static async createProductphone(
         name, code, short_desc,
-        desc_product, number_inventory_product,
-        category_id, metadata, file_attachments,quantity_by_key_value,
+        desc_product, 
+        category_id, metadata, file_attachments,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
@@ -155,13 +156,15 @@ class ProductService {
             FROM_DATE: new Date(),
             TO_DATE: null,
         }));
-        const quantityByKeyValue = quantity_by_key_value.map(item => ({
-            QUANTITY: item.quantity,
-            LIST_MATCH_KEY: item.list_match_key.map(match => ({
-                KEY: match.key,
-                VALUE: match.value,
-            }))
-        }));
+        // const quantityByKeyValue = quantity_by_key_value.map(item => ({
+        //     QUANTITY: item.quantity,
+        //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
+        //         KEY: match.key,
+        //         VALUE: match.value,
+        //     }))
+        // }));
+        //  const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
+
         // const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
         // const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
         const product = await ProductModel.create({
@@ -169,7 +172,7 @@ class ProductService {
             CODE_PRODUCT: code,
             SHORT_DESC: short_desc,
             DESC_PRODUCT: desc_product,
-            NUMBER_INVENTORY_PRODUCT: number_inventory_product,
+            // NUMBER_INVENTORY_PRODUCT: number_inventory_product,
             CREATED_AT: new Date(),
             UPDATED_AT: null,
             CATEGORY_ID: CATEGORY_ID,
@@ -185,7 +188,7 @@ class ProductService {
             ],
 
             LIST_FILE_ATTACHMENT: listFileAttachments,
-            QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
+            // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
 
             ACCOUNT__ID: ACCOUNT__ID,
 
@@ -259,6 +262,7 @@ class ProductService {
                 }
             }
         );
+
         return { deletedProduct };
         
     };

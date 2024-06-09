@@ -18,13 +18,13 @@ const productSchema = Joi.object({
             file_type: Joi.string().required()
         })
     ).required(),
-    quantity_by_key_value: Joi.array().items(Joi.object({
-        quantity: Joi.number().required(),
-        list_match_key: Joi.array().items(Joi.object({
-            key: Joi.string().required(),
-            value: Joi.string().required()
-        })).required()
-    })).required()
+    // quantity_by_key_value: Joi.array().items(Joi.object({
+    //     quantity: Joi.number().required(),
+    //     list_match_key: Joi.array().items(Joi.object({
+    //         key: Joi.string().required(),
+    //         value: Joi.string().required()
+    //     })).required()
+    // })).required()
 });
 
 module.exports = { productSchema };

@@ -14,7 +14,7 @@ class ProductController {
     static getProducts = async (req, res, next) => {
         try {
             const products = await ProductService.getProducts(
-                req.user.id,
+                // req.user.id,
                 req.query.page,
                 req.query.limit
             );
@@ -52,7 +52,7 @@ class ProductController {
             }
             const {
                 name, code, short_desc, desc_product,
-                category_id, size, color, file_attachments,
+                category_id, size, color, file_attachments,number_inventory_product,
                 quantity_by_key_value } = req.body;
             
             const metadata = {
@@ -67,7 +67,8 @@ class ProductController {
                 category_id,
                 metadata,
                 file_attachments,
-                quantity_by_key_value,
+                // number_inventory_product,
+                // quantity_by_key_value,
                 req.user.id,
             );
             res.status(201).json({
@@ -85,8 +86,9 @@ class ProductController {
             if (error) {
                 return res.status(400).json({ message: error.details[0].message });
             }
-            const { name, code, short_desc, desc_product, number_inventory_product,
-                category_id, size, type, file_attachments,quantity_by_key_value } = req.body;
+            const { name, code, short_desc, desc_product, 
+                category_id, size, type,
+                file_attachments,quantity_by_key_value, } = req.body;
             const metadata = {
                 sizes: size,
                 types: type
@@ -96,11 +98,10 @@ class ProductController {
                 code,
                 short_desc,
                 desc_product,
-                number_inventory_product,
                 category_id,
                 metadata,
                 file_attachments,
-                quantity_by_key_value,
+                // quantity_by_key_value,
                 req.user.id
             );
             res.status(201).json({
@@ -119,7 +120,7 @@ class ProductController {
                 return res.status(400).json({ message: error.details[0].message });
             }
             const { name, code, short_desc, desc_product,
-                number_inventory_product, category_id,
+                category_id,
                 memory, color, file_attachments, quantity_by_key_value } = req.body;
             const metadata = {
                 memorys: memory,
@@ -130,7 +131,6 @@ class ProductController {
                 code,
                 short_desc,
                 desc_product,
-                number_inventory_product,
                 category_id,
                 metadata,
                 file_attachments,
