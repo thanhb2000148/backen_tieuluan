@@ -165,6 +165,36 @@ class OrderService {
       return updateStatus;
     }
   };
+  static updateNumberProduct = async (id_user, keys, values) => {
+    const ID_USER = new ObjectId(id_user);
+    const Cart = CartService.getAllCart(ID_USER);
+    const NumberProduct = (await Cart)
+      .filter((item) => item.success)
+      .map((cart) => ({
+        QUANTITY: cart.data.ITEM.QUANTITY,
+      }));
+   
+    let matchCondition = {
+      $and: keys.map((key, index) => ({
+        "LIST_MATCH_KEY.KEY": key,
+        "LIST_MATCH_KEY.VALUE": values[index],
+      })),
+    };
+    const updateQuantity = await ProductModel.findOneAndUpdate(
+      {
+        _id: ID,
+        QUANTITY_BY_KEY_VALUE: {
+          $elemMatch: matchCondition,
+        },
+      },
+      {
+        $inc: {
+          "QUANTITY_BY_KEY_VALUE.$.QUANTITY": quantity,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+  };
 }
 
 module.exports = OrderService;
