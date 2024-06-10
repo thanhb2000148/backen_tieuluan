@@ -11,16 +11,30 @@ const {
 
 
 class ProductController {
-    static getProducts = async (req, res, next) => {
+    // static getProducts = async (req, res, next) => {
+    //     try {
+    //         const products = await ProductService.getProducts(
+    //             // req.user.id,
+    //             req.query.page,
+    //             req.query.limit
+    //         );
+    //         res.status(200).json({
+    //             message: "Lấy tất cả sản phẩm thành công",
+    //             success: true, data: products,
+    //         });
+    //     } catch (error) {
+    //         res.status(500).json({
+    //             error: error.message
+    //         });
+    //     }
+    // }
+     static getProducts = async (req, res, next) => {
         try {
-            const products = await ProductService.getProducts(
-                // req.user.id,
-                req.query.page,
-                req.query.limit
-            );
+            const products = await ProductService.getProducts();
             res.status(200).json({
                 message: "Lấy tất cả sản phẩm thành công",
-                success: true, data: products,
+                success: true, 
+                data: products,
             });
         } catch (error) {
             res.status(500).json({

@@ -11,21 +11,31 @@ const { json } = require("express");
 const PriceModel = require("../models/price");
 
 class ProductService {
-    static getProducts = async (page, limit) => {
-        //  console.log("Page:", page);
-        // console.log("Limit:", limit);
-        //  console.log("Account ID:", account_id);
-        page = Number(page);
-        limit = Number(limit);
+    // static getProducts = async (page, limit) => {
+    //     //  console.log("Page:", page);
+    //     // console.log("Limit:", limit);
+    //     //  console.log("Account ID:", account_id);
+    //     page = Number(page);
+    //     limit = Number(limit);
+    //     const getProduct = await ProductModel.aggregate([
+    //         {
+    //             $match: {
+    //                IS_DELETED: false, 
+    //             }, 
+    //         },
+    //         { $skip: (page - 1) * limit },
+    //         { $limit: limit },
+    //     ])
+    //     return getProduct;
+    // }
+    static getProducts = async () => {
         const getProduct = await ProductModel.aggregate([
             {
                 $match: {
                    IS_DELETED: false, 
                 }, 
-            },
-            { $skip: (page - 1) * limit },
-            { $limit: limit },
-        ])
+            }
+        ]);
         return getProduct;
     }
 
