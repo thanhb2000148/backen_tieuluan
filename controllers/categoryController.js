@@ -47,7 +47,13 @@ class categoryController {
       if (!category) {
         return res.status(404).json({ message: "khong tim thay san pham" });
       }
-      res.status(200).json(category);
+      res
+        .status(200)
+        .json({
+          message: "tìm danh mục thành công",
+          success: true,
+          data: category,
+        });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
