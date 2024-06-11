@@ -68,5 +68,19 @@ const priceController = {
       res.status(500).json(error);
     }
   },
+  getPriceWithoutKey: async (req, res) => {
+    try {
+      const getPriceWithoutKey = await PriceService.getPriceWithoutKey(
+        req.params.id_priceDefault
+      );
+      res.status(200).json({
+        message: "Lấy giá thành công",
+        success: true,
+        data: getPriceWithoutKey,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
 module.exports = priceController;
