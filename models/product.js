@@ -52,6 +52,22 @@ var PRODUCT = new Schema({
     },
     },
   ],
+  LIST_FILE_ATTACHMENT_DEFAULT:[
+  {
+    FILE_URL: {
+      type: String,
+    },
+    FILE_TYPE: {
+      type: String,
+    },
+    FROM_DATE: {
+      type: Date,
+    },
+    TO_DATE: {
+      type: Date,
+    },
+    },
+  ],
   ACCOUNT__ID: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -71,10 +87,11 @@ var PRODUCT = new Schema({
           KEY: {
             type: String,
           },
-          VALUE:
+          VALUE:[
             {
             type: String,
-            } 
+            },
+          ],  
         },
       ],
     },

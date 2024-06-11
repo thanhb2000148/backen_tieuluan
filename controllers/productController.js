@@ -28,7 +28,7 @@ class ProductController {
     //         });
     //     }
     // }
-     static getProducts = async (req, res, next) => {
+    static getProducts = async (req, res, next) => {
         try {
             const products = await ProductService.getProducts();
             res.status(200).json({
@@ -57,6 +57,24 @@ class ProductController {
             res.status(500).json({ error: error.message });
         }
     }
+    static getProductsByCategory = async (req, res) => {
+        try {
+            const categoryId = req.params.id;
+            // console.log("Category ID:", categoryId);
+            const products = await ProductService.getProductsByCategory(categoryId);
+            if (!products || products.length === 0) {
+                return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào cho danh mục này' });
+            }
+            return res.status(200).json({
+                message: 'Lấy sản phẩm theo danh mục thành công',
+                success: true,
+                data: products,
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+    
     // Thời Trang
     static createProductFashion = async (req, res) => {
         try {
@@ -66,7 +84,7 @@ class ProductController {
             }
             const {
                 name, code, short_desc, desc_product,
-                category_id, size, color, file_attachments,number_inventory_product,
+                category_id, size, color, file_attachments,file_attachmentsdefault,number_inventory_product,
                 quantity_by_key_value } = req.body;
             
             const metadata = {
@@ -81,6 +99,7 @@ class ProductController {
                 category_id,
                 metadata,
                 file_attachments,
+                file_attachmentsdefault,
                 // number_inventory_product,
                 // quantity_by_key_value,
                 req.user.id,
@@ -102,7 +121,8 @@ class ProductController {
             }
             const { name, code, short_desc, desc_product, 
                 category_id, size, type,
-                file_attachments,quantity_by_key_value, } = req.body;
+                file_attachments,file_attachmentsdefault,
+                quantity_by_key_value, } = req.body;
             const metadata = {
                 sizes: size,
                 types: type
@@ -115,6 +135,7 @@ class ProductController {
                 category_id,
                 metadata,
                 file_attachments,
+                file_attachmentsdefault,
                 // quantity_by_key_value,
                 req.user.id
             );
@@ -135,7 +156,8 @@ class ProductController {
             }
             const { name, code, short_desc, desc_product,
                 category_id,
-                memory, color, file_attachments, quantity_by_key_value } = req.body;
+                memory, color, file_attachments,
+                file_attachmentsdefault,quantity_by_key_value } = req.body;
             const metadata = {
                 memorys: memory,
                 colors: color,
@@ -148,7 +170,7 @@ class ProductController {
                 category_id,
                 metadata,
                 file_attachments,
-                quantity_by_key_value,
+                file_attachmentsdefault,
                 req.user.id
             );
             res.status(201).json({
