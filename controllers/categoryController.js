@@ -16,24 +16,23 @@ class categoryController {
         },
       ]);
 
-      res
-        .status(200)
-        .json({
-          message: "lấy danh mục sản phẩm thành công",
-          success: true,
-          data: Categorys,
-        });
+      res.status(200).json({
+        message: "lấy danh mục sản phẩm thành công",
+        success: true,
+        data: Categorys,
+      });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   };
 
   static getCategoryById = async (req, res) => {
+    const ID = new ObjectId(req.params.id);
     try {
       const category = await CategoryModel.aggregate([
         {
           $match: {
-            _id: new ObjectId(req.params.id),
+            _id: ID,
           },
         },
         {
