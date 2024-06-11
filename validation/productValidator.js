@@ -18,6 +18,12 @@ const productSchema = Joi.object({
             file_type: Joi.string().required()
         })
     ).required(),
+     file_attachmentsdefault: Joi.array().items(
+        Joi.object({
+            file_url: Joi.string().required(),
+            file_type: Joi.string().required()
+        })
+    ).required(),
     // quantity_by_key_value: Joi.array().items(Joi.object({
     //     quantity: Joi.number().required(),
     //     list_match_key: Joi.array().items(Joi.object({

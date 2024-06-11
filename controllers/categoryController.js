@@ -48,6 +48,7 @@ class categoryController  {
     }
     static createCategory = async (req, res) => {
         try {
+            // console.log("id sản phẩm:", req.body.TYPE_PRODUCT_ID);
             const category = new CategoryModel(req.body);
             category.CREATED_AT = new Date();
             category.UPDATED_AT = new Date();

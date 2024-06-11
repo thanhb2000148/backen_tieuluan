@@ -12,9 +12,6 @@ const PriceModel = require("../models/price");
 
 class ProductService {
     // static getProducts = async (page, limit) => {
-    //     //  console.log("Page:", page);
-    //     // console.log("Limit:", limit);
-    //     //  console.log("Account ID:", account_id);
     //     page = Number(page);
     //     limit = Number(limit);
     //     const getProduct = await ProductModel.aggregate([
@@ -25,6 +22,11 @@ class ProductService {
     //         },
     //         { $skip: (page - 1) * limit },
     //         { $limit: limit },
+    //         {
+    //             $project: {
+    //                 IS_DELETED: 0
+    //             }
+    //         }
     //     ])
     //     return getProduct;
     // }
@@ -34,26 +36,49 @@ class ProductService {
                 $match: {
                    IS_DELETED: false, 
                 }, 
+            },
+            {
+                $project: {
+                    IS_DELETED: 0
+                }
             }
         ]);
         return getProduct;
     }
-
+   
     static async getProductById(id) {
-        return await ProductModel.findById(id).populate("CATEGORY_ID");
+        return await ProductModel.findById(id);
+    }
+    static getProductsByCategory = async (id) => {
+        const CATEGORY_ID = new ObjectId(id);
+        const products = await ProductModel.aggregate([
+        {
+            $match: {
+                CATEGORY_ID: CATEGORY_ID,
+                IS_DELETED: false
+            }
+        }
+    ]);
+    return products;
     }
 
     
     static async createProductFashion(
         name, code, short_desc,
         desc_product,
-        category_id, metadata, file_attachments,
+        category_id, metadata, file_attachments,file_attachmentsdefault,
         account_id,)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { colors, sizes } = metadata;
         const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+         const listFileAttachmentsdefault = file_attachmentsdefault.map(file => ({
             FILE_URL: file.file_url,
             FILE_TYPE: file.file_type,
             FROM_DATE: new Date(),
@@ -95,6 +120,7 @@ class ProductService {
             ],
             LIST_FILE_ATTACHMENT: listFileAttachments,
             ACCOUNT__ID: ACCOUNT__ID,
+            LIST_FILE_ATTACHMENT_DEFAULT: listFileAttachmentsdefault,
             // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
         });
         return product;
@@ -102,13 +128,19 @@ class ProductService {
     static async createProductfood(
         name, code, short_desc,
         desc_product, 
-        category_id, metadata, file_attachments,
+        category_id, metadata, file_attachments,file_attachmentsdefault,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { sizes, types } = metadata;
         const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const listFileAttachmentsdefault = file_attachmentsdefault.map(file => ({
             FILE_URL: file.file_url,
             FILE_TYPE: file.file_type,
             FROM_DATE: new Date(),
@@ -147,6 +179,7 @@ class ProductService {
             ],
             LIST_FILE_ATTACHMENT: listFileAttachments,
             ACCOUNT__ID: ACCOUNT__ID,
+            LIST_FILE_ATTACHMENT_DEFAULT: listFileAttachmentsdefault,
             // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
         });
         return product;
@@ -154,13 +187,19 @@ class ProductService {
     static async createProductphone(
         name, code, short_desc,
         desc_product, 
-        category_id, metadata, file_attachments,
+        category_id, metadata, file_attachments,file_attachmentsdefault,
         account_id)
     {
         const ACCOUNT__ID = new ObjectId(account_id);
         const CATEGORY_ID = new ObjectId(category_id);
         const { memorys, colors } = metadata;
         const listFileAttachments = file_attachments.map(file => ({
+            FILE_URL: file.file_url,
+            FILE_TYPE: file.file_type,
+            FROM_DATE: new Date(),
+            TO_DATE: null,
+        }));
+        const listFileAttachmentsdefault = file_attachmentsdefault.map(file => ({
             FILE_URL: file.file_url,
             FILE_TYPE: file.file_type,
             FROM_DATE: new Date(),
@@ -199,7 +238,7 @@ class ProductService {
 
             LIST_FILE_ATTACHMENT: listFileAttachments,
             // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
-
+            LIST_FILE_ATTACHMENT_DEFAULT: listFileAttachmentsdefault,
             ACCOUNT__ID: ACCOUNT__ID,
 
         });
