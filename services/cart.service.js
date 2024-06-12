@@ -6,7 +6,7 @@ const PriceService = require("../services/price.service");
 const ProductModel = require("../models/product");
 class CartService {
   // xem lai xu ly don gia mac dinh
-  static addCart = async (id_user, id_product, keys, values) => {
+  static addCart = async (id_user, id_product, keys = [], values = []) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
     let details = [];
@@ -24,7 +24,7 @@ class CartService {
     }
 
     let getPrice;
-    if (keys && values) {
+    if (keys.length > 0 && values.length > 0) {
       getPrice = await PriceService.getPriceProduct(id_product, keys, values);
     } else {
       getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
