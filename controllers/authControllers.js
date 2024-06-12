@@ -46,7 +46,6 @@ const authController = {
         GENGER_USER: req.body.gender_user,
         MIDDLE_NAME: req.body.middle_name,
         FULL_NAME: ` ${req.body.first_name} ${req.body.middle_name} ${req.body.last_name}`,
-        AVT_URL: req.body.avt,
       };
 
       const newUser = await UserService.addUser(payload);
