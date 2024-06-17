@@ -55,9 +55,10 @@ const paymentController = {
     try {
       const cod = await OrderService.updateStatusCOD(code, "COD");
       CartService.deleteAllCart(req.user.id_user);
-      await OrderService.statusOrder2(req.user.id);
+      await OrderService.statusOrder2COD(req.user.id);
       res.status(200).json({
         message: "success",
+        success: true,
         data: cod,
       });
     } catch (error) {

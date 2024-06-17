@@ -6,7 +6,7 @@ const PriceService = require("../services/price.service");
 const ProductModel = require("../models/product");
 class CartService {
   // xem lai xu ly don gia mac dinh
-  static addCart = async (id_user, id_product, keys, values) => {
+  static addCart = async (id_user, id_product, keys = [], values = []) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
     let details = [];
@@ -24,15 +24,19 @@ class CartService {
     }
 
     let getPrice;
-    if (keys && values) {
+    if (keys.length > 0 && values.length > 0) {
       getPrice = await PriceService.getPriceProduct(id_product, keys, values);
     } else {
       getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
     }
-    const matchConditions = keys.map((key, index) => ({
-      "LIST_MATCH_KEY.KEY": key,
-      "LIST_MATCH_KEY.VALUE": values[index],
-    }));
+    // Ensure matchConditions is non-empty before using it
+    const matchConditions =
+      keys.length > 0
+        ? keys.map((key, index) => ({
+            "LIST_MATCH_KEY.KEY": key,
+            "LIST_MATCH_KEY.VALUE": values[index],
+          }))
+        : [];
     const cart = await CartModel.findOne({
       USER_ID: ID_USER,
       LIST_PRODUCT: {
@@ -42,37 +46,61 @@ class CartService {
         },
       },
     });
-    // return cart;
     if (cart) {
-      const updateCart = await CartModel.updateOne(
-        {
-          USER_ID: ID_USER,
-          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
-          "LIST_PRODUCT.TO_DATE": null,
-          LIST_PRODUCT: {
-            $elemMatch: {
-              $and: matchConditions,
-            },
-          },
-        },
-        {
-          $inc: {
-            "LIST_PRODUCT.$[element].QUANTITY": 1,
-          },
-        },
-        {
-          arrayFilters: [
-            {
-              "element.ID_PRODUCT": ID_PRODUCT,
-              "element.TO_DATE": null,
-              "element.LIST_MATCH_KEY": {
-                $all: details.map((detail) => ({ $elemMatch: detail })), // xem lại chỗ này
+      if (matchConditions.length > 0) {
+        const updateCart = await CartModel.updateOne(
+          {
+            USER_ID: ID_USER,
+            "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+            "LIST_PRODUCT.TO_DATE": null,
+            LIST_PRODUCT: {
+              $elemMatch: {
+                $and: matchConditions,
               },
             },
-          ],
-        }
-      );
-      return updateCart;
+          },
+          {
+            $inc: {
+              "LIST_PRODUCT.$[element].QUANTITY": 1,
+            },
+          },
+          {
+            arrayFilters: [
+              {
+                "element.ID_PRODUCT": ID_PRODUCT,
+                "element.TO_DATE": null,
+                "element.LIST_MATCH_KEY": {
+                  $all: details.map((detail) => ({ $elemMatch: detail })), // xem lại chỗ này
+                },
+              },
+            ],
+          }
+        );
+        return updateCart;
+      } else {
+        // Khi không có matchConditions, cập nhật giỏ hàng bằng cách thêm sản phẩm mới hoặc tăng số lượng sản phẩm hiện có.
+        const updateCart = await CartModel.updateOne(
+          {
+            USER_ID: ID_USER,
+            "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+            "LIST_PRODUCT.TO_DATE": null,
+          },
+          {
+            $inc: {
+              "LIST_PRODUCT.$[element].QUANTITY": 1,
+            },
+          },
+          {
+            arrayFilters: [
+              {
+                "element.ID_PRODUCT": ID_PRODUCT,
+                "element.TO_DATE": null,
+              },
+            ],
+          }
+        );
+        return updateCart;
+      }
     } else {
       const addCart = await CartModel.updateOne(
         {
@@ -175,9 +203,16 @@ class CartService {
           "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
         },
       },
+      {
+        $match: {
+          ITEM: { $ne: {} },
+        },
+      },
     ]);
+
     return getCart;
   };
+
   static getAllCart = async (id_user) => {
     const ID_USER = new ObjectId(id_user);
     const getCart = await CartModel.aggregate([
@@ -245,22 +280,14 @@ class CartService {
           "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
         },
       },
+      {
+        $match: {
+          "ITEM.ID_PRODUCT": { $exists: true },
+        },
+      },
     ]);
-    const processedCart = getCart.map((cart) => {
-      if (Object.keys(cart.ITEM).length === 0) {
-        return {
-          message: "Giỏ hàng rỗng",
-          success: false,
-          data: [],
-        };
-      } else {
-        return {
-          success: true,
-          data: cart,
-        };
-      }
-    });
-    return processedCart;
+
+    return getCart;
   };
   static getPriceCart = async (id_user) => {
     const ID_USER = new ObjectId(id_user);
@@ -355,6 +382,40 @@ class CartService {
         },
       }
     );
+    return updateCart;
+  };
+  static updateNumberCart = async (userId, productId, matchKeys, newPrice) => {
+    const ID_USER = new ObjectId(userId);
+    const ID_PRODUCT = new ObjectId(productId);
+
+    let updateQuery;
+
+    if (matchKeys && matchKeys.length > 0) {
+      const matchKeyConditions = matchKeys.map((matchKey) => ({
+        "LIST_PRODUCT.LIST_MATCH_KEY.KEY": matchKey.KEY,
+        "LIST_PRODUCT.LIST_MATCH_KEY.VALUE": matchKey.VALUE,
+      }));
+
+      updateQuery = {
+        USER_ID: ID_USER,
+        "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+        "LIST_PRODUCT.TO_DATE": null,
+        $and: matchKeyConditions,
+      };
+    } else {
+      updateQuery = {
+        USER_ID: ID_USER,
+        "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+        "LIST_PRODUCT.TO_DATE": null,
+        "LIST_PRODUCT.LIST_MATCH_KEY": { $size: 0 },
+      };
+    }
+
+    const updateCart = await CartModel.updateOne(updateQuery, {
+      $set: {
+        "LIST_PRODUCT.$.QUANTITY": newPrice,
+      },
+    });
     return updateCart;
   };
 }
