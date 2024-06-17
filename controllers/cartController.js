@@ -19,7 +19,7 @@ const cartController = {
   },
   getCart: async (req, res) => {
     try {
-      const getCart = await CartService.getAllCart(
+      const getCart = await CartService.getCart(
         req.user.id_user,
         req.query.page,
         req.query.limit
@@ -29,7 +29,6 @@ const cartController = {
         success: true,
         data: getCart,
       });
-      return getCart;
     } catch (error) {
       res.status(500).json(error);
     }
@@ -45,6 +44,23 @@ const cartController = {
         message: "Cập nhật giỏ hàng thành công",
         success: true,
         data: updateCart,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  updateNumberCart: async (req, res) => {
+    try {
+      const updateNumberCart = await CartService.updateNumberCart(
+        req.user.id_user,
+        req.body.id_product,
+        req.body.list_match_key,
+        req.body.numberCart
+      );
+      res.status(200).json({
+        message: "Cập nhật giỏ hàng thành công",
+        success: true,
+        data: updateNumberCart,
       });
     } catch (error) {
       res.status(500).json(error);
