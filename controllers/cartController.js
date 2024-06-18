@@ -2,17 +2,29 @@ const CartService = require("../services/cart.service");
 const cartController = {
   addCart: async (req, res) => {
     try {
-      const newCart = await CartService.addCart(
-        req.user.id_user,
-        req.params.id,
-        req.body.key,
-        req.body.value
-      );
-      res.status(200).json({
-        message: "Thêm sản phẩm thành công",
-        success: true,
-        data: newCart,
-      });
+      if (req.body.key && req.body.value) {
+        const newCart = await CartService.addCartKV(
+          req.user.id_user,
+          req.params.id,
+          req.body.key,
+          req.body.value
+        );
+        res.status(200).json({
+          message: "Thêm sản phẩm thành công",
+          success: true,
+          data: newCart,
+        });
+      } else {
+        const newCart = await CartService.addCartNonKV(
+          req.user.id_user,
+          req.params.id
+        );
+        res.status(200).json({
+          message: "Thêm sản phẩm thành công",
+          success: true,
+          data: newCart,
+        });
+      }
     } catch (error) {
       res.status(500).json(error);
     }

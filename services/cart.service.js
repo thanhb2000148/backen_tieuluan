@@ -27,9 +27,8 @@ class CartService {
     if (keys.length > 0 && values.length > 0) {
       getPrice = await PriceService.getPriceProduct(id_product, keys, values);
     } else {
-      getPrice = await PriceService.getPriceWithoutKey(id_product); // lay don gia mac dinh
+      getPrice = await PriceService.getPriceWithoutKey(id_product);
     }
-    // Ensure matchConditions is non-empty before using it
     const matchConditions =
       keys.length > 0
         ? keys.map((key, index) => ({
@@ -129,6 +128,191 @@ class CartService {
         }
       );
       return addCart;
+    }
+  };
+  static addCartNonKV = async (id_user, id_product) => {
+    const ID_USER = new ObjectId(id_user);
+    const ID_PRODUCT = new ObjectId(id_product);
+    let getPrice;
+    if (id_product) {
+      getPrice = await PriceService.getPriceWithoutKey(id_product);
+    }
+    const cart = await CartModel.aggregate([
+      {
+        $match: {
+          USER_ID: ID_USER,
+        },
+      },
+      {
+        $unwind: "$LIST_PRODUCT",
+      },
+      {
+        $match: {
+          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+          "LIST_PRODUCT.TO_DATE": null,
+          "LIST_PRODUCT.LIST_MATCH_KEY": [],
+        },
+      },
+    ]);
+    if (cart.length === 0) {
+      const addCart = await CartModel.updateOne(
+        {
+          USER_ID: ID_USER,
+          LIST_PRODUCT_MAX_NUMBER: {
+            $lt: 10,
+          },
+        },
+        {
+          $push: {
+            LIST_PRODUCT: {
+              ID_PRODUCT: ID_PRODUCT,
+              FROM_DATE: new Date(),
+              TO_DATE: null,
+              QUANTITY: 1,
+              PRICE: getPrice[0].PRICE_NUMBER,
+            },
+          },
+          $inc: {
+            LIST_PRODUCT_MAX_NUMBER: 1,
+          },
+        },
+        {
+          upsert: true,
+        }
+      );
+      return addCart;
+    } else {
+      const updateCart = await CartModel.updateOne(
+        {
+          USER_ID: ID_USER,
+          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+          "LIST_PRODUCT.TO_DATE": null,
+          LIST_PRODUCT: {
+            $elemMatch: {
+              LIST_MATCH_KEY: [],
+            },
+          },
+        },
+        {
+          $inc: {
+            "LIST_PRODUCT.$[element].QUANTITY": 1,
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "element.ID_PRODUCT": ID_PRODUCT,
+              "element.TO_DATE": null,
+            },
+          ],
+        }
+      );
+      return updateCart;
+    }
+  };
+  static addCartKV = async (id_user, id_product, keys, values) => {
+    const ID_USER = new ObjectId(id_user);
+    const ID_PRODUCT = new ObjectId(id_product);
+    let details = [];
+
+    if (
+      Array.isArray(keys) &&
+      Array.isArray(values) &&
+      keys.length === values.length
+    ) {
+      for (let i = 0; i < keys.length; i++) {
+        details.push({
+          KEY: keys[i],
+          VALUE: values[i],
+        });
+      }
+    }
+
+    let getPrice;
+    if (id_product) {
+      getPrice = await PriceService.getPriceProduct(id_product, keys, values);
+    }
+
+    const matchConditions = details.map((detail) => ({
+      $elemMatch: detail,
+    }));
+
+    const cart = await CartModel.aggregate([
+      {
+        $match: {
+          USER_ID: ID_USER,
+        },
+      },
+      {
+        $unwind: "$LIST_PRODUCT",
+      },
+      {
+        $match: {
+          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+          "LIST_PRODUCT.TO_DATE": null,
+          "LIST_PRODUCT.LIST_MATCH_KEY": {
+            $all: matchConditions,
+          },
+        },
+      },
+    ]);
+
+    if (cart.length === 0) {
+      const addCart = await CartModel.updateOne(
+        {
+          USER_ID: ID_USER,
+          LIST_PRODUCT_MAX_NUMBER: {
+            $lt: 10,
+          },
+        },
+        {
+          $push: {
+            LIST_PRODUCT: {
+              ID_PRODUCT: ID_PRODUCT,
+              FROM_DATE: new Date(),
+              TO_DATE: null,
+              QUANTITY: 1,
+              PRICE: getPrice[0].PRICE_NUMBER,
+              LIST_MATCH_KEY: details,
+            },
+          },
+          $inc: {
+            LIST_PRODUCT_MAX_NUMBER: 1,
+          },
+        },
+        {
+          upsert: true,
+        }
+      );
+      return addCart;
+    } else {
+      const updateCart = await CartModel.updateOne(
+        {
+          USER_ID: ID_USER,
+          "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+          "LIST_PRODUCT.TO_DATE": null,
+          "LIST_PRODUCT.LIST_MATCH_KEY": {
+            $all: matchConditions,
+          },
+        },
+        {
+          $inc: {
+            "LIST_PRODUCT.$[element].QUANTITY": 1,
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "element.ID_PRODUCT": ID_PRODUCT,
+              "element.TO_DATE": null,
+              "element.LIST_MATCH_KEY": {
+                $all: matchConditions,
+              },
+            },
+          ],
+        }
+      );
+      return updateCart;
     }
   };
 
