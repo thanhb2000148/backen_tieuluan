@@ -16,7 +16,11 @@ const addressController = {
         req.body.commune,
         req.body.desc
       );
-      res.status(200).json(addAddress);
+      res.status(200).json({
+        message: "thêm địa chỉ thành công",
+        success: true,
+        data: addAddress,
+      });
     } catch (error) {
       console.error(error);
       res.status(400).json(error);
@@ -44,7 +48,11 @@ const addressController = {
         req.query.page,
         req.query.limit
       );
-      res.status(200).json(getAddressUser);
+      res.status(200).json({
+        message: "lấy địa chỉ thành công!",
+        success: true,
+        data: getAddressUser,
+      });
     } catch (error) {
       res.status(400).json(error);
     }
