@@ -48,13 +48,11 @@ const addressController = {
         req.query.page,
         req.query.limit
       );
-      res
-        .status(200)
-        .json({
-          message: "lấy địa chỉ thành công",
-          success: true,
-          data: getAddressUser,
-        });
+      res.status(200).json({
+        message: "lấy địa chỉ thành công!",
+        success: true,
+        data: getAddressUser,
+      });
     } catch (error) {
       res.status(400).json(error);
     }
