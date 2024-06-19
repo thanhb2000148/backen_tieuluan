@@ -1,4 +1,5 @@
 const CartService = require("../services/cart.service");
+const { message } = require("../validation/addressValidator");
 const cartController = {
   addCart: async (req, res) => {
     try {
@@ -76,6 +77,21 @@ const cartController = {
       });
     } catch (error) {
       res.status(500).json(error);
+    }
+  },
+  deleteCart: async (req, res) => {
+    try {
+      const deleteCart = await CartService.deleteCart(
+        req.user.id_user,
+        req.params.id
+      );
+      res.status(200).json({
+        message: "xóa thành công",
+        success: true,
+        data: deleteCart,
+      });
+    } catch (error) {
+      console.error(error);
     }
   },
 };

@@ -381,13 +381,6 @@ class CartService {
         },
       },
       {
-        $project: {
-          "ITEM._id": 0,
-          "ITEM.PRODUCT_DETAILS._id": 0,
-          "ITEM.PRODUCT_DETAILS.LIST_PRODUCT_METADATA": 0,
-        },
-      },
-      {
         $match: {
           ITEM: { $ne: {} },
         },
@@ -601,6 +594,25 @@ class CartService {
       },
     });
     return updateCart;
+  };
+  static deleteCart = async (id_user, id_list_product) => {
+    const ID_USER = new ObjectId(id_user);
+    const ID_LIST_PRODUCT = new ObjectId(id_list_product);
+    console.log("ID_USER:", id_user);
+    console.log("ID_LIST_PRODUCT:", id_list_product);
+    const deleteCart = await CartModel.updateOne(
+      {
+        USER_ID: ID_USER,
+        "LIST_PRODUCT._id": ID_LIST_PRODUCT,
+      },
+      {
+        $set: {
+          "LIST_PRODUCT.$.TO_DATE": new Date(),
+        },
+      }
+    );
+
+    return deleteCart;
   };
 }
 module.exports = CartService;

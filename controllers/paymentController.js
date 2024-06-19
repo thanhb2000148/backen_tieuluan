@@ -7,6 +7,12 @@ const moment = require("moment");
 const CryptoJS = require("crypto-js");
 const axios = require("axios").default;
 const code = codeOrder();
+const config = {
+  app_id: "2553",
+  key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
+  key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
+  endpoint: "https://sb-openapi.zalopay.vn/v2/create",
+};
 const paymentController = {
   payment: async (req, res) => {
     const price = await CartService.getPriceCart(req.user.id_user);
@@ -72,14 +78,9 @@ const paymentController = {
       });
     }
   },
+
   paymentZaloPay: async (req, res) => {
     const price = await CartService.getPriceCart(req.user.id_user);
-    const config = {
-      app_id: "2553",
-      key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
-      key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
-      endpoint: "https://sb-openapi.zalopay.vn/v2/create",
-    };
     const embed_data = {
       //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
       redirecturl: "https://phongthuytaman.com",
@@ -98,7 +99,8 @@ const paymentController = {
       amount: price,
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
-      callback_url: "https://b074-1-53-37-194.ngrok-free.app/callback",
+      callback_url:
+        "https://ed8d-2402-800-6343-e58a-15bc-67ef-a2f6-851a.ngrok-free.app/v1/payment/callbackZalo",
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "",
     };
@@ -127,6 +129,42 @@ const paymentController = {
     } catch (error) {
       console.log(error);
     }
+  },
+  callbacksZaloPay: async (req, res, next) => {
+    let result = {};
+    console.log(req.body);
+    try {
+      let dataStr = req.body.data;
+      let reqMac = req.body.mac;
+
+      let mac = CryptoJS.HmacSHA256(dataStr, config.key2).toString();
+      console.log("mac =", mac);
+
+      // kiểm tra callback hợp lệ (đến từ ZaloPay server)
+      if (reqMac !== mac) {
+        // callback không hợp lệ
+        result.return_code = -1;
+        result.return_message = "mac not equal";
+      } else {
+        // thanh toán thành công
+        // merchant cập nhật trạng thái cho đơn hàng ở đây
+        let dataJson = JSON.parse(dataStr, config.key2);
+        console.log(
+          "update order's status = success where app_trans_id =",
+          dataJson["app_trans_id"]
+        );
+
+        result.return_code = 1;
+        result.return_message = "success";
+      }
+    } catch (ex) {
+      console.log("lỗi:::" + ex.message);
+      result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
+      result.return_message = ex.message;
+    }
+
+    // thông báo kết quả cho ZaloPay server
+    res.json(result);
   },
 };
 module.exports = paymentController;
