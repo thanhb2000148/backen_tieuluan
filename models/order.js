@@ -24,7 +24,7 @@ var ORDER = new Schema({
   LIST_PRODUCT: [
     {
       ID_PRODUCT: {
-        type: String,
+        type: Schema.Types.ObjectId,
       },
       FROM_DATE: {
         type: Date,

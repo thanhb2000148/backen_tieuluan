@@ -41,6 +41,17 @@ const addressController = {
       res.status(400).json(error);
     }
   },
+  getAddressById: async (req, res, next) => {
+    try {
+      const findAddress = await AddressService.getAddressByID(
+        req.user.id_user,
+        req.params.id
+      );
+      res.status(200).json(findAddress);
+    } catch (error) {
+      res.status(400).json(error.messages);
+    }
+  },
   getAddress: async (req, res, next) => {
     try {
       const getAddressUser = await AddressService.getAddress(

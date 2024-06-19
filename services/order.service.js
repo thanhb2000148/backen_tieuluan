@@ -1,5 +1,6 @@
 const OrderModel = require("../models/order");
 const ObjectId = require("mongoose").Types.ObjectId;
+const ProductModel = require("../models/product");
 const randomCode = require("../utils/code");
 const AddressService = require("../services/address.services");
 const CartService = require("../services/cart.service");
@@ -199,36 +200,136 @@ class OrderService {
       return updateStatus;
     }
   };
-  static updateNumberProduct = async (id_user, keys, values) => {
-    const ID_USER = new ObjectId(id_user);
-    const Cart = CartService.getAllCart(ID_USER);
-    const NumberProduct = (await Cart)
-      .filter((item) => item.success)
-      .map((cart) => ({
-        QUANTITY: cart.data.ITEM.QUANTITY,
-      }));
+  // static updateNumberProduct = async (id_user, keys, values) => {
+  //   const ID_USER = new ObjectId(id_user);
+  //   const Cart = CartService.getAllCart(ID_USER);
+  //   const NumberProduct = (await Cart)
+  //     .filter((item) => item.success)
+  //     .map((cart) => ({
+  //       QUANTITY: cart.data.ITEM.QUANTITY,
+  //     }));
 
-    let matchCondition = {
-      $and: keys.map((key, index) => ({
-        "LIST_MATCH_KEY.KEY": key,
-        "LIST_MATCH_KEY.VALUE": values[index],
-      })),
-    };
-    const updateQuantity = await ProductModel.findOneAndUpdate(
-      {
-        _id: ID,
-        QUANTITY_BY_KEY_VALUE: {
-          $elemMatch: matchCondition,
+  //   let matchCondition = {
+  //     $and: keys.map((key, index) => ({
+  //       "LIST_MATCH_KEY.KEY": key,
+  //       "LIST_MATCH_KEY.VALUE": values[index],
+  //     })),
+  //   };
+  //   const updateQuantity = await ProductModel.findOneAndUpdate(
+  //     {
+  //       _id: ID,
+  //       QUANTITY_BY_KEY_VALUE: {
+  //         $elemMatch: matchCondition,
+  //       },
+  //     },
+  //     {
+  //       $inc: {
+  //         "QUANTITY_BY_KEY_VALUE.$.QUANTITY": quantity,
+  //       },
+  //     },
+  //     { new: true, runValidators: true }
+  //   );
+  // };
+  static updateNumberProduct = async (id_account) => {
+    try {
+      const ID_ACCOUNT = new ObjectId(id_account);
+      const order = await OrderModel.aggregate([
+        {
+          $match: {
+            ACCOUNT__ID: ID_ACCOUNT,
+          },
         },
-      },
-      {
+        {
+          $unwind: "$LIST_PRODUCT",
+        },
+      ]);
+
+      if (!order || order.length === 0) {
+        throw new Error("Order không tồn tại");
+      }
+
+      const item = order[0].LIST_PRODUCT; // Vì LIST_PRODUCT là một đối tượng
+
+      let updateQuery = {
+        _id: item.ID_PRODUCT,
+      };
+
+      if (item.LIST_MATCH_KEY && item.LIST_MATCH_KEY.length > 0) {
+        const matchCondition = {
+          $and: item.LIST_MATCH_KEY.map((keyValuePair) => ({
+            "LIST_MATCH_KEY.KEY": keyValuePair.KEY,
+            "LIST_MATCH_KEY.VALUE": keyValuePair.VALUE,
+          })),
+        };
+        updateQuery["QUANTITY_BY_KEY_VALUE"] = { $elemMatch: matchCondition };
+      }
+
+      const updateOperation = {
         $inc: {
-          "QUANTITY_BY_KEY_VALUE.$.QUANTITY": quantity,
+          "QUANTITY_BY_KEY_VALUE.$.QUANTITY": -item.QLT, // Giả sử bạn muốn trừ đi số lượng
         },
-      },
-      { new: true, runValidators: true }
-    );
+      };
+
+      const updateOptions = {
+        new: true,
+        runValidators: true,
+      };
+
+      let updateQuantity;
+      if (item.LIST_MATCH_KEY && item.LIST_MATCH_KEY.length > 0) {
+        updateQuantity = await ProductModel.findOneAndUpdate(
+          updateQuery,
+          updateOperation,
+          updateOptions
+        );
+      } else {
+        // Xử lý khi LIST_MATCH_KEY là mảng rỗng
+        updateQuantity = await ProductModel.findByIdAndUpdate(
+          item.ID_PRODUCT,
+          {
+            $inc: {
+              NUMBER_INVENTORY_PRODUCT: -item.QLT,
+            },
+          },
+          updateOptions
+        );
+      }
+
+      if (!updateQuantity) {
+        throw new Error("Không thể cập nhật số lượng sản phẩm");
+      }
+
+      return updateQuantity;
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.message);
+    }
   };
+
+  // static updateNumberProductPayment = async (id_account) =>{
+  //   const ID_ACCOUNT = new ObjectId(id_account);
+  //   const Cart = CartService.getAllCart(ID_ACCOUNT);
+  //   const NumberProduct = (await Cart)
+  //    .filter((item) => item.success)
+  //    .map((cart) => ({
+  //       QUANTITY: cart.data.ITEM.QUANTITY,
+  //     }));
+  //   const updateQuantity = await ProductModel.findOneAndUpdate(
+  //     {
+  //       _id: ID,
+  //       QUANTITY_BY_KEY_VALUE: {
+  //         $elemMatch: matchCondition,
+  //       },
+  //     },
+  //     {
+  //       $inc: {
+  //         "QUANTITY_BY_KEY_VALUE.$.QUANTITY": quantity,
+  //       },
+  //     },
+  //     { new: true, runValidators: true }
+  //   );
+  //   return updateQuantity;
+  // }
 }
 
 module.exports = OrderService;

@@ -1,7 +1,9 @@
 //https://developers.momo.vn/#/docs/en/aiov2/?id=payment-method
 //parameters
 const crypto = require("crypto");
-const axios = require("axios");
+const moment = require("moment");
+const CryptoJS = require("crypto-js");
+const axios = require("axios").default;
 class PaymentMethod {
   static payment = async (price) => {
     var accessKey = process.env.accessKeyMomo;

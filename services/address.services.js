@@ -48,7 +48,7 @@ class AddressService {
       res.status(400).json(error);
     }
   };
-  
+
   static updateAddress = async ({
     address_id,
     user_id,
@@ -160,6 +160,23 @@ class AddressService {
       console.error(error);
       throw error;
     }
+  };
+  static getAddressByID = async (user_id, id_address) => {
+    const USER_ID = new ObjectId(user_id);
+    const ADDRESS_ID = new ObjectId(id_address);
+    const getAddressId = AddressModel.findOne(
+      {
+        USER_ID: USER_ID,
+      },
+      {
+        LIST_ADDRESS: {
+          $elemMatch: {
+            _id: ADDRESS_ID,
+          },
+        },
+      }
+    );
+    return getAddressId;
   };
 }
 module.exports = AddressService;
