@@ -47,7 +47,13 @@ const addressController = {
         req.user.id_user,
         req.params.id
       );
-      res.status(200).json(findAddress);
+      res
+        .status(200)
+        .json({
+          message: "Lấy địa chỉ thành công",
+          success: true,
+          data: findAddress,
+        });
     } catch (error) {
       res.status(400).json(error.messages);
     }
