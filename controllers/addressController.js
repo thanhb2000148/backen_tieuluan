@@ -3,12 +3,12 @@ const addressValidator = require("../validation/addressValidator");
 const addressController = {
   addAddress: async (req, res, next) => {
     try {
-      const { error } = addressValidator.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          message: error.details[0].message,
-        });
-      }
+      // const { error } = addressValidator.validate(req.body);
+      // if (error) {
+      //   return res.status(400).json({
+      //     message: error.details[0].message,
+      //   });
+      // }
       const addAddress = await AddressService.addAddress(
         req.user.id_user,
         req.body.provide,
@@ -31,10 +31,10 @@ const addressController = {
       const addAddress = await AddressService.updateAddress({
         address_id: req.params.id,
         user_id: req.user.id_user,
-        province: req.body.provide,
-        district: req.body.district,
-        commune: req.body.commune,
-        desc: req.body.desc,
+        province: req.body.PROVINCE,
+        district: req.body.DISTRICT,
+        commune: req.body.COMMUNE,
+        desc: req.body.DESC,
       });
       res.status(200).json(addAddress);
     } catch (error) {
@@ -47,13 +47,11 @@ const addressController = {
         req.user.id_user,
         req.params.id
       );
-      res
-        .status(200)
-        .json({
-          message: "Lấy địa chỉ thành công",
-          success: true,
-          data: findAddress,
-        });
+      res.status(200).json({
+        message: "Lấy địa chỉ thành công",
+        success: true,
+        data: findAddress,
+      });
     } catch (error) {
       res.status(400).json(error.messages);
     }
