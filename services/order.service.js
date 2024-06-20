@@ -83,6 +83,17 @@ class OrderService {
     );
     return update;
   };
+  static updateStatusOrderZaloPay = async (orderCode, payment_method) => {
+    const update = await OrderModel.updateOne(
+      { ORDER_CODE: orderCode },
+      {
+        IS_PAYMENT: true,
+        TIME_PAYMENT: new Date(),
+        PAYMENT_METHOD: payment_method,
+      }
+    );
+    return update;
+  };
   static updateStatusCOD = async (orderCode, payment_method) => {
     const lastOrder = await OrderModel.findOne({ ORDER_CODE: null }).sort({
       _id: -1,

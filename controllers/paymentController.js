@@ -100,7 +100,7 @@ const paymentController = {
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
       callback_url:
-        "https://ed8d-2402-800-6343-e58a-15bc-67ef-a2f6-851a.ngrok-free.app/v1/payment/callbackZalo",
+        "https://c04d-2402-800-6343-e58a-15bc-67ef-a2f6-851a.ngrok-free.app/v1/payment/callbackZalo",
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "",
     };
@@ -124,8 +124,10 @@ const paymentController = {
 
     try {
       const result = await axios.post(config.endpoint, null, { params: order });
-
-      return res.status(200).json(result.data);
+      await OrderService.updateOrderCode(result.data.order_token);
+      await CartService.deleteAllCart(req.user.id_user);
+      await OrderService.statusOrder2(req.user.id);
+      return res.status(200).json(price);
     } catch (error) {
       console.log(error);
     }
@@ -148,6 +150,11 @@ const paymentController = {
       } else {
         // thanh toán thành công
         // merchant cập nhật trạng thái cho đơn hàng ở đây
+        // const { type } = req.body.data;
+        // console.log(type)
+        // if(type === 1){
+        //   await OrderService.updateStatusOrderZaloPay()
+        // }
         let dataJson = JSON.parse(dataStr, config.key2);
         console.log(
           "update order's status = success where app_trans_id =",

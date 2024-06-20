@@ -10,9 +10,5 @@ router.post(
   verify.verityToken,
   paymentController.paymentZaloPay
 );
-router.post(
-  "/callbackZalo",
-  verify.verityToken,
-  paymentController.callbacksZaloPay
-);
+router.post("/callbackZalo", paymentController.callbacksZaloPay);
 module.exports = router;
