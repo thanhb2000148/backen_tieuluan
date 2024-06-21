@@ -83,7 +83,7 @@ const paymentController = {
     const price = await CartService.getPriceCart(req.user.id_user);
     const embed_data = {
       //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
-      redirecturl: "https://phongthuytaman.com",
+      redirecturl: "http://localhost:3000/thanks",
     };
 
     const items = [];
@@ -100,7 +100,7 @@ const paymentController = {
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
       callback_url:
-        "https://c04d-2402-800-6343-e58a-15bc-67ef-a2f6-851a.ngrok-free.app/v1/payment/callbackZalo",
+        "https://5dfa-2402-800-6343-e58a-b141-9575-7e0b-ecc7.ngrok-free.app/v1/payment/callbackZalo",
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "",
     };
@@ -124,10 +124,13 @@ const paymentController = {
 
     try {
       const result = await axios.post(config.endpoint, null, { params: order });
-      await OrderService.updateOrderCode(result.data.order_token);
-      await CartService.deleteAllCart(req.user.id_user);
-      await OrderService.statusOrder2(req.user.id);
-      return res.status(200).json(price);
+      await OrderService.updateOrderCode(code);
+      if (result.data.return_code == 1) {
+        await CartService.deleteAllCart(req.user.id_user);
+        await OrderService.statusOrder2(req.user.id);
+      }
+
+      return res.status(200).json(result.data);
     } catch (error) {
       console.log(error);
     }
@@ -150,11 +153,11 @@ const paymentController = {
       } else {
         // thanh toán thành công
         // merchant cập nhật trạng thái cho đơn hàng ở đây
-        // const { type } = req.body.data;
-        // console.log(type)
-        // if(type === 1){
-        //   await OrderService.updateStatusOrderZaloPay()
-        // }
+        const type = req.body.type;
+        console.log(type);
+        if (type === 1) {
+          await OrderService.updateStatusOrderZaloPay(code, "ZALO PAY");
+        }
         let dataJson = JSON.parse(dataStr, config.key2);
         console.log(
           "update order's status = success where app_trans_id =",
