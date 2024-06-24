@@ -83,7 +83,7 @@ const paymentController = {
     const price = await CartService.getPriceCart(req.user.id_user);
     const embed_data = {
       //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
-      redirecturl: "http://localhost:3000/thanks",
+      redirecturl: "http://localhost:3001/thanks",
     };
 
     const items = [];
@@ -100,7 +100,7 @@ const paymentController = {
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
       callback_url:
-        "https://5dfa-2402-800-6343-e58a-b141-9575-7e0b-ecc7.ngrok-free.app/v1/payment/callbackZalo",
+        "https://ffcd-113-170-51-144.ngrok-free.app/v1/payment/callbackZalo",
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "",
     };

@@ -31,10 +31,10 @@ const addressController = {
       const addAddress = await AddressService.updateAddress({
         address_id: req.params.id,
         user_id: req.user.id_user,
-        province: req.body.provide,
-        district: req.body.district,
-        commune: req.body.commune,
-        desc: req.body.desc,
+        province: req.body.PROVIDE,
+        district: req.body.DISTRICT,
+        commune: req.body.COMMUNE,
+        desc: req.body.DESC,
       });
       res.status(200).json(addAddress);
     } catch (error) {
