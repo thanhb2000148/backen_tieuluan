@@ -571,38 +571,63 @@ class CartService {
     );
     return updateCart;
   };
-  static updateNumberCart = async (userId, productId, matchKeys, newPrice) => {
-    const ID_USER = new ObjectId(userId);
-    const ID_PRODUCT = new ObjectId(productId);
+  // static updateNumberCart = async (userId, productId, matchKeys, newPrice) => {
+  //   const ID_USER = new ObjectId(userId);
+  //   const ID_PRODUCT = new ObjectId(productId);
 
-    let updateQuery;
+  //   let updateQuery;
 
-    if (matchKeys && matchKeys.length > 0) {
-      const matchKeyConditions = matchKeys.map((matchKey) => ({
-        "LIST_PRODUCT.LIST_MATCH_KEY.KEY": matchKey.KEY,
-        "LIST_PRODUCT.LIST_MATCH_KEY.VALUE": matchKey.VALUE,
-      }));
+  //   if (matchKeys && matchKeys.length > 0) {
+  //     const matchKeyConditions = matchKeys.map((matchKey) => ({
+  //       "LIST_PRODUCT.LIST_MATCH_KEY.KEY": matchKey.KEY,
+  //       "LIST_PRODUCT.LIST_MATCH_KEY.VALUE": matchKey.VALUE,
+  //     }));
 
-      updateQuery = {
+  //     updateQuery = {
+  //       USER_ID: ID_USER,
+  //       "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+  //       "LIST_PRODUCT.TO_DATE": null,
+  //       $and: matchKeyConditions,
+  //     };
+  //   } else {
+  //     updateQuery = {
+  //       USER_ID: ID_USER,
+  //       "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
+  //       "LIST_PRODUCT.TO_DATE": null,
+  //       "LIST_PRODUCT.LIST_MATCH_KEY": { $size: 0 },
+  //     };
+  //   }
+
+  //   const updateCart = await CartModel.updateOne(updateQuery, {
+  //     $set: {
+  //       "LIST_PRODUCT.$.QUANTITY": newPrice,
+  //     },
+  //   });
+  //   return updateCart;
+  // };
+  static updateNumberCart = async (
+    user_id,
+    product_id,
+    id_list_product,
+    number_cart
+  ) => {
+    const ID_USER = new ObjectId(user_id);
+    const ID_PRODUCT = new ObjectId(product_id);
+    const id = new ObjectId(id_list_product);
+
+    const updateCart = await CartModel.updateOne(
+      {
         USER_ID: ID_USER,
         "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
-        "LIST_PRODUCT.TO_DATE": null,
-        $and: matchKeyConditions,
-      };
-    } else {
-      updateQuery = {
-        USER_ID: ID_USER,
-        "LIST_PRODUCT.ID_PRODUCT": ID_PRODUCT,
-        "LIST_PRODUCT.TO_DATE": null,
-        "LIST_PRODUCT.LIST_MATCH_KEY": { $size: 0 },
-      };
-    }
-
-    const updateCart = await CartModel.updateOne(updateQuery, {
-      $set: {
-        "LIST_PRODUCT.$.QUANTITY": newPrice,
+        "LIST_PRODUCT._id": id,
       },
-    });
+      {
+        $set: {
+          "LIST_PRODUCT.$.QUANTITY": number_cart,
+        },
+      }
+    );
+
     return updateCart;
   };
 

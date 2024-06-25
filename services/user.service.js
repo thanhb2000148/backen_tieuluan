@@ -1,7 +1,6 @@
 const UserModel = require("../models/user");
 const AccountModel = require("../models/account");
 const AddressModel = require("../models/address");
-const { json } = require("express");
 const ObjectId = require("mongoose").Types.ObjectId;
 class UserService {
   static addUser = async (payload) => {

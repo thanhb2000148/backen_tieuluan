@@ -64,10 +64,17 @@ const cartController = {
   },
   updateNumberCart: async (req, res) => {
     try {
+      // const updateNumberCart = await CartService.updateNumberCart(
+      //   req.user.id_user,
+      //   req.body.id_product,
+      //   req.body.list_match_key,
+      //   req.body.numberCart
+      // );
+
       const updateNumberCart = await CartService.updateNumberCart(
         req.user.id_user,
         req.body.id_product,
-        req.body.list_match_key,
+        req.body.id_list_product,
         req.body.numberCart
       );
       res.status(200).json({
