@@ -30,6 +30,29 @@ class ProductService {
     ]);
     return getProduct;
   };
+  
+  static async searchProducts(query, page = 1, limit = 10) {
+    page = Number(page);
+    limit = Number(limit);
+    const searchQuery = {
+      $or: [
+        { NAME_PRODUCT: { $regex: query, $options: "i" } },
+      ],
+      IS_DELETED: false,
+    };
+    const products = await ProductModel.aggregate([
+      { $match: searchQuery },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $project: {
+          IS_DELETED: 0,
+        },
+      },
+    ]);
+    return products;
+  };
+
   // static getProducts = async () => {
   //     const getProduct = await ProductModel.aggregate([
   //         {
