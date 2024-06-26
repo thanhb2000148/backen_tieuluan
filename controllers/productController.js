@@ -24,39 +24,22 @@ class ProductController {
       });
     }
     };
-    static searchProducts = async (req, res, next) => {
+   static searchProducts = async (req, res) => {
     try {
       const { query, page, limit } = req.query;
-      if (!query) {
-        return res.status(400).json({ message: "Thiếu từ khóa tìm kiếm" });
-      }
       const products = await ProductService.searchProducts(query, page, limit);
       res.status(200).json({
         message: "Tìm kiếm sản phẩm thành công",
         success: true,
-        data: products,
+        data: products
       });
     } catch (error) {
       res.status(500).json({
-        error: error.message,
+        message: error.message,
+        success: false
       });
     }
   };
-  // static getProducts = async (req, res, next) => {
-  //     try {
-  //         const products = await ProductService.getProducts();
-  //         res.status(200).json({
-  //             message: "Lấy tất cả sản phẩm thành công",
-  //             success: true,
-  //             data: products,
-  //         });
-  //     } catch (error) {
-  //         res.status(500).json({
-  //             error: error.message
-  //         });
-  //     }
-  // }
-
   static getProductById = async (req, res) => {
     try {
       const product = await ProductService.getProductById(req.params.id);

@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+const { productSchema } = require("../validation/productValidator");
 var Schema = mongoose.Schema;
 var PRODUCT = new Schema({
   NAME_PRODUCT: {
@@ -97,4 +98,12 @@ var PRODUCT = new Schema({
     },
   ],
 });
+
+PRODUCT.index(
+  {
+    NAME_PRODUCT: 'text',
+    SHORT_DESC: 'text',
+    DESC_PRODUCT: 'text'
+  }
+)
 module.exports = mongoose.model("product", PRODUCT);

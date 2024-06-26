@@ -7,7 +7,7 @@ const TypeProductModel = require("../models/type_product");
 // const ImagesService = require("../services/images.services");
 const { image } = require("../config/cloudinaryconfig");
 // const path = require("path");
-const { json } = require("express");
+const { json, text } = require("express");
 const PriceModel = require("../models/price");
 
 class ProductService {
@@ -31,44 +31,27 @@ class ProductService {
     return getProduct;
   };
   
-  static async searchProducts(query, page = 1, limit = 10) {
+
+  static async searchProducts(searchQuery, page = 1, limit = 10) {
     page = Number(page);
     limit = Number(limit);
-    const searchQuery = {
-      $or: [
-        { NAME_PRODUCT: { $regex: query, $options: "i" } },
-      ],
-      IS_DELETED: false,
+
+    const query = {
+      $text: { $search: searchQuery },
+      IS_DELETED: false
     };
-    const products = await ProductModel.aggregate([
-      { $match: searchQuery },
-      { $skip: (page - 1) * limit },
-      { $limit: limit },
-      {
-        $project: {
-          IS_DELETED: 0,
-        },
-      },
-    ]);
-    return products;
+
+    try {
+      const products = await ProductModel.find(query)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .select('-IS_DELETED');
+
+      return products;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   };
-
-  // static getProducts = async () => {
-  //     const getProduct = await ProductModel.aggregate([
-  //         {
-  //             $match: {
-  //                IS_DELETED: false,
-  //             },
-  //         },
-  //         {
-  //             $project: {
-  //                 IS_DELETED: 0
-  //             }
-  //         }
-  //     ]);
-  //     return getProduct;
-  // }
-
   static async getProductById(id) {
     return await ProductModel.findById(id);
   }
@@ -111,20 +94,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-    //total: giá trị ban đầu là 0
-    //item.quantity: giá trị của  quantity được nhập
-    // console.log("#tongspluong: " + quantity);
-
-    // const colorMetadata = colors.map(color => ({ KEY: "COLOR", VALUE: color }));
-    // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -177,17 +146,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-
-    // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
-    // const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -240,17 +198,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    //  const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-
-    // const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
-    // const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -353,20 +300,6 @@ class ProductService {
 
     return { deletedProduct };
   };
-  //     static updateNumberInventoryProduct = async (id_product) => {
-  //     const ID_PRODUCT = new ObjectId(id_product);
-  //     const product = await ProductModel.findById(ID_PRODUCT);
-  //     if (!product) {
-  //       throw new Error("Product not found");
-  //     }
-  //     let totalQuantity = 0;
-  //     product.QUANTITY_BY_KEY_VALUE.forEach((item) => {
-  //       totalQuantity = totalQuantity + item.QUANTITY;
-  //     });
-  //     product.NUMBER_INVENTORY_PRODUCT = totalQuantity;
-  //     product.save();
-  //     return product;
-  //   };
 }
 
 module.exports = ProductService;
