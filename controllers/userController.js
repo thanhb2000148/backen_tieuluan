@@ -1,8 +1,6 @@
-const { date } = require("joi");
 const account = require("../models/account");
-const user = require("../models/user");
 const UserModel = require("../models/user");
-const { message } = require("../validation/addressValidator");
+const UserService = require("../services/user.service");
 const userController = {
   getAllUsers: async (req, res) => {
     try {
@@ -53,7 +51,7 @@ const userController = {
   },
   getLoginUser: async (req, res) => {
     try {
-      const user = await account.findById(req.user.id).populate("USER_ID");
+      const user = await account.findById(req.user.id);
       res.status(200).json({
         message: "lấy thông tin người dùng đăng nhập thành công",
         success: true,
@@ -61,6 +59,18 @@ const userController = {
       });
     } catch (error) {
       res.status(500).json({ err: error.message });
+    }
+  },
+  getUserById: async (req, res) => {
+    try {
+      const user = await UserService.getUserById(req.params.id);
+      res.status(200).json({
+        message: "lấy thông tin người dùng thành công",
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error(error);
     }
   },
 };

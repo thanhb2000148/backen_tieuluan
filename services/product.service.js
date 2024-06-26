@@ -30,21 +30,21 @@ class ProductService {
     ]);
     return getProduct;
   };
-  // static getProducts = async () => {
-  //     const getProduct = await ProductModel.aggregate([
-  //         {
-  //             $match: {
-  //                IS_DELETED: false,
-  //             },
-  //         },
-  //         {
-  //             $project: {
-  //                 IS_DELETED: 0
-  //             }
-  //         }
-  //     ]);
-  //     return getProduct;
-  // }
+  static getProductsAll = async () => {
+    const getProduct = await ProductModel.aggregate([
+      {
+        $match: {
+          IS_DELETED: false,
+        },
+      },
+      {
+        $project: {
+          IS_DELETED: 0,
+        },
+      },
+    ]);
+    return getProduct;
+  };
 
   static async getProductById(id) {
     return await ProductModel.findById(id);
