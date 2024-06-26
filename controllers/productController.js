@@ -24,20 +24,20 @@ class ProductController {
       });
     }
   };
-  // static getProducts = async (req, res, next) => {
-  //     try {
-  //         const products = await ProductService.getProducts();
-  //         res.status(200).json({
-  //             message: "Lấy tất cả sản phẩm thành công",
-  //             success: true,
-  //             data: products,
-  //         });
-  //     } catch (error) {
-  //         res.status(500).json({
-  //             error: error.message
-  //         });
-  //     }
-  // }
+  static getProductsAll = async (req, res, next) => {
+    try {
+      const products = await ProductService.getProductsAll();
+      res.status(200).json({
+        message: "Lấy tất cả sản phẩm thành công",
+        success: true,
+        data: products,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: error.message,
+      });
+    }
+  };
 
   static getProductById = async (req, res) => {
     try {

@@ -256,7 +256,6 @@ class CartService {
         },
       },
     ]);
-
     if (cart.length === 0) {
       const addCart = await CartModel.updateOne(
         {

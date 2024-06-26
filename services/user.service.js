@@ -254,7 +254,7 @@ class UserService {
   };
   static getLoginUser = async (id_account) => {
     const ID_ACCOUNT = new ObjectId(id_account);
-    const user = await AccountModel.findById(ID_ACCOUNT).populate("USER_ID");
+    const user = await AccountModel.findById(ID_ACCOUNT);
     return user;
   };
   static getNumberPhoneUser = async (id_account) => {
@@ -286,6 +286,11 @@ class UserService {
       },
     ]);
     return user[0].user.PHONE_NUMBER;
+  };
+  static getUserById = async (id_user) => {
+    const ID_USER = new ObjectId(id_user);
+    const user = await UserModel.findOne({ _id: ID_USER });
+    return user;
   };
 }
 
