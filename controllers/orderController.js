@@ -35,6 +35,18 @@ class OrderController {
       res.status(400).json({ error: error.message }); // Trả về lỗi chi tiết hơn
     }
   };
+  static getUserOrder = async (req, res) => {
+    try {
+      const response = await OrderService.getUserOrder(req.user.id);
+      res.status(200).json({
+        success: true,
+        message: "Lấy thông tin đơn hàng thành công",
+        data: response,
+      });
+    } catch (error) {
+      console.error("Error in getUserOrder:", error.message);
+    }
+  };
 }
 
 module.exports = OrderController;
