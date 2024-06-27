@@ -316,6 +316,28 @@ class OrderService {
       throw new Error(error.message);
     }
   };
+  static getUserOrder = async (id_account) => {
+    const ID_ACCOUNT = new ObjectId(id_account);
+    const order = await OrderModel.aggregate([
+      {
+        $match: {
+          ACCOUNT__ID: ID_ACCOUNT,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "LIST_PRODUCT.ID_PRODUCT",
+          foreignField: "_id",
+          as: "PRODUCT",
+        },
+      },
+      {
+        $unwind: "$PRODUCT",
+      },
+    ]);
+    return order;
+  };
 
   // static updateNumberProductPayment = async (id_account) =>{
   //   const ID_ACCOUNT = new ObjectId(id_account);
