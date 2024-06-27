@@ -6,10 +6,10 @@ class OrderController {
       const addOrder = await OrderService.addOrder(
         req.user.id_user,
         req.user.id,
-        req.body.province,
-        req.body.district,
-        req.body.commune,
-        req.body.desc
+        req.body.PROVINCE,
+        req.body.DISTRICT,
+        req.body.COMMUNE,
+        req.body.DESC
       );
       if (addOrder.success == false) {
         res.status(200).json({

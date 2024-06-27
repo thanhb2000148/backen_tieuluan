@@ -31,6 +31,21 @@ class ProductService {
     return getProduct;
   };
   
+  static getProductsAll = async () => {
+    const getProduct = await ProductModel.aggregate([
+      {
+        $match: {
+          IS_DELETED: false,
+        },
+      },
+      {
+        $project: {
+          IS_DELETED: 0,
+        },
+      },
+    ]);
+    return getProduct;
+  };
 
   static async searchProducts(searchQuery, page = 1, limit = 10) {
     page = Number(page);
