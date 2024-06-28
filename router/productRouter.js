@@ -10,6 +10,7 @@ router.get('/category/:id', productController.getProductsByCategory);
 router.post('/fashion', verify.verityToken, productController.createProductFashion);
 router.post('/food', verify.verityToken, productController.createProductFood);
 router.post('/phone', verify.verityToken, productController.createProductPhone);
+router.post('/earphone', verify.verityToken, productController.createProductEarphone);
 router.put('/:id', verify.verityToken,productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
 module.exports = router;

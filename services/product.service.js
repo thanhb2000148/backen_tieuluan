@@ -120,11 +120,11 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "COLOR",
+          KEY: "Màu Sắc",
           VALUE: colors,
         },
         {
-          KEY: "SIZE",
+          KEY: "Kích Thước",
           VALUE: sizes,
         },
       ],
@@ -172,11 +172,11 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "SIZE",
+          KEY: "Kích Cỡ",
           VALUE: sizes,
         },
         {
-          KEY: "TYPE",
+          KEY: "Loại",
           VALUE: types,
         },
       ],
@@ -224,11 +224,64 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "MEMORY",
+          KEY: "Bộ Nhớ",
           VALUE: memorys,
         },
         {
-          KEY: "COLOR",
+          KEY: "Màu Sắc",
+          VALUE: colors,
+        },
+      ],
+
+      LIST_FILE_ATTACHMENT: listFileAttachments,
+      // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
+      LIST_FILE_ATTACHMENT_DEFAULT: listFileAttachmentsdefault,
+      ACCOUNT__ID: ACCOUNT__ID,
+    });
+    return product;
+  }
+  static async createProductEarphone(
+    name,
+    code,
+    short_desc,
+    desc_product,
+    category_id,
+    metadata,
+    file_attachments,
+    file_attachmentsdefault,
+    account_id
+  ) {
+    const ACCOUNT__ID = new ObjectId(account_id);
+    const CATEGORY_ID = new ObjectId(category_id);
+    const { memorys,colors } = metadata;
+    const listFileAttachments = file_attachments.map((file) => ({
+      FILE_URL: file.file_url,
+      FILE_TYPE: file.file_type,
+      FROM_DATE: new Date(),
+      TO_DATE: null,
+    }));
+    const listFileAttachmentsdefault = file_attachmentsdefault.map((file) => ({
+      FILE_URL: file.file_url,
+      FILE_TYPE: file.file_type,
+      FROM_DATE: new Date(),
+      TO_DATE: null,
+    }));
+    const product = await ProductModel.create({
+      NAME_PRODUCT: name,
+      CODE_PRODUCT: code,
+      SHORT_DESC: short_desc,
+      DESC_PRODUCT: desc_product,
+      // NUMBER_INVENTORY_PRODUCT: number_inventory_product,
+      CREATED_AT: new Date(),
+      UPDATED_AT: null,
+      CATEGORY_ID: CATEGORY_ID,
+      LIST_PRODUCT_METADATA: [
+        {
+          KEY: "Bộ Nhớ",
+          VALUE: memorys,
+        },
+        {
+          KEY: "Màu Sắc",
           VALUE: colors,
         },
       ],
