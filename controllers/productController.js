@@ -23,6 +23,22 @@ class ProductController {
         error: error.message,
       });
     }
+    };
+   static searchProducts = async (req, res) => {
+    try {
+      const { query, page, limit } = req.query;
+      const products = await ProductService.searchProducts(query, page, limit);
+      res.status(200).json({
+        message: "Tìm kiếm sản phẩm thành công",
+        success: true,
+        data: products
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+        success: false
+      });
+    }
   };
   static getProductsAll = async (req, res, next) => {
     try {
@@ -166,7 +182,49 @@ class ProductController {
     }
   };
   // Điện Thoại
-  static createProductPhone = async (req, res) => {
+  static createProductEarphone = async (req, res) => {
+    try {
+      const { error } = productSchema.validate(req.body);
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+      const {
+        name,
+        code,
+        short_desc,
+        desc_product,
+        category_id,
+        color,
+        memory,
+        file_attachments,
+        file_attachmentsdefault,
+      } = req.body;
+        const metadata = {
+        memorys: memory,
+        colors: color,
+      };
+      const savedProduct = await ProductService.createProductEarphone(
+        name,
+        code,
+        short_desc,
+        desc_product,
+        category_id,
+        metadata,
+        file_attachments,
+        file_attachmentsdefault,
+        req.user.id
+      );
+      res.status(201).json({
+        message: "Tạo sản phẩm thành công",
+        success: true,
+        data: savedProduct,
+      });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+    };
+
+    static createProductPhone = async (req, res) => {
     try {
       const { error } = productSchema.validate(req.body);
       if (error) {

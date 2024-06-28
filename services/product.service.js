@@ -7,7 +7,7 @@ const TypeProductModel = require("../models/type_product");
 // const ImagesService = require("../services/images.services");
 const { image } = require("../config/cloudinaryconfig");
 // const path = require("path");
-const { json } = require("express");
+const { json, text } = require("express");
 const PriceModel = require("../models/price");
 
 class ProductService {
@@ -30,6 +30,7 @@ class ProductService {
     ]);
     return getProduct;
   };
+  
   static getProductsAll = async () => {
     const getProduct = await ProductModel.aggregate([
       {
@@ -46,6 +47,26 @@ class ProductService {
     return getProduct;
   };
 
+  static async searchProducts(searchQuery, page = 1, limit = 10) {
+    page = Number(page);
+    limit = Number(limit);
+
+    const query = {
+      $text: { $search: searchQuery },
+      IS_DELETED: false
+    };
+
+    try {
+      const products = await ProductModel.find(query)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .select('-IS_DELETED');
+
+      return products;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
   static async getProductById(id) {
     return await ProductModel.findById(id);
   }
@@ -88,20 +109,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-    //total: giá trị ban đầu là 0
-    //item.quantity: giá trị của  quantity được nhập
-    // console.log("#tongspluong: " + quantity);
-
-    // const colorMetadata = colors.map(color => ({ KEY: "COLOR", VALUE: color }));
-    // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -113,11 +120,11 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "COLOR",
+          KEY: "Màu Sắc",
           VALUE: colors,
         },
         {
-          KEY: "SIZE",
+          KEY: "Kích Thước",
           VALUE: sizes,
         },
       ],
@@ -154,17 +161,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    // const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-
-    // const sizeMetadata = sizes.map(size => ({ KEY: "SIZE", VALUE: size }));
-    // const typeMetadata = types.map(type => ({ KEY: "TYPE", VALUE: type}));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -176,11 +172,11 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "SIZE",
+          KEY: "Kích Cỡ",
           VALUE: sizes,
         },
         {
-          KEY: "TYPE",
+          KEY: "Loại",
           VALUE: types,
         },
       ],
@@ -217,17 +213,6 @@ class ProductService {
       FROM_DATE: new Date(),
       TO_DATE: null,
     }));
-    // const quantityByKeyValue = quantity_by_key_value.map(item => ({
-    //     QUANTITY: item.quantity,
-    //     LIST_MATCH_KEY: item.list_match_key.map(match => ({
-    //         KEY: match.key,
-    //         VALUE: match.value,
-    //     }))
-    // }));
-    //  const quantity = quantity_by_key_value.reduce((total, item) => total + item.quantity, 0);
-
-    // const memoryMetadata = memorys.map(memory => ({ KEY: "MEMORY", VALUE: memory }));
-    // const colortadata = colors.map(color => ({ KEY: "COLOR", VALUE: color}));
     const product = await ProductModel.create({
       NAME_PRODUCT: name,
       CODE_PRODUCT: code,
@@ -239,11 +224,64 @@ class ProductService {
       CATEGORY_ID: CATEGORY_ID,
       LIST_PRODUCT_METADATA: [
         {
-          KEY: "MEMORY",
+          KEY: "Bộ Nhớ",
           VALUE: memorys,
         },
         {
-          KEY: "COLOR",
+          KEY: "Màu Sắc",
+          VALUE: colors,
+        },
+      ],
+
+      LIST_FILE_ATTACHMENT: listFileAttachments,
+      // QUANTITY_BY_KEY_VALUE: quantityByKeyValue,
+      LIST_FILE_ATTACHMENT_DEFAULT: listFileAttachmentsdefault,
+      ACCOUNT__ID: ACCOUNT__ID,
+    });
+    return product;
+  }
+  static async createProductEarphone(
+    name,
+    code,
+    short_desc,
+    desc_product,
+    category_id,
+    metadata,
+    file_attachments,
+    file_attachmentsdefault,
+    account_id
+  ) {
+    const ACCOUNT__ID = new ObjectId(account_id);
+    const CATEGORY_ID = new ObjectId(category_id);
+    const { memorys,colors } = metadata;
+    const listFileAttachments = file_attachments.map((file) => ({
+      FILE_URL: file.file_url,
+      FILE_TYPE: file.file_type,
+      FROM_DATE: new Date(),
+      TO_DATE: null,
+    }));
+    const listFileAttachmentsdefault = file_attachmentsdefault.map((file) => ({
+      FILE_URL: file.file_url,
+      FILE_TYPE: file.file_type,
+      FROM_DATE: new Date(),
+      TO_DATE: null,
+    }));
+    const product = await ProductModel.create({
+      NAME_PRODUCT: name,
+      CODE_PRODUCT: code,
+      SHORT_DESC: short_desc,
+      DESC_PRODUCT: desc_product,
+      // NUMBER_INVENTORY_PRODUCT: number_inventory_product,
+      CREATED_AT: new Date(),
+      UPDATED_AT: null,
+      CATEGORY_ID: CATEGORY_ID,
+      LIST_PRODUCT_METADATA: [
+        {
+          KEY: "Bộ Nhớ",
+          VALUE: memorys,
+        },
+        {
+          KEY: "Màu Sắc",
           VALUE: colors,
         },
       ],
@@ -330,20 +368,6 @@ class ProductService {
 
     return { deletedProduct };
   };
-  //     static updateNumberInventoryProduct = async (id_product) => {
-  //     const ID_PRODUCT = new ObjectId(id_product);
-  //     const product = await ProductModel.findById(ID_PRODUCT);
-  //     if (!product) {
-  //       throw new Error("Product not found");
-  //     }
-  //     let totalQuantity = 0;
-  //     product.QUANTITY_BY_KEY_VALUE.forEach((item) => {
-  //       totalQuantity = totalQuantity + item.QUANTITY;
-  //     });
-  //     product.NUMBER_INVENTORY_PRODUCT = totalQuantity;
-  //     product.save();
-  //     return product;
-  //   };
 }
 
 module.exports = ProductService;
