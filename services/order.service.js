@@ -107,6 +107,7 @@ class OrderService {
           IS_PAYMENT: false,
           TIME_PAYMENT: null,
           PAYMENT_METHOD: payment_method,
+          TIME_PAYMENT: new Date(),
         }
       );
       return update;
