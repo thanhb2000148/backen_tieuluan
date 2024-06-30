@@ -235,7 +235,29 @@ class CartService {
     const matchConditions = details.map((detail) => ({
       $elemMatch: detail,
     }));
-
+    let product;
+    if (id_product) {
+      product = await ProductModel.aggregate([
+        {
+          $match: {
+            _id: ID_PRODUCT,
+          },
+        },
+        {
+          $unwind: "$QUANTITY_BY_KEY_VALUE",
+        },
+        {
+          $match: {
+            "QUANTITY_BY_KEY_VALUE.LIST_MATCH_KEY": {
+              $all: matchConditions,
+            },
+          },
+        },
+      ]);
+    }
+    if (product.length === 0) {
+      throw new Error("Không tìm thấy sản phẩm với thông số chỉ định.");
+    }
     const cart = await CartModel.aggregate([
       {
         $match: {
@@ -272,6 +294,8 @@ class CartService {
               QUANTITY: 1,
               PRICE: getPrice[0].PRICE_NUMBER,
               LIST_MATCH_KEY: details,
+              NUMBER_PRODUCT: product[0].QUANTITY_BY_KEY_VALUE.QUANTITY,
+              ID_KEY_VALUE: product[0].QUANTITY_BY_KEY_VALUE,
             },
           },
           $inc: {

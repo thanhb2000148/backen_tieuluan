@@ -5,6 +5,7 @@ const randomCode = require("../utils/code");
 const AddressService = require("../services/address.services");
 const CartService = require("../services/cart.service");
 const UserService = require("../services/user.service");
+const Inventory_EntriesService = require("../services/inventory_entries.service");
 const payment_method = require("../models/payment_method");
 const code = randomCode();
 class OrderService {
@@ -34,6 +35,8 @@ class OrderService {
           UNITPRICES: cart.ITEM.PRICE,
           QLT: cart.ITEM.QUANTITY,
           LIST_MATCH_KEY: cart.ITEM.LIST_MATCH_KEY,
+          ID_KEY_VALUE: cart.ITEM.ID_KEY_VALUE,
+          NUMBER_PRODUCT: cart.ITEM.NUMBER_PRODUCT,
         }));
         const newOrder = await OrderModel.create({
           ORDER_CODE: null,
@@ -182,6 +185,9 @@ class OrderService {
     const lastOrder = await OrderModel.findOne({
       ACCOUNT__ID: ID_ACCOUNT,
     }).sort({ _id: -1 });
+    // lastOrder.LIST_PRODUCT[0].ID_PRODUCT
+    // lastOrder.LIST_PRODUCT[0].NUMBER_PRODUCT
+    // lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE
     if (lastOrder) {
       await OrderModel.updateOne(
         {
@@ -193,6 +199,14 @@ class OrderService {
             "LIST_STATUS.$.TO_DATE": new Date(),
           },
         }
+      );
+      await OrderService.updateNumberProductPayment(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT,
+        lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE,
+        lastOrder.LIST_PRODUCT[0].QLT
+      );
+      await Inventory_EntriesService.updateNumberInventoryProduct(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT
       );
       const updateStatus = await OrderModel.updateOne(
         {
@@ -364,6 +378,27 @@ class OrderService {
   //   );
   //   return updateQuantity;
   // }
+  static updateNumberProductPayment = async (
+    id_product,
+    id_key_value,
+    number_cart
+  ) => {
+    const ID_PRODUCT = new ObjectId(id_product);
+    const ID_KEY_VALUE = new ObjectId(id_key_value);
+    const update = ProductModel.updateOne(
+      {
+        _id: ID_PRODUCT,
+
+        "QUANTITY_BY_KEY_VALUE._id": ID_KEY_VALUE,
+      },
+      {
+        $inc: {
+          "QUANTITY_BY_KEY_VALUE.$.QUANTITY": -number_cart,
+        },
+      }
+    );
+    return update;
+  };
 }
 
 module.exports = OrderService;

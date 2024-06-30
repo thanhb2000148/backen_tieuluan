@@ -48,6 +48,13 @@ var ORDER = new Schema({
           },
         },
       ],
+      NUMBER_PRODUCT: {
+        type: Number,
+        default: 0,
+      },
+      ID_KEY_VALUE: {
+        type: Schema.Types.ObjectId,
+      },
     },
   ],
   LIST_STATUS: [
