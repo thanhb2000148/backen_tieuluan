@@ -209,7 +209,7 @@ class CartService {
       return updateCart;
     }
   };
-  static addCartKV = async (id_user, id_product, keys, values) => {
+  static addCartKV = async (id_user, id_product, keys, values, number = 1) => {
     const ID_USER = new ObjectId(id_user);
     const ID_PRODUCT = new ObjectId(id_product);
     let details = [];
@@ -291,7 +291,7 @@ class CartService {
               ID_PRODUCT: ID_PRODUCT,
               FROM_DATE: new Date(),
               TO_DATE: null,
-              QUANTITY: 1,
+              QUANTITY: number,
               PRICE: getPrice[0].PRICE_NUMBER,
               LIST_MATCH_KEY: details,
               NUMBER_PRODUCT: product[0].QUANTITY_BY_KEY_VALUE.QUANTITY,
@@ -319,7 +319,7 @@ class CartService {
         },
         {
           $inc: {
-            "LIST_PRODUCT.$[element].QUANTITY": 1,
+            "LIST_PRODUCT.$[element].QUANTITY": +number,
           },
         },
         {

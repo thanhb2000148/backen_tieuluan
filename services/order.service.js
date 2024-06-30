@@ -162,6 +162,14 @@ class OrderService {
           },
         }
       );
+      await OrderService.updateNumberProductPayment(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT,
+        lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE,
+        lastOrder.LIST_PRODUCT[0].QLT
+      );
+      await Inventory_EntriesService.updateNumberInventoryProduct(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT
+      );
       const updateStatus = await OrderModel.updateOne(
         {
           _id: lastOrder._id,

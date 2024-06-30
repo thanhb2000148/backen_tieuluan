@@ -8,7 +8,8 @@ const cartController = {
           req.user.id_user,
           req.params.id,
           req.body.key,
-          req.body.value
+          req.body.value,
+          req.body.number
         );
         res.status(200).json({
           message: "Thêm sản phẩm thành công",
