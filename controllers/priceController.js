@@ -22,9 +22,8 @@ const priceController = {
   getPrice: async (req, res) => {
     try {
       const id_product = req.params.id;
-      const keys = req.query.key;
-      const values = req.query.value;
-      console.log(keys, values);
+      const keys = req.body.key;
+      const values = req.body.value;
       const getPrice = await PriceService.getPriceProduct(
         id_product,
         keys,
