@@ -138,11 +138,11 @@ class PriceService {
         },
       },
     ]);
-
+    return getPrice;
     if (getPrice.length > 0) {
       return getPrice;
     } else {
-      throw new Error("Không tìm thấy giá cho sản phẩm với thông số chỉ định.");
+      console.error("Không tìm thấy giá cho sản phẩm với thông số chỉ định.");
     }
   };
 
