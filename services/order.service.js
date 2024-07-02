@@ -345,6 +345,7 @@ class OrderService {
       {
         $match: {
           ACCOUNT__ID: ID_ACCOUNT,
+          TIME_PAYMENT: { $ne: null },
         },
       },
       {
