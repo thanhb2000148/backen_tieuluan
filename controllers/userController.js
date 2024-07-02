@@ -4,7 +4,16 @@ const UserService = require("../services/user.service");
 const userController = {
   getAllUsers: async (req, res) => {
     try {
-      const User = await account.find().populate("USER_ID");
+      const User = await account.aggregate([
+        {
+          $lookup: {
+            from: "users",
+            localField: "USER_ID",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+      ]);
       res.status(200).json({
         message: "lấy thông tin người dùng thành công",
         success: true,
