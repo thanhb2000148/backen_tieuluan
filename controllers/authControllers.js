@@ -107,7 +107,7 @@ const authController = {
               id_user: loginAccount.USER_ID,
             },
             process.env.JWT_ACCESS_KEY, // key để đăng nhập vào
-            { expiresIn: "1h" } // thời gian token hết hạn
+            { expiresIn: "5h" } // thời gian token hết hạn
           );
           const refreshToken = jwt.sign(
             {
