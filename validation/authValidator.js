@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const registerUserSchema = Joi.object({
-  user_name: Joi.string().required(),
-  password: Joi.string().required(),
+  user_name: Joi.string().required().min(5),
+  password: Joi.string().required().min(3),
   first_name: Joi.string().required().min(2),
   last_name: Joi.string().required().min(2),
   middle_name: Joi.string().required().min(2),
@@ -11,8 +11,8 @@ const registerUserSchema = Joi.object({
 });
 
 const loginUserSchema = Joi.object({
-  user_name: Joi.string().required(),
-  password: Joi.string().required(),
+  user_name: Joi.string().required().min(5),
+  password: Joi.string().required().min(3),
 });
 
 module.exports = {
