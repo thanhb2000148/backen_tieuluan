@@ -16,10 +16,10 @@ var ACCOUNT = new Schema({
       type: Boolean,
       default: false,
     },
-    IS_STAFF: {
-      type: Boolean,
-      default: false,
-    },
+    // IS_STAFF: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   LIST_CODE_ACTIVE: [
     {

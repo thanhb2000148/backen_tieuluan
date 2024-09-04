@@ -1,6 +1,8 @@
 const account = require("../models/account");
 const UserModel = require("../models/user");
 const UserService = require("../services/user.service");
+const passport = require("../config/passport");
+
 const userController = {
   getAllUsers: async (req, res) => {
     try {
@@ -82,5 +84,29 @@ const userController = {
       console.error(error);
     }
   },
+  googleLogin: async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication failed!" });
+  }
+
+  try {
+    const user = await UserService.getUserById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    // Generate access token if needed
+    // const accessToken = generateAccessToken(user); // Implement this if necessary
+
+    return res.status(200).json({
+      message: "Authentication successful",
+      data: user,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
+  }
+},
+
 };
 module.exports = userController;

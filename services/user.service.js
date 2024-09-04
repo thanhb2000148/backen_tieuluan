@@ -2,6 +2,7 @@ const UserModel = require("../models/user");
 const AccountModel = require("../models/account");
 const AddressModel = require("../models/address");
 const ObjectId = require("mongoose").Types.ObjectId;
+const passport = require("../config/passport");
 class UserService {
   static addUser = async (payload) => {
     const newUser = new UserModel(payload);
@@ -15,6 +16,7 @@ class UserService {
     return newAccount;
   };
 
+ 
   static addCodeActive = async (user_id, code, type, exp_seconds = 60) => {
     const USER_ID = new ObjectId(user_id);
     await AccountModel.findOneAndUpdate(
@@ -257,6 +259,7 @@ class UserService {
     const user = await AccountModel.findById(ID_ACCOUNT);
     return user;
   };
+
   static getNumberPhoneUser = async (id_account) => {
     const ID_ACCOUNT = new ObjectId(id_account);
     const user = await AccountModel.aggregate([
@@ -287,11 +290,40 @@ class UserService {
     ]);
     return user[0].user.PHONE_NUMBER;
   };
+  
   static getUserById = async (id_user) => {
     const ID_USER = new ObjectId(id_user);
     const user = await UserModel.findOne({ _id: ID_USER });
     return user;
   };
+   static async findUserByGoogleId(googleId) {
+    try {
+      return await UserModel.findOne({ GOOGLE_ID: googleId });
+    } catch (error) {
+      console.error("Lỗi khi tìm người dùng bằng Google ID:", error);
+      throw error;
+    }
+  }
+
+
+  static async registerGoogleUser(body) {
+    try {
+      const newUser = new UserModel({
+        USERNAME: body.USERNAME,
+        FULL_NAME: body.FULL_NAME,
+        EMAIL_USER: body.EMAIL_USER,
+        GOOGLE_ID: body.GOOGLE_ID,
+        GENDER_USER: body.GENDER_USER,
+        AVT_URL: body.AVT_URL,
+      });
+      const result = await newUser.save();
+      return result.toObject();
+    } catch (error) {
+      console.error("Lỗi khi đăng ký người dùng mới:", error);
+      throw error;
+    }
+  }
+
 }
 
 module.exports = UserService;

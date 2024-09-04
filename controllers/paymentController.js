@@ -172,7 +172,6 @@ const paymentController = {
       result.return_code = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
       result.return_message = ex.message;
     }
-
     // thông báo kết quả cho ZaloPay server
     res.json(result);
   },
