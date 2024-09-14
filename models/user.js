@@ -28,5 +28,9 @@ var USER = new Schema({
   AVT_URL: {
     type: String,
   },
+  // GOOGLE_ID: {
+  //   type: String,
+  //   unique: true
+  // }
 });
 module.exports = mongoose.model("user", USER);

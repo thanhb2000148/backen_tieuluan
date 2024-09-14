@@ -56,5 +56,9 @@ var ACCOUNT = new Schema({
     type: Schema.Types.ObjectId,
     ref: "user",
   },
+  GOOGLE_ID: {
+    type: String,
+    unique: true
+  }
 });
 module.exports = mongoose.model("account", ACCOUNT);

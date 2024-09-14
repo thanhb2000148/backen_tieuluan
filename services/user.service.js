@@ -296,7 +296,8 @@ class UserService {
     const user = await UserModel.findOne({ _id: ID_USER });
     return user;
   };
-   static async findUserByGoogleId(googleId) {
+  
+  static async findUserByGoogleId(googleId) {
     try {
       return await UserModel.findOne({ GOOGLE_ID: googleId });
     } catch (error) {
@@ -304,25 +305,72 @@ class UserService {
       throw error;
     }
   }
+   static findUserById = async (id) => {
+    const ID_USER = new ObjectId(id);
+    const user = await UserModel.findById(ID_USER);
+    return user;
+  };
 
 
+  // static async registerGoogleUser(body) {
+  //   try {
+  //     const newUser = new UserModel({
+  //       USERNAME: body.USERNAME,
+  //       FULL_NAME: body.FULL_NAME,
+  //       EMAIL_USER: body.EMAIL_USER,
+  //       GOOGLE_ID: body.GOOGLE_ID,
+  //       GENDER_USER: body.GENDER_USER,
+  //       AVT_URL: body.AVT_URL,
+  //     });
+  //     const result = await newUser.save();
+  //     return result.toObject();
+  //   } catch (error) {
+  //     console.error("Lỗi khi đăng ký người dùng mới:", error);
+  //     throw error;
+  //   }
+  // }
   static async registerGoogleUser(body) {
-    try {
-      const newUser = new UserModel({
-        USERNAME: body.USERNAME,
-        FULL_NAME: body.FULL_NAME,
-        EMAIL_USER: body.EMAIL_USER,
-        GOOGLE_ID: body.GOOGLE_ID,
-        GENDER_USER: body.GENDER_USER,
-        AVT_URL: body.AVT_URL,
-      });
-      const result = await newUser.save();
-      return result.toObject();
-    } catch (error) {
-      console.error("Lỗi khi đăng ký người dùng mới:", error);
-      throw error;
+  try {
+    // Kiểm tra nếu người dùng đã tồn tại theo email
+    let existingUser = await UserModel.findOne({ EMAIL_USER: body.EMAIL_USER });
+    if (existingUser) {
+      return existingUser.toObject();
     }
+
+    // Đăng ký người dùng mới với thông tin Google
+    const newUser = new UserModel({
+      FIRST_NAME: body.FIRST_NAME,
+      MIDDLE_NAME: body.MIDDLE_NAME,
+      FULL_NAME: body.FULL_NAME,
+      LAST_NAME: body.LAST_NAME,
+      EMAIL_USER: body.EMAIL_USER,
+      // GOOGLE_ID: body.GOOGLE_ID,
+      GENDER_USER: body.GENDER_USER,
+       AVT_URL: body.AVT_URL || null,
+      CREATED_AT: new Date,
+      
+    });
+
+    // Lưu người dùng
+    const savedUser = await newUser.save();
+
+    // Tạo tài khoản tương ứng trong AccountModel
+    const newAccount = new AccountModel({
+      USER_ID: savedUser._id,
+      IS_ACTIVE: true,
+      GOOGLE_ID: body.GOOGLE_ID,
+
+      // Cấu hình thêm các trường khác cho Account nếu cần
+    });
+    await newAccount.save();
+
+    return savedUser.toObject();
+  } catch (error) {
+    console.error("Lỗi khi đăng ký người dùng mới:", error);
+    throw error;
   }
+}
+
 
 }
 

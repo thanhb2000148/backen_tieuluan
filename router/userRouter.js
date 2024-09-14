@@ -23,10 +23,10 @@ router.get(
 
 router.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
+  passport.authenticate('google', { session: true }),
   (req, res) => {
-    // Đăng nhập thành công, redirect đến trang chủ hoặc trang khác
-    res.redirect('/home');
+    // Redirect người dùng đến trang chủ sau khi đăng nhập thành công
+    res.redirect('http://localhost:3000'); // Trang chủ của bạn
   }
 );
 module.exports = router;
