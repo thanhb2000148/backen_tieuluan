@@ -16,10 +16,10 @@ var ACCOUNT = new Schema({
       type: Boolean,
       default: false,
     },
-    IS_STAFF: {
-      type: Boolean,
-      default: false,
-    },
+    // IS_STAFF: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   LIST_CODE_ACTIVE: [
     {
@@ -56,5 +56,9 @@ var ACCOUNT = new Schema({
     type: Schema.Types.ObjectId,
     ref: "user",
   },
+  GOOGLE_ID: {
+    type: String,
+    unique: true
+  }
 });
 module.exports = mongoose.model("account", ACCOUNT);

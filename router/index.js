@@ -15,6 +15,7 @@ const suppliersRouter = require("../router/suppliersRouter");
 const orderRouter = require("../router/orderRouter");
 const inventoryRouter = require("../router/inventory_entriesRouter");
 const testRouter = require("../router/testRouter");
+
 router.use("/v1/auth", authRouter);
 router.use("/v1/user", userRouter);
 router.use("/v1/sendMail", emailRouter);
