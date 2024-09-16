@@ -75,68 +75,92 @@ const authController = {
   // generate access token
   // Login
   loginUser: async (req, res) => {
-    try {
-      const { error } = loginUserSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
-      const loginAccount = await account.findOne({
-        USER_NAME: req.body.user_name,
-      });
-      if (!loginAccount) {
-        return res.status(404).json({
-          message: "sai tên đăng nhập",
-        });
-      }
-      const validPassword = await bcrypt.compare(
-        req.body.password,
-        loginAccount.PASSWORD
-      );
-      if (!validPassword) {
-        return res.status(400).json({
-          message: "sai mật khẩu",
-        });
-      }
-      const is_active = await UserService.checkActiveById(loginAccount.id);
-      if (is_active[0].IS_ACTIVE == true) {
-        if (loginAccount && validPassword) {
-          const accessToken = jwt.sign(
-            {
-              id: loginAccount.id,
-              admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
-              id_user: loginAccount.USER_ID,
-            },
-            process.env.JWT_ACCESS_KEY, // key để đăng nhập vào
-            { expiresIn: "5h" } // thời gian token hết hạn
-          );
-          const refreshToken = jwt.sign(
-            {
-              id: loginAccount.id,
-              admin: loginAccount.OBJECT_ROLE.IS_ADMIN,
-              id_user: loginAccount.USER_ID,
-            },
-            process.env.JWT_REFRESH_KEY, // key để đăng nhập vào
-            { expiresIn: "365d" } // thời gian token hết hạn
-          );
-
-          res.status(200).json({
-            message: "đăng nhập thành công",
-            success: true,
-            accessToken,
-            refreshToken,
-          });
-        }
-      } else {
-        return res.status(400).json({
-          message: "tài khoản chưa được kích hoạt",
-        });
-      }
-    } catch (e) {
-      res.status(500).json({
-        message: e.message,
+  try {
+    const { error } = loginUserSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+    const loginAccount = await account.findOne({
+      USER_NAME: req.body.user_name,
+    });
+    if (!loginAccount) {
+      return res.status(404).json({
+        message: "sai tên đăng nhập",
       });
     }
-  },
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      loginAccount.PASSWORD
+    );
+    if (!validPassword) {
+      return res.status(400).json({
+        message: "sai mật khẩu",
+      });
+    }
+    const is_active = await UserService.checkActiveById(loginAccount.id);
+    if (is_active[0].IS_ACTIVE == true) {
+      if (loginAccount && validPassword) {
+        const accessToken = UserService.generateAccessToken(loginAccount);
+        const refreshToken = UserService.generateRefreshToken(loginAccount);
+
+        res.status(200).json({
+          message: "đăng nhập thành công",
+          success: true,
+          accessToken,
+          refreshToken,
+        });
+      }
+    } else {
+      return res.status(400).json({
+        message: "tài khoản chưa được kích hoạt",
+      });
+    }
+  } catch (e) {
+    res.status(500).json({
+      message: e.message,
+    });
+  }
+},
+  // googleLogin: async (req, res) => {
+  // try {
+  //   const { google_id } = req.body;
+
+  //   // Tìm tài khoản bằng google_id
+  //   const loginAccount = await account.findOne({
+  //     GOOGLE_ID: google_id,
+  //   });
+
+  //   if (!loginAccount) {
+  //     return res.status(404).json({
+  //       message: "Tài khoản không tồn tại",
+  //     });
+  //   }
+
+  //   // Kiểm tra nếu tài khoản đã được kích hoạt
+  //   const is_active = await UserService.checkActiveById(loginAccount.id);
+  //   if (is_active[0].IS_ACTIVE) {
+  //     // Sử dụng service để tạo accessToken và refreshToken
+  //     const accessToken = UserService.generateAccessToken(loginAccount);
+  //     const refreshToken = UserService.generateRefreshToken(loginAccount);
+
+  //     res.status(200).json({
+  //       message: "Đăng nhập thành công",
+  //       success: true,
+  //       accessToken,
+  //       refreshToken,
+  //     });
+  //   } else {
+  //     return res.status(400).json({
+  //       message: "Tài khoản chưa được kích hoạt",
+  //     });
+  //   }
+  // } catch (e) {
+  //   res.status(500).json({
+  //     message: e.message,
+  //   });
+  // }
+// },
+
   activeAccount: async (req, res) => {
     try {
       const activeAccount = await UserService.getCodeByEmail(

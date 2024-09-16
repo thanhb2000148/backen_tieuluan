@@ -3,6 +3,8 @@ const AccountModel = require("../models/account");
 const AddressModel = require("../models/address");
 const ObjectId = require("mongoose").Types.ObjectId;
 const passport = require("../config/passport");
+const jwt = require("jsonwebtoken");
+
 class UserService {
   static addUser = async (payload) => {
     const newUser = new UserModel(payload);
@@ -254,6 +256,29 @@ class UserService {
     ]);
     return checkActive;
   };
+  static generateAccessToken = (user) => {
+    return jwt.sign(
+      {
+        id: user.id,
+        admin: user.OBJECT_ROLE.IS_ADMIN,
+        id_user: user.USER_ID,
+      },
+      process.env.JWT_ACCESS_KEY,
+      { expiresIn: "5h" }
+    );
+  };
+
+  static generateRefreshToken = (user) => {
+    return jwt.sign(
+      {
+        id: user.id,
+        // admin: user.OBJECT_ROLE.IS_ADMIN,
+        id_user: user.USER_ID,
+      },
+      process.env.JWT_REFRESH_KEY,
+      { expiresIn: "365d" }
+    );
+  };
   static getLoginUser = async (id_account) => {
     const ID_ACCOUNT = new ObjectId(id_account);
     const user = await AccountModel.findById(ID_ACCOUNT);
@@ -296,7 +321,13 @@ class UserService {
     const user = await UserModel.findOne({ _id: ID_USER });
     return user;
   };
-  
+  static findUserById = async (id) => {
+    const ID_USER = new ObjectId(id);
+    const user = await UserModel.findById(ID_USER);
+    return user;
+  };
+
+  //Phần Google
   static async findUserByGoogleId(googleId) {
     try {
       return await UserModel.findOne({ GOOGLE_ID: googleId });
@@ -305,30 +336,6 @@ class UserService {
       throw error;
     }
   }
-   static findUserById = async (id) => {
-    const ID_USER = new ObjectId(id);
-    const user = await UserModel.findById(ID_USER);
-    return user;
-  };
-
-
-  // static async registerGoogleUser(body) {
-  //   try {
-  //     const newUser = new UserModel({
-  //       USERNAME: body.USERNAME,
-  //       FULL_NAME: body.FULL_NAME,
-  //       EMAIL_USER: body.EMAIL_USER,
-  //       GOOGLE_ID: body.GOOGLE_ID,
-  //       GENDER_USER: body.GENDER_USER,
-  //       AVT_URL: body.AVT_URL,
-  //     });
-  //     const result = await newUser.save();
-  //     return result.toObject();
-  //   } catch (error) {
-  //     console.error("Lỗi khi đăng ký người dùng mới:", error);
-  //     throw error;
-  //   }
-  // }
   static async registerGoogleUser(body) {
   try {
     // Kiểm tra nếu người dùng đã tồn tại theo email
