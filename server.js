@@ -5,13 +5,13 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const connectDB = require("./database/connectDB");
 const session = require("express-session");
-const passport = require("./config/passport");
+// const passport = require("./config/passport");
 
 // Load environment variables from .env file
 dotenv.config();
 
-console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
-console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
+// console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+// console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
 
 
 const app = express();
@@ -29,9 +29,9 @@ app.use(session({
   cookie: { secure: false }  // Đặt thành true nếu bạn sử dụng HTTPS
 }));
 
-// Khởi tạo Passport và session Passport
-app.use(passport.initialize());
-app.use(passport.session());
+// // Khởi tạo Passport và session Passport
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 
 // MongoDB connection
