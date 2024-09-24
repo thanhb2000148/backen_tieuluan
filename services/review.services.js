@@ -64,6 +64,18 @@ const getAllReviews = async () => {
   }
 };
 
+const getReviewsByRating = async (productId, rating) => {
+  try {
+      const reviews = await Review.find({ product_id: productId, rating: rating })
+           .populate('user_id', 'EMAIL_USER'); // Chỉ lấy trường EMAIL_USER từ user_id;
+    return reviews;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
 const updateReview = async (reviewId, rating, comment) => {
   try {
     const updatedReview = await Review.findByIdAndUpdate(
@@ -98,5 +110,6 @@ module.exports = {
     getProductReviews,
     updateReview,
     deleteReview,
-   getAllReviews,
+    getAllReviews,
+    getReviewsByRating,
 };

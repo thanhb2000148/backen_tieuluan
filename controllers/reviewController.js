@@ -54,6 +54,33 @@ const getAllReviews = async (req, res) => {
   }
 };
 
+const getReviewsByRating = async (req, res) => {
+  const { productId, rating } = req.params;
+  try {
+    const reviews = await reviewService.getReviewsByRating(productId, rating);
+
+    if (reviews.length === 0) {
+      // Nếu không có đánh giá nào với số sao được tìm thấy
+      return res.status(200).json({
+        message: "Chưa có đánh giá nào với số sao này",
+        success: true,
+        review: [],
+      });
+    }
+
+    // Nếu có đánh giá, trả về danh sách đánh giá
+    res.status(200).json({
+      message: "Lấy số sao đánh giá thành công",
+      success: true,
+      review: reviews,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
+
 const updateReview = async (req, res) => {
   const { reviewId } = req.params; // Lấy reviewId từ URL
   const { rating, comment } = req.body; // Lấy rating và comment từ body request
@@ -83,5 +110,6 @@ module.exports = {
     getReviews,
     deleteReview,
     updateReview,
-   getAllReviews,
+    getAllReviews,
+    getReviewsByRating,
 };
