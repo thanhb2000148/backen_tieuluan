@@ -7,6 +7,7 @@ const passport = require("../config/passport");
 router.get("/userLogin", verify.verityToken, userController.getLoginUser);
 router.get("/", userController.getAllUsers);
 router.get("/:id", verify.verityToken, userController.getUserById);
+router.put('/users/:id', userController.updateUser);
 
 // // Đăng nhập bằng Google : Gửi auth URL cho frontend
 // router.get('/auth/google', (req, res) => {

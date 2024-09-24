@@ -84,6 +84,35 @@ const userController = {
       console.error(error);
     }
   },
+ updateUser: async (req, res) => {
+  try {
+    const { id } = req.params; // Lấy id từ tham số đường dẫn
+    const updateData = req.body; // Dữ liệu để cập nhật
+
+    // Gọi UserService để cập nhật thông tin người dùng
+    const updatedUser = await UserService.updateUserById(id, updateData);
+    
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "Người dùng không tồn tại",
+        success: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật thông tin người dùng thành công",
+      success: true,
+      data: updatedUser,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+      success: false,
+    });
+  }
+
+},
+
 
 // googleLogin: async (req, res) => {
 //     if (!req.user) {

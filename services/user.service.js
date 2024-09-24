@@ -326,7 +326,10 @@ class UserService {
     const user = await UserModel.findById(ID_USER);
     return user;
   };
-
+  static updateUserById = async (id, updateData) => {
+    const updatedUser = await UserModel.findByIdAndUpdate(id, updateData, { new: true });
+    return updatedUser;
+  };
 //   //Phần Google
 //   static async findUserByGoogleId(googleId) {
 //     try {
