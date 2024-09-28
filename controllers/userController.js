@@ -2,6 +2,7 @@ const account = require("../models/account");
 const UserModel = require("../models/user");
 const UserService = require("../services/user.service");
 const passport = require("../config/passport");
+const ImagesService = require('../services/images.services');
 
 const userController = {
   getAllUsers: async (req, res) => {
@@ -46,7 +47,8 @@ const userController = {
       const accountToDelete = await account.findByIdAndDelete(req.params.id);
       if (!accountToDelete) {
         return res.status(404).json({
-          message: "account not found",
+          message: "Người dùng không tồn tại",
+          success: false,
         });
       }
       if (accountToDelete.USER_ID) {
@@ -75,6 +77,9 @@ const userController = {
   getUserById: async (req, res) => {
     try {
       const user = await UserService.getUserById(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: "Người dùng không tồn tại", success: false });
+      }
       res.status(200).json({
         message: "lấy thông tin người dùng thành công",
         success: true,
@@ -84,34 +89,72 @@ const userController = {
       console.error(error);
     }
   },
- updateUser: async (req, res) => {
-  try {
-    const { id } = req.params; // Lấy id từ tham số đường dẫn
-    const updateData = req.body; // Dữ liệu để cập nhật
+  updateUser: async (req, res) => {
+    try {
+      const { id } = req.params; // Lấy id từ tham số đường dẫn
+      const updateData = req.body; // Dữ liệu để cập nhật, trong đó bao gồm URL ảnh đại diện
 
-    // Gọi UserService để cập nhật thông tin người dùng
-    const updatedUser = await UserService.updateUserById(id, updateData);
-    
-    if (!updatedUser) {
-      return res.status(404).json({
-        message: "Người dùng không tồn tại",
+      // Chỉ cập nhật thông tin người dùng, không xử lý tải ảnh lên
+      const updatedUser = await UserService.updateUserById(id, updateData);
+
+      if (!updatedUser) {
+        return res.status(404).json({
+          message: "Người dùng không tồn tại",
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        message: "Cập nhật thông tin người dùng thành công",
+        success: true,
+        data: updatedUser,
+      });
+    } catch (err) {
+      res.status(500).json({
+        message: "Lỗi hệ thống. Vui lòng thử lại sau.",
+        error: err.message,
         success: false,
       });
     }
-
-    res.status(200).json({
-      message: "Cập nhật thông tin người dùng thành công",
-      success: true,
-      data: updatedUser,
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-      success: false,
-    });
   }
 
-},
+//  updateUser: async (req, res) => {
+//     try {
+//         const { id } = req.params; // Lấy id từ tham số đường dẫn
+//         const updateData = req.body; // Dữ liệu để cập nhật
+
+//         // Kiểm tra xem có tệp hình ảnh không
+//         if (req.file) {
+//             const response = await ImagesService.uploadImage(req.file.path);
+//             updateData.AVT_URL = response.secure_url; // Cập nhật đường dẫn của ảnh đại diện
+//         }
+
+//         // Cập nhật thông tin người dùng
+//         const updatedUser = await UserService.updateUserById(id, updateData);
+        
+//         if (!updatedUser) {
+//             return res.status(404).json({
+//                 message: "Người dùng không tồn tại",
+//                 success: false,
+//             });
+//         }
+
+//         res.status(200).json({
+//             message: "Cập nhật thông tin người dùng thành công",
+//             success: true,
+//             data: updatedUser,
+//         });
+//     } catch (err) {
+//         res.status(500).json({
+//             message: "Lỗi hệ thống. Vui lòng thử lại sau.",
+//             error: err.message,
+//             success: false,
+//         });
+//     }
+
+
+
+// },
 
 
 // googleLogin: async (req, res) => {

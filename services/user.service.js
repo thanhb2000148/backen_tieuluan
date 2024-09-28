@@ -272,7 +272,7 @@ class UserService {
     return jwt.sign(
       {
         id: user.id,
-        // admin: user.OBJECT_ROLE.IS_ADMIN,
+        admin: user.OBJECT_ROLE.IS_ADMIN,
         id_user: user.USER_ID,
       },
       process.env.JWT_REFRESH_KEY,
