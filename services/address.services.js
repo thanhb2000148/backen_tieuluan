@@ -128,39 +128,30 @@ class AddressService {
   };
   static deleteAddress = async (user_id, address_id) => {
     const USER_ID = new ObjectId(user_id);
-    console.log(USER_ID);
     const ADDRESS_ID = new ObjectId(address_id);
+    
     try {
-      const updateResult = await AddressModel.updateOne(
-        {
-          USER_ID: USER_ID,
-          LIST_ADDRESS: {
-            $elemMatch: {
-              _id: ADDRESS_ID,
-            },
-          },
-        },
-        {
-          $set: { "LIST_ADDRESS.$[element].TO_DATE": new Date() },
-        },
-        {
-          arrayFilters: [
+        const updateResult = await AddressModel.updateOne(
             {
-              "element._id": ADDRESS_ID,
+                USER_ID: USER_ID,
             },
-          ],
-        }
-      );
+            {
+                $pull: { LIST_ADDRESS: { _id: ADDRESS_ID } }
+            }
+        );
 
-      if (updateResult.length == 0) {
-        throw new Error("không còn địa chỉ nào để xóa");
-      }
-      return { message: "xóa địa chỉ thành công" };
+        // Kiểm tra xem có địa chỉ nào bị xóa không
+        if (updateResult.modifiedCount === 0) {
+            throw new Error("Không tìm thấy địa chỉ để xóa");
+        }
+
+        return { message: "Xóa địa chỉ thành công" };
     } catch (error) {
-      console.error(error);
-      throw error;
+        console.error(error);
+        throw error;
     }
-  };
+};
+
   static getAddressByID = async (user_id, id_address) => {
     const USER_ID = new ObjectId(user_id);
     const ADDRESS_ID = new ObjectId(id_address);
