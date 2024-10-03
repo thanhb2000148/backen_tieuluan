@@ -1,6 +1,8 @@
 const Review = require('../models/review');
 const Product = require('../models/product');
 const User = require('../models/user');
+const mongoose = require('mongoose'); // Thêm dòng này
+
 
 
 const createReview = async (productId, userId, rating, comment) => {
@@ -48,7 +50,7 @@ const createReview = async (productId, userId, rating, comment) => {
 const getProductReviews = async (productId) => {
   try {
     // Lấy tất cả các đánh giá của sản phẩm theo productId
-    const reviews = await Review.find({ product_id: productId }).populate('user_id', 'FULL_NAME EMAIL_USER');
+    const reviews = await Review.find({ product_id: productId }).populate('user_id', 'FULL_NAME EMAIL_USER AVT_URL');
     return reviews;
   } catch (error) {
     throw error;
@@ -57,7 +59,7 @@ const getProductReviews = async (productId) => {
 
 const getAllReviews = async () => {
   try {
-    const reviews = await Review.find().populate('user_id', 'FULL_NAME EMAIL_USER');
+    const reviews = await Review.find().populate('user_id', 'FULL_NAME EMAIL_USER AVT_URL');
     return reviews;
   } catch (error) {
     throw error;
@@ -102,6 +104,34 @@ const deleteReview = async (reviewId) => {
   }
 };
 
+const getUserReviewByProductId = async (productId, userId) => {
+  try {
+    // Tìm đánh giá của người dùng cho sản phẩm cụ thể
+    const review = await Review.findOne({ product_id: productId, user_id: userId }).populate('user_id', 'FULL_NAME EMAIL_USER AVT_URL');
+    return review; // Trả về đánh giá của người dùng
+  } catch (error) {
+    throw new Error(`Không thể lấy đánh giá: ${error.message}`);
+  }
+};
+
+
+
+
+
+// const getReviewsByUserId = async (userId) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       throw new Error('userId không hợp lệ');
+//     }
+
+//     const reviews = await Review.find({ user_id: userId }).populate('product_id', 'name');
+//     return reviews;
+//   } catch (error) {
+//     throw error; // Ném lỗi nếu có
+//   }
+// };
+
+
 
 
 
@@ -111,5 +141,7 @@ module.exports = {
     updateReview,
     deleteReview,
     getAllReviews,
-    getReviewsByRating,
+  getReviewsByRating,
+  // getReviewsByUserId,
+  getUserReviewByProductId,
 };

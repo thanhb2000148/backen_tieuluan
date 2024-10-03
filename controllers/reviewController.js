@@ -1,4 +1,6 @@
 const reviewService = require('../services/review.services');
+const mongoose = require('mongoose'); // Thêm dòng này
+
 
 const addReview = async (req, res) => {
   const { productId } = req.params; // Lấy productId từ URL
@@ -103,6 +105,53 @@ const deleteReview = async (req, res) => {
     res.status(500).json({ error: 'Lỗi khi xóa đánh giá', details: error.message });
   }
 };
+// const getReviewsByUser = async (req, res) => {
+//   try {
+//     const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
+
+//     // Kiểm tra xem userId có hợp lệ không
+//     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({ message: 'Không tìm thấy userId hoặc userId không hợp lệ.' });
+//     }
+
+//     const reviews = await reviewService.getReviewsByUserId(userId);
+
+//     // Kiểm tra nếu không tìm thấy đánh giá
+//     if (!reviews || reviews.length === 0) {
+//       return res.status(404).json({ message: 'Không tìm thấy đánh giá nào cho người dùng này.' });
+//     }
+
+//     res.status(200).json(reviews); // Trả về các đánh giá của người dùng
+//   } catch (error) {
+//     console.error("Error fetching reviews by user:", error);
+//     res.status(500).json({ error: 'Đã xảy ra lỗi khi lấy đánh giá của người dùng.', details: error.message });
+//   }
+// };
+// controllers/reviewController.js
+const getUserReviewByProductId = async (req, res) => {
+  const { productId } = req.params;
+  const userId = req.user.id_user; // Giả định rằng bạn có user ID từ token
+
+  try {
+    // Gọi service để lấy đánh giá của người dùng cho sản phẩm
+    const userReview = await reviewService.getUserReviewByProductId(productId, userId);
+
+    // Nếu không có đánh giá nào của người dùng
+    if (!userReview) {
+      return res.status(404).json({ message: 'Người dùng chưa đánh giá sản phẩm này.', userReview: null });
+    }
+
+    res.status(200).json({ userReview }); // Gửi đánh giá của người dùng
+  } catch (error) {
+    console.error("Lỗi khi lấy đánh giá của người dùng theo sản phẩm:", error);
+    res.status(500).json({ message: 'Lỗi khi lấy đánh giá', error });
+  }
+};
+
+
+
+
+
 
 
 module.exports = {
@@ -111,5 +160,7 @@ module.exports = {
     deleteReview,
     updateReview,
     getAllReviews,
-    getReviewsByRating,
+  getReviewsByRating,
+  // getReviewsByUser,
+    getUserReviewByProductId,
 };
