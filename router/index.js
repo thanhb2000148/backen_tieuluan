@@ -15,6 +15,8 @@ const suppliersRouter = require("../router/suppliersRouter");
 const orderRouter = require("../router/orderRouter");
 const inventoryRouter = require("../router/inventory_entriesRouter");
 const testRouter = require("../router/testRouter");
+const reviewRouter = require("../router/reviewRouter"); // Thêm import cho review router
+
 
 router.use("/v1/auth", authRouter);
 router.use("/v1/user", userRouter);
@@ -31,6 +33,8 @@ router.use("/v1/price", priceRouter);
 router.use("/v1/cart", cartRouter);
 router.use("/v1/payment", paymentRouter);
 router.use("/v1/order", orderRouter);
+
+router.use("/v1/review", reviewRouter); // Sử dụng review router cho sản phẩm
 
 router.use("/v1/test", testRouter);
 module.exports = router;

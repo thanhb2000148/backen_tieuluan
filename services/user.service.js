@@ -272,7 +272,7 @@ class UserService {
     return jwt.sign(
       {
         id: user.id,
-        // admin: user.OBJECT_ROLE.IS_ADMIN,
+        admin: user.OBJECT_ROLE.IS_ADMIN,
         id_user: user.USER_ID,
       },
       process.env.JWT_REFRESH_KEY,
@@ -326,57 +326,60 @@ class UserService {
     const user = await UserModel.findById(ID_USER);
     return user;
   };
+  static updateUserById = async (id, updateData) => {
+    const updatedUser = await UserModel.findByIdAndUpdate(id, updateData, { new: true });
+    return updatedUser;
+  };
+//   //Phần Google
+//   static async findUserByGoogleId(googleId) {
+//     try {
+//       return await UserModel.findOne({ GOOGLE_ID: googleId });
+//     } catch (error) {
+//       console.error("Lỗi khi tìm người dùng bằng Google ID:", error);
+//       throw error;
+//     }
+//   }
+//   static async registerGoogleUser(body) {
+//   try {
+//     // Kiểm tra nếu người dùng đã tồn tại theo email
+//     let existingUser = await UserModel.findOne({ EMAIL_USER: body.EMAIL_USER });
+//     if (existingUser) {
+//       return existingUser.toObject();
+//     }
 
-  //Phần Google
-  static async findUserByGoogleId(googleId) {
-    try {
-      return await UserModel.findOne({ GOOGLE_ID: googleId });
-    } catch (error) {
-      console.error("Lỗi khi tìm người dùng bằng Google ID:", error);
-      throw error;
-    }
-  }
-  static async registerGoogleUser(body) {
-  try {
-    // Kiểm tra nếu người dùng đã tồn tại theo email
-    let existingUser = await UserModel.findOne({ EMAIL_USER: body.EMAIL_USER });
-    if (existingUser) {
-      return existingUser.toObject();
-    }
-
-    // Đăng ký người dùng mới với thông tin Google
-    const newUser = new UserModel({
-      FIRST_NAME: body.FIRST_NAME,
-      MIDDLE_NAME: body.MIDDLE_NAME,
-      FULL_NAME: body.FULL_NAME,
-      LAST_NAME: body.LAST_NAME,
-      EMAIL_USER: body.EMAIL_USER,
-      // GOOGLE_ID: body.GOOGLE_ID,
-      GENDER_USER: body.GENDER_USER,
-       AVT_URL: body.AVT_URL || null,
-      CREATED_AT: new Date,
+//     // Đăng ký người dùng mới với thông tin Google
+//     const newUser = new UserModel({
+//       FIRST_NAME: body.FIRST_NAME,
+//       MIDDLE_NAME: body.MIDDLE_NAME,
+//       FULL_NAME: body.FULL_NAME,
+//       LAST_NAME: body.LAST_NAME,
+//       EMAIL_USER: body.EMAIL_USER,
+//       // GOOGLE_ID: body.GOOGLE_ID,
+//       GENDER_USER: body.GENDER_USER,
+//        AVT_URL: body.AVT_URL || null,
+//       CREATED_AT: new Date,
       
-    });
+//     });
 
-    // Lưu người dùng
-    const savedUser = await newUser.save();
+//     // Lưu người dùng
+//     const savedUser = await newUser.save();
 
-    // Tạo tài khoản tương ứng trong AccountModel
-    const newAccount = new AccountModel({
-      USER_ID: savedUser._id,
-      IS_ACTIVE: true,
-      GOOGLE_ID: body.GOOGLE_ID,
+//     // Tạo tài khoản tương ứng trong AccountModel
+//     const newAccount = new AccountModel({
+//       USER_ID: savedUser._id,
+//       IS_ACTIVE: true,
+//       GOOGLE_ID: body.GOOGLE_ID,
 
-      // Cấu hình thêm các trường khác cho Account nếu cần
-    });
-    await newAccount.save();
+//       // Cấu hình thêm các trường khác cho Account nếu cần
+//     });
+//     await newAccount.save();
 
-    return savedUser.toObject();
-  } catch (error) {
-    console.error("Lỗi khi đăng ký người dùng mới:", error);
-    throw error;
-  }
-}
+//     return savedUser.toObject();
+//   } catch (error) {
+//     console.error("Lỗi khi đăng ký người dùng mới:", error);
+//     throw error;
+//   }
+// }
 
 
 }

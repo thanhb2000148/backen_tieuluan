@@ -12,6 +12,8 @@ var USER = new Schema({
   },
   LAST_NAME: {
     type: String,
+    required: true,
+    unique: true,
   },
   EMAIL_USER: {
     type: String,
@@ -22,11 +24,16 @@ var USER = new Schema({
   CREATED_AT: {
     type: Date,
   },
-  // GENGER_USER: {
-  //   type: String,
-  // },
+  GENGER_USER: {
+    type: String,
+  },
+   BIRTHDAY: {
+    type: Date, // Thêm trường ngày sinh với kiểu dữ liệu là Date
+  },
   AVT_URL: {
     type: String,
+    trim: true,
+    default: ""
   },
   // GOOGLE_ID: {
   //   type: String,
