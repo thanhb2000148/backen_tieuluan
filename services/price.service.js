@@ -113,7 +113,7 @@ class PriceService {
       "LIST_PRICE.LIST_MATCH_KEY.KEY": key,
       "LIST_PRICE.LIST_MATCH_KEY.VALUE": values[index],
     }));
-
+    
     const getPrice = await PriceModel.aggregate([
       {
         $match: {
@@ -139,11 +139,11 @@ class PriceService {
       },
     ]);
     return getPrice;
-    if (getPrice.length > 0) {
-      return getPrice;
-    } else {
-      console.error("Không tìm thấy giá cho sản phẩm với thông số chỉ định.");
-    }
+    // if (getPrice.length > 0) {
+    //   return getPrice;
+    // } else {
+    //   console.error("Không tìm thấy giá cho sản phẩm với thông số chỉ định.");
+    // }
   };
 
   static getPriceWithoutKey = async (id_product) => {

@@ -57,6 +57,9 @@ const priceController = {
   },
   getPriceProduct: async (req, res) => {
     try {
+      // console.log("ID sản phẩm:", req.params.id_product);
+      //   console.log("Keys:", req.body.key);
+      //   console.log("Values:", req.body.value);
       const getPriceProduct = await PriceService.getPriceProduct(
         req.params.id_product,
         req.body.key,
