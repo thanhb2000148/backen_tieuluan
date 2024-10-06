@@ -1,6 +1,14 @@
 const PriceModel = require("../models/price");
 const ObjectId = require("mongoose").Types.ObjectId;
 class PriceService {
+  static getAllPrices = async () => {
+  try {
+    const allPrices = await PriceModel.find({});
+    return allPrices;
+  } catch (error) {
+    throw new Error('Lỗi khi lấy tất cả giá: ' + error.message);
+  }
+};
   static addPrice = async (id_product, price_number, key, value) => {
     const ID_PRODUCT = new ObjectId(id_product);
     let listMatchKeys = [];
@@ -81,32 +89,34 @@ class PriceService {
   static updatePrice = async (id_product, id_list_price, price_number) => {
     const ID_PRODUCT = new ObjectId(id_product);
     const ID_LIST_PRICE = new ObjectId(id_list_price);
+    
     const update = await PriceModel.updateOne(
-      {
-        ID_PRODUCT: ID_PRODUCT,
-        LIST_PRICE: {
-          $elemMatch: {
-            TO_DATE: null,
-            _id: ID_LIST_PRICE,
-          },
+        {
+            ID_PRODUCT: ID_PRODUCT,
+            LIST_PRICE: {
+                $elemMatch: {
+                    _id: ID_LIST_PRICE,
+                },
+            },
         },
-      },
-      {
-        $set: {
-          "LIST_PRICE.$[element].PRICE_NUMBER": price_number,
-          "LIST_PRICE.$[element].TO_DATE": new Date(),
+        {
+            $set: {
+                "LIST_PRICE.$[element].PRICE_NUMBER": price_number,
+                "LIST_PRICE.$[element].TO_DATE": new Date(),  // Cập nhật TO_DATE về thời gian hiện tại
+            },
         },
-      },
-      {
-        arrayFilters: [
-          {
-            "element._id": ID_LIST_PRICE,
-          },
-        ],
-      }
+        {
+            arrayFilters: [
+                {
+                    "element._id": ID_LIST_PRICE,
+                },
+            ],
+        }
     );
+    
     return update;
-  };
+};
+
   static getPriceProduct = async (id_product, keys, values) => {
     const ID_PRODUCT = new ObjectId(id_product);
     const matchConditions = keys.map((key, index) => ({
