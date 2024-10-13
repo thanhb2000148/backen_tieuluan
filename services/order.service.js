@@ -362,6 +362,16 @@ class OrderService {
     ]);
     return order;
   };
+  static getAllOrders = async () => {
+  try {
+    const orders = await OrderModel.find().sort({ _id: -1 }); // Sắp xếp đơn hàng theo thứ tự mới nhất
+    return orders;
+  } catch (error) {
+    console.error("Error in getAllOrders:", error.message);
+    throw new Error("Lấy tất cả đơn hàng thất bại");
+  }
+};
+
 
   // static updateNumberProductPayment = async (id_account) =>{
   //   const ID_ACCOUNT = new ObjectId(id_account);
