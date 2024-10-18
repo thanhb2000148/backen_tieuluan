@@ -263,11 +263,6 @@
       }
   };
 
-
-
-
-
-
     static statusOrder2COD = async (id_account) => {
       const ID_ACCOUNT = new ObjectId(id_account);
       const lastOrder = await OrderModel.findOne({
