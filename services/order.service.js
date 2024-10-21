@@ -261,6 +261,51 @@
           console.error("Error in updateOrderStatusToDelivered:", error.message);
           throw new Error("Cập nhật trạng thái đơn hàng thất bại");
       }
+    };
+    static cancelOrder = async (orderId, cancelReason) => {
+    try {
+      // Lấy đơn hàng từ CSDL
+      const order = await OrderModel.findById(orderId);
+
+      if (!order) {
+        throw new Error('Đơn hàng không tồn tại');
+      }
+
+      // Kiểm tra trạng thái đơn hàng
+      if (order.ORDER_STATUS !== 'Chờ Duyệt' && order.ORDER_STATUS !== 'Đang xử lý') {
+        return {
+          success: false,
+          message: 'Chỉ có thể hủy đơn hàng khi đơn hàng ở trạng thái Chờ Duyệt hoặc Đang xử lý',
+        };
+      }
+
+      // Cập nhật trạng thái và lý do hủy
+      const updatedOrder = await OrderModel.findByIdAndUpdate(
+        orderId,
+        {
+          $set: {
+            ORDER_STATUS: 'Đã hủy',
+            CANCEL_REASON: cancelReason, // Lý do hủy từ người dùng
+          },
+          $push: {
+            STATUS_HISTORY: {
+              status: 'Đã hủy',
+              updatedAt: new Date(),
+            },
+          },
+        },
+        { new: true } // Trả về đơn hàng đã cập nhật
+      );
+
+      return {
+        success: true,
+        message: 'Đơn hàng đã được hủy thành công',
+        updatedOrder,
+      };
+    } catch (error) {
+      console.error("Error in cancelOrder:", error.message);
+      throw new Error('Hủy đơn hàng thất bại');
+    }
   };
 
     static statusOrder2COD = async (id_account) => {

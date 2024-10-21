@@ -13,6 +13,8 @@ router.put("/confirm-payment/:id", verify.verifyTokenAdmin, orderController.conf
 router.put("/orders/:id/proceed",verify.verifyTokenAdmin, orderController.updateOrderToProcessing);
 router.put("/orders/:id/shipping", verify.verifyTokenAdmin, orderController.updateOrderToShipping);
 router.patch("/orders/:id/success", verify.verifyTokenAdmin, orderController.updateOrderStatusSuccess);
+router.delete('/orders/:id/cancel', verify.verifyTokenAdmin, orderController.cancelOrder);
+
 
 
 
