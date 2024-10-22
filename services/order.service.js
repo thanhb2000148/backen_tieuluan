@@ -79,6 +79,8 @@
       }
     };
     static updateStatusOrderMomo = async (orderCode, payment_method) => {
+        console.log("Updating order:", orderCode, "with method:", payment_method);
+
       const update = await OrderModel.updateOne(
         { ORDER_CODE: orderCode },
         {
@@ -87,7 +89,10 @@
           PAYMENT_METHOD: payment_method,
         }
       );
+      console.log("Kết quả cập nhật:", update);
+
       return update;
+      
     };
     static updateStatusOrderZaloPay = async (orderCode, payment_method) => {
       const update = await OrderModel.updateOne(

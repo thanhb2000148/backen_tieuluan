@@ -11,9 +11,11 @@ class PaymentMethod {
     var orderInfo = "pay with MoMo";
     var partnerCode = "MOMO";
     var redirectUrl =
-      "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+      // "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+
+      "http://localhost:3000/thanks";
     var ipnUrl =
-      "https://114b-2402-800-6390-84b8-1908-930a-3ff3-db3f.ngrok-free.app/v1/payment/callback";
+      "https://11b1-2402-800-63a5-d1c6-9553-4dc-b4bd-50be.ngrok-free.app/v1/payment/callback";
     var requestType = "payWithMethod";
     var amount = price;
     var orderId = partnerCode + new Date().getTime();

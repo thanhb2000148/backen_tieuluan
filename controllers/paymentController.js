@@ -34,14 +34,35 @@ const paymentController = {
       });
     }
   },
+  // callbacks: async (req, res) => {
+  //   console.log("callbacks");
+  //   console.log(req.body);
+  //   const { orderId, resultCode, partnerCode, orderType } = req.body;
+  //   if (resultCode == 0) {
+  //     await OrderService.updateStatusOrderMomo(orderId, orderType);
+  //   }
+  //   return res.status(200).json(req.body);
+  // },
+
   callbacks: async (req, res) => {
-    console.log("callbacks");
-    console.log(req.body);
+    console.log("Phản hồi từ MoMo:", req.body);
     const { orderId, resultCode, partnerCode, orderType } = req.body;
     if (resultCode == 0) {
-      await OrderService.updateStatusOrderMomo(orderId, orderType);
+      console.log("Order Code:", orderId);
+      console.log("Payment Method:", orderType);
+      const updateResult = await OrderService.updateStatusOrderMomo(orderId, orderType);
+      console.log("Cập nhật trạng thái đơn hàng:", orderId, "với phương thức:", orderType);
+      console.log("Kết quả cập nhật:", updateResult);
+      return res.status(200).json({
+        message: "Thanh toán thành công",
+        data: updateResult,
+      });
+    } else {
+      console.log("Giao dịch thất bại:", resultCode);
+      return res.status(400).json({
+        message: "Giao dịch thất bại",
+      });
     }
-    return res.status(200).json(req.body);
   },
 
   transactionStatus: async (req, res) => {
