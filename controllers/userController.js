@@ -154,33 +154,8 @@ const userController = {
 
 
 
-// },
+  // },
+  
 
-
-// googleLogin: async (req, res) => {
-//     if (!req.user) {
-//       return res.status(401).json({ message: "Authentication failed!" });
-//     }
-
-//     try {
-//       // Tìm kiếm tài khoản dựa trên ID của người dùng đã đăng nhập qua Google
-//       const userAccount = await account.findOne({ USER_ID: req.user._id }).populate('USER_ID');
-      
-//       if (!userAccount) {
-//         return res.status(404).json({ message: "Account not found!" });
-//       }
-
-//       return res.status(200).json({
-//         message: "Authentication successful",
-//         data: {
-//           account: userAccount, // Trả về dữ liệu từ bảng Account
-//           user: userAccount.USER_ID, // Trả về dữ liệu từ bảng User
-//         },
-//       });
-//     } catch (error) {
-//       console.error(error);
-//       return res.status(500).json({ message: error.message });
-//     }
-//   },
 };
 module.exports = userController;

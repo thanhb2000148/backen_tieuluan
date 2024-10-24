@@ -73,6 +73,17 @@ var ORDER = new Schema({
       },
     },
   ],
+  ORDER_STATUS: { // Trạng thái quản lý đơn hàng
+    type: String,
+    enum: [
+      'Chờ Duyệt',
+      'Đang xử lý', 
+      'Đang vận chuyển', 
+      'Đã giao', 
+      'Đã hủy'
+    ],
+    default: 'Chờ Duyệt',
+  },
   PAYMENT_METHOD: {
     type: String,
     enum: ["cod", "online"],
@@ -90,5 +101,17 @@ var ORDER = new Schema({
     type: Schema.Types.ObjectId,
     required: true,
   },
+  STATUS_HISTORY: [ // Lưu trữ lịch sử các trạng thái
+    {
+      status: {
+        type: String,
+        required: true,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 module.exports = mongoose.model("order", ORDER);

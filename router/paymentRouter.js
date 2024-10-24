@@ -11,4 +11,5 @@ router.post(
   paymentController.paymentZaloPay
 );
 router.post("/callbackZalo", paymentController.callbacksZaloPay);
+// router.post("/update-order", paymentController.updateOrder);
 module.exports = router;

@@ -89,6 +89,39 @@ class ProductController {
       res.status(500).json({ error: error.message });
     }
   };
+// product.controller.js
+static updateProduct = async (req, res) => {
+  try {
+    const updateData = req.body; // Lấy tất cả dữ liệu từ request body
+    console.log("Cập nhật sản phẩm với ID:", req.params.id);
+console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
+
+    // Kiểm tra xem có trường nào để cập nhật không
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "Không có trường nào để cập nhật" });
+    }
+
+    const updatedProduct = await ProductService.updateProduct(req.params.id, updateData);
+    
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+    }
+
+    console.log("Cập nhật sản phẩm thành công:", updatedProduct); // Log thông tin sản phẩm
+
+    return res.status(200).json({
+      message: "Cập nhật sản phẩm thành công",
+      success: true,
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Lỗi trong controller:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 
   // Thời Trang
   static createProductFashion = async (req, res) => {
@@ -137,167 +170,137 @@ class ProductController {
       res.status(400).json({ error: error.message });
     }
   };
-  // Thức Ăn
-  static createProductFood = async (req, res) => {
-    try {
-      const { error } = productSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
-      const {
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        size,
-        type,
-        file_attachments,
-        file_attachmentsdefault,
-        quantity_by_key_value,
-      } = req.body;
-      const metadata = {
-        sizes: size,
-        types: type,
-      };
-      const savedProduct = await ProductService.createProductfood(
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        metadata,
-        file_attachments,
-        file_attachmentsdefault,
-        // quantity_by_key_value,
-        req.user.id
-      );
-      res.status(201).json({
-        message: "Tạo sản phẩm thành công",
-        success: true,
-        data: savedProduct,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  };
-  // Điện Thoại
-  static createProductEarphone = async (req, res) => {
-    try {
-      const { error } = productSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
-      const {
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        color,
-        memory,
-        file_attachments,
-        file_attachmentsdefault,
-      } = req.body;
-        const metadata = {
-        memorys: memory,
-        colors: color,
-      };
-      const savedProduct = await ProductService.createProductEarphone(
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        metadata,
-        file_attachments,
-        file_attachmentsdefault,
-        req.user.id
-      );
-      res.status(201).json({
-        message: "Tạo sản phẩm thành công",
-        success: true,
-        data: savedProduct,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-    };
+  // // Thức Ăn
+  // static createProductFood = async (req, res) => {
+  //   try {
+  //     const { error } = productSchema.validate(req.body);
+  //     if (error) {
+  //       return res.status(400).json({ message: error.details[0].message });
+  //     }
+  //     const {
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       size,
+  //       type,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //       quantity_by_key_value,
+  //     } = req.body;
+  //     const metadata = {
+  //       sizes: size,
+  //       types: type,
+  //     };
+  //     const savedProduct = await ProductService.createProductfood(
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       metadata,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //       // quantity_by_key_value,
+  //       req.user.id
+  //     );
+  //     res.status(201).json({
+  //       message: "Tạo sản phẩm thành công",
+  //       success: true,
+  //       data: savedProduct,
+  //     });
+  //   } catch (error) {
+  //     res.status(400).json({ error: error.message });
+  //   }
+  // };
+  // // Điện Thoại
+  // static createProductEarphone = async (req, res) => {
+  //   try {
+  //     const { error } = productSchema.validate(req.body);
+  //     if (error) {
+  //       return res.status(400).json({ message: error.details[0].message });
+  //     }
+  //     const {
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       color,
+  //       memory,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //     } = req.body;
+  //       const metadata = {
+  //       memorys: memory,
+  //       colors: color,
+  //     };
+  //     const savedProduct = await ProductService.createProductEarphone(
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       metadata,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //       req.user.id
+  //     );
+  //     res.status(201).json({
+  //       message: "Tạo sản phẩm thành công",
+  //       success: true,
+  //       data: savedProduct,
+  //     });
+  //   } catch (error) {
+  //     res.status(400).json({ error: error.message });
+  //   }
+  //   };
 
-    static createProductPhone = async (req, res) => {
-    try {
-      const { error } = productSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
-      const {
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        memory,
-        color,
-        file_attachments,
-        file_attachmentsdefault,
-        quantity_by_key_value,
-      } = req.body;
-      const metadata = {
-        memorys: memory,
-        colors: color,
-      };
-      const savedProduct = await ProductService.createProductphone(
-        name,
-        code,
-        short_desc,
-        desc_product,
-        category_id,
-        metadata,
-        file_attachments,
-        file_attachmentsdefault,
-        req.user.id
-      );
-      res.status(201).json({
-        message: "Tạo sản phẩm thành công",
-        success: true,
-        data: savedProduct,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  };
+  //   static createProductPhone = async (req, res) => {
+  //   try {
+  //     const { error } = productSchema.validate(req.body);
+  //     if (error) {
+  //       return res.status(400).json({ message: error.details[0].message });
+  //     }
+  //     const {
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       memory,
+  //       color,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //       quantity_by_key_value,
+  //     } = req.body;
+  //     const metadata = {
+  //       memorys: memory,
+  //       colors: color,
+  //     };
+  //     const savedProduct = await ProductService.createProductphone(
+  //       name,
+  //       code,
+  //       short_desc,
+  //       desc_product,
+  //       category_id,
+  //       metadata,
+  //       file_attachments,
+  //       file_attachmentsdefault,
+  //       req.user.id
+  //     );
+  //     res.status(201).json({
+  //       message: "Tạo sản phẩm thành công",
+  //       success: true,
+  //       data: savedProduct,
+  //     });
+  //   } catch (error) {
+  //     res.status(400).json({ error: error.message });
+  //   }
+  // };
 
-  static updateProduct = async (req, res) => {
-    try {
-      const updatedProduct = await ProductService.updateProduct(
-        req.params.id,
-        req.body.name,
-        req.body.code,
-        req.body.short_desc,
-        req.body.desc_product,
-        req.body.number_inventory_product,
-        req.body.category_id,
-        req.body.key,
-        req.body.value,
-        req.body.file_url,
-        req.body.file_type,
-        req.user.id
-      );
-      if (!updatedProduct) {
-        return res
-          .status(404)
-          .json({ message: "Cập nhật sản phẩm không thành công" });
-      }
-      return res.status(200).json({
-        message: "Cập nhật sản phẩm thành công!",
-        success: true,
-        data: updatedProduct,
-      });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  };
-
+  
   static deleteProduct = async (req, res) => {
     try {
       const deletedProduct = await ProductService.deleteProduct(req.params.id);
