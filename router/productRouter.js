@@ -14,3 +14,4 @@ router.post('/fashion', verify.verityToken, productController.createProductFashi
 router.put('/:id', verify.verityToken,productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
 module.exports = router;
+
