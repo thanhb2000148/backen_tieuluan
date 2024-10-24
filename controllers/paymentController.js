@@ -1,11 +1,12 @@
 const PaymentMethod = require("../services/payment.service");
 const CartService = require("../services/cart.service");
+  const OrderModel = require("../models/order");
 const OrderService = require("../services/order.service");
 const UserService = require("../services/user.service");
 const codeOrder = require("../utils/code");
 const moment = require("moment");
 const CryptoJS = require("crypto-js");
-const axios = require("axios").default;
+const axios = require("axios");
 const code = codeOrder();
 const config = {
   app_id: "2553",
@@ -34,36 +35,35 @@ const paymentController = {
       });
     }
   },
-  // callbacks: async (req, res) => {
-  //   console.log("callbacks");
-  //   console.log(req.body);
-  //   const { orderId, resultCode, partnerCode, orderType } = req.body;
-  //   if (resultCode == 0) {
-  //     await OrderService.updateStatusOrderMomo(orderId, orderType);
-  //   }
-  //   return res.status(200).json(req.body);
-  // },
-
   callbacks: async (req, res) => {
-    console.log("Phản hồi từ MoMo:", req.body);
+    console.log("callbacks");
+    console.log(req.body);
     const { orderId, resultCode, partnerCode, orderType } = req.body;
     if (resultCode == 0) {
-      console.log("Order Code:", orderId);
-      console.log("Payment Method:", orderType);
-      const updateResult = await OrderService.updateStatusOrderMomo(orderId, orderType);
-      console.log("Cập nhật trạng thái đơn hàng:", orderId, "với phương thức:", orderType);
-      console.log("Kết quả cập nhật:", updateResult);
-      return res.status(200).json({
-        message: "Thanh toán thành công",
-        data: updateResult,
-      });
-    } else {
-      console.log("Giao dịch thất bại:", resultCode);
-      return res.status(400).json({
-        message: "Giao dịch thất bại",
-      });
+      await OrderService.updateStatusOrderMomo(orderId, orderType);
     }
+    return res.status(200).json(req.body);
   },
+  
+
+// callbacks: async (req, res) => {
+//     console.log("callbacks");
+//     console.log(req.body); // Kiểm tra nội dung của req.body
+
+//     const { orderId, resultCode, partnerCode } = req.body; // Lưu ý rằng bạn không sử dụng orderType
+//     if (resultCode == 0) {
+//         console.log("Cập nhật đơn hàng:", orderId);
+//         const paymentMethod = "MOMO"; // Đặt giá trị là "MOMO"
+//         const updateResult = await OrderService.updateStatusOrderMomo(orderId, paymentMethod);
+//         console.log("Kết quả cập nhật:", updateResult);
+//     } else {
+//         console.log("Thanh toán không thành công với mã kết quả:", resultCode);
+//     }
+//     return res.status(200).json(req.body);
+// },
+
+
+
 
   transactionStatus: async (req, res) => {
     try {
@@ -121,7 +121,7 @@ const paymentController = {
       //khi thanh toán xong, zalopay server sẽ POST đến url này để thông báo cho server của mình
       //Chú ý: cần dùng ngrok để public url thì Zalopay Server mới call đến được
       callback_url:
-        "https://7a98-2402-800-6343-f9c4-40e8-b1a3-d7d4-9dc2.ngrok-free.app/v1/payment/callbackZalo",
+        "https://1f68-116-108-105-227.ngrok-free.app/v1/payment/callbackZalo",
       description: `Lazada - Payment for the order #${transID}`,
       bank_code: "",
     };

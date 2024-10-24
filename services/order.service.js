@@ -78,22 +78,22 @@
         return update;
       }
     };
-    static updateStatusOrderMomo = async (orderCode, payment_method) => {
-        console.log("Updating order:", orderCode, "with method:", payment_method);
+      static updateStatusOrderMomo = async (orderCode, payment_method) => {
+          console.log("Updating order:", orderCode, "with method:", payment_method);
 
-      const update = await OrderModel.updateOne(
-        { ORDER_CODE: orderCode },
-        {
-          IS_PAYMENT: true,
-          TIME_PAYMENT: new Date(),
-          PAYMENT_METHOD: payment_method,
-        }
-      );
-      console.log("Kết quả cập nhật:", update);
+        const update = await OrderModel.updateOne(
+          { ORDER_CODE: orderCode },
+          {
+            IS_PAYMENT: true,
+            TIME_PAYMENT: new Date(),
+            PAYMENT_METHOD: payment_method,
+          }
+        );
+        console.log("Kết quả cập nhật:", update);
 
-      return update;
-      
-    };
+        return update;
+        
+      };
     static updateStatusOrderZaloPay = async (orderCode, payment_method) => {
       const update = await OrderModel.updateOne(
         { ORDER_CODE: orderCode },
@@ -152,46 +152,90 @@
         return updateStatus;
       }
     };
-    // trạng thái đã thanh toán
-  static statusOrder2 = async (orderId) => {
-      const lastOrder = await OrderModel.findById(orderId);
-      if (lastOrder) {
-          await OrderModel.updateOne(
-              {
-                  _id: lastOrder._id,
-                  "LIST_STATUS.TO_DATE": null,
-              },
-              {
-                  $set: {
-                      "LIST_STATUS.$.TO_DATE": new Date(),
-                  },
-              }
-          );
-          await OrderService.updateNumberProductPayment(
-              lastOrder.LIST_PRODUCT[0].ID_PRODUCT,
-              lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE,
-              lastOrder.LIST_PRODUCT[0].QLT
-          );
-          await Inventory_EntriesService.updateNumberInventoryProduct(
-              lastOrder.LIST_PRODUCT[0].ID_PRODUCT
-          );
-          const updateStatus = await OrderModel.updateOne(
-              {
-                  _id: lastOrder._id,
-              },
-              {
-                  $push: {
-                      LIST_STATUS: {
-                          STATUS_NAME: "Đã thanh toán",
-                          STATUS_CODE: 3,
-                          FROM_DATE: new Date(),
-                          TO_DATE: null,
-                      },
-                  },
-              }
-          );
-          return updateStatus;
-      }
+  //   // trạng thái đã thanh toán
+  // static statusOrder2 = async (orderId) => {
+  //     const lastOrder = await OrderModel.findById(orderId);
+  //     if (lastOrder) {
+  //         await OrderModel.updateOne(
+  //             {
+  //                 _id: lastOrder._id,
+  //                 "LIST_STATUS.TO_DATE": null,
+  //             },
+  //             {
+  //                 $set: {
+  //                     "LIST_STATUS.$.TO_DATE": new Date(),
+  //                 },
+  //             }
+  //         );
+  //         await OrderService.updateNumberProductPayment(
+  //             lastOrder.LIST_PRODUCT[0].ID_PRODUCT,
+  //             lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE,
+  //             lastOrder.LIST_PRODUCT[0].QLT
+  //         );
+  //         await Inventory_EntriesService.updateNumberInventoryProduct(
+  //             lastOrder.LIST_PRODUCT[0].ID_PRODUCT
+  //         );
+  //         const updateStatus = await OrderModel.updateOne(
+  //             {
+  //                 _id: lastOrder._id,
+  //             },
+  //             {
+  //                 $push: {
+  //                     LIST_STATUS: {
+  //                         STATUS_NAME: "Đã thanh toán",
+  //                         STATUS_CODE: 3,
+  //                         FROM_DATE: new Date(),
+  //                         TO_DATE: null,
+  //                     },
+  //                 },
+  //             }
+  //         );
+  //         return updateStatus;
+  //     }
+    // };
+     // trạng thái đã thanh toán
+  static statusOrder2 = async (id_account) => {
+    const ID_ACCOUNT = new ObjectId(id_account);
+    const lastOrder = await OrderModel.findOne({
+      ACCOUNT__ID: ID_ACCOUNT,
+    }).sort({ _id: -1 });
+    if (lastOrder) {
+      await OrderModel.updateOne(
+        {
+          _id: lastOrder._id,
+          "LIST_STATUS.TO_DATE": null,
+        },
+        {
+          $set: {
+            "LIST_STATUS.$.TO_DATE": new Date(),
+          },
+        }
+      );
+      await OrderService.updateNumberProductPayment(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT,
+        lastOrder.LIST_PRODUCT[0].ID_KEY_VALUE,
+        lastOrder.LIST_PRODUCT[0].QLT
+      );
+      await Inventory_EntriesService.updateNumberInventoryProduct(
+        lastOrder.LIST_PRODUCT[0].ID_PRODUCT
+      );
+      const updateStatus = await OrderModel.updateOne(
+        {
+          _id: lastOrder._id,
+        },
+        {
+          $push: {
+            LIST_STATUS: {
+              STATUS_NAME: "Đã thanh toán",
+              STATUS_CODE: 2,
+              FROM_DATE: new Date(),
+              TO_DATE: null,
+            },
+          },
+        }
+      );
+      return updateStatus;
+    }
   };
 
   static updateOrderStatusToProcessing = async (orderId) => {

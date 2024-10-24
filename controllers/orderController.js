@@ -210,14 +210,25 @@
       console.error("Error in cancelOrder:", error.message);
       res.status(500).json({ success: false, error: error.message });
     }
-  };
+    };
+    static testUpdateOrder = async (req, res) => {
+    try {
+      const { orderCode, paymentMethod } = req.body;
 
+      const result = await OrderService.updateStatusOrderMomo(orderCode, paymentMethod);
 
-
-
-
-    
-
+      if (result.matchedCount > 0 && result.modifiedCount > 0) {
+        res.status(200).json({ message: 'Order updated successfully', result });
+      } else if (result.matchedCount > 0 && result.modifiedCount === 0) {
+        res.status(200).json({ message: 'Order found but no changes were made', result });
+      } else {
+        res.status(404).json({ message: 'Order not found', result });
+      }
+    } catch (error) {
+      console.error('Error updating order:', error);
+      res.status(500).json({ message: 'Internal server error', error });
+    }
   }
+}
 
   module.exports = OrderController;
