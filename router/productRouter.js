@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const productController = require("../controllers/productController");
 const verify = require("../middleware/verifyToken");
-
+//các  router  sản phẩm
 router.get('/', productController.getProducts);
 router.get('/search', productController.searchProducts);
 router.get("/getAll", productController.getProductsAll);
