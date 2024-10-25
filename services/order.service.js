@@ -6,7 +6,8 @@
   const CartService = require("../services/cart.service");
   const UserService = require("../services/user.service");
   const Inventory_EntriesService = require("../services/inventory_entries.service");
-  const payment_method = require("../models/payment_method");
+const payment_method = require("../models/payment_method");
+  const AccountModel = require("../models/account");
   const code = randomCode();
   class OrderService {
     static addOrder = async (
@@ -63,6 +64,51 @@
         throw error; // Re-throw the error to be handled by the calling function
       }
     };
+    //đếm tổng đơn hàng
+    static countOrders = async () => {
+    try {
+      const orderCount = await OrderModel.countDocuments();
+      return orderCount;
+    } catch (error) {
+      console.error("Error in countOrders:", error.message);
+      throw error;
+    }
+    };
+    
+    static getRecentOrders = async (limit = 5) => {
+    try {
+        const recentOrders = await OrderModel.find()
+            .sort({ TIME_PAYMENT: -1 }) // Sắp xếp theo thời gian thanh toán
+            .limit(limit);
+
+        // Lấy thông tin tài khoản và tên sản phẩm cho từng đơn hàng
+        const ordersWithDetails = await Promise.all(recentOrders.map(async (order) => {
+            const account = await AccountModel.findById(order.ACCOUNT__ID); // Lấy thông tin tài khoản
+
+            const products = await Promise.all(order.LIST_PRODUCT.map(async (product) => {
+                const productDetails = await ProductModel.findById(product.ID_PRODUCT); // Lấy thông tin sản phẩm
+                return {
+                    id: product.ID_PRODUCT,
+                    name: productDetails.NAME_PRODUCT, // Lấy tên sản phẩm
+                    unitPrice: product.UNITPRICES,
+                    quantity: product.QLT,
+                };
+            }));
+
+            return {
+                ...order.toObject(),
+                account,
+                products, // Thêm thông tin sản phẩm vào đơn hàng
+            };
+        }));
+
+        return ordersWithDetails; // Trả về danh sách đơn hàng có thông tin tài khoản và sản phẩm
+    } catch (error) {
+        console.error("Error in getRecentOrders:", error.message);
+        throw error;
+    }
+}
+
 
     static updateOrderCode = async (orderCode) => {
       const lastOrder = await OrderModel.findOne({ ORDER_CODE: null }).sort({
