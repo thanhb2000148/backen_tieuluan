@@ -17,6 +17,34 @@ class UserService {
     await newAccount.save();
     return newAccount;
   };
+  // Khóa tài khoản
+  static lockAccount = async (accountId) => {
+    const ACCOUNT_ID = new ObjectId(accountId);
+    const result = await AccountModel.findByIdAndUpdate(
+      ACCOUNT_ID,
+      { $set: { IS_LOCK: true } },
+      { new: true } // Trả về tài khoản đã được cập nhật
+    );
+
+    if (!result) {
+      throw new Error("Không tìm thấy tài khoản để khóa.");
+    }
+  };
+
+  // Mở khóa tài khoản
+  static unlockAccount = async (accountId) => {
+    const ACCOUNT_ID = new ObjectId(accountId);
+    const result = await AccountModel.findByIdAndUpdate(
+      ACCOUNT_ID,
+      { $set: { IS_LOCK: false } },
+      { new: true } // Trả về tài khoản đã được cập nhật
+    );
+
+    if (!result) {
+      throw new Error("Không tìm thấy tài khoản để mở khóa.");
+    }
+  };
+
 
  
   static addCodeActive = async (user_id, code, type, exp_seconds = 60) => {
