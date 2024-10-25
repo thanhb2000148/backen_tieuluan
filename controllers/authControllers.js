@@ -122,6 +122,21 @@ const authController = {
   //   });
   // }
   // },
+  // API để lấy số lượng người dùng đã đăng ký
+  getUserCount: async (req, res) => {
+    try {
+      const userCount = await UserService.getUserCount();
+      res.status(200).json({
+        success: true,
+        count: userCount,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Lỗi khi lấy số lượng người dùng.",
+        error: error.message,
+      });
+    }
+  },
   loginUser: async (req, res) => {
   try {
     const { error } = loginUserSchema.validate(req.body);

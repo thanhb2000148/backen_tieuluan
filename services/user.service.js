@@ -17,6 +17,14 @@ class UserService {
     await newAccount.save();
     return newAccount;
   };
+  // Lấy số lượng người dùng đã đăng ký
+  static getUserCount = async () => {
+    try {
+      return await UserModel.countDocuments(); // Đếm số lượng người dùng
+    } catch (error) {
+      throw new Error("Lỗi khi lấy số lượng người dùng: " + error.message);
+    }
+  };
   // Khóa tài khoản
   static lockAccount = async (accountId) => {
     const ACCOUNT_ID = new ObjectId(accountId);
