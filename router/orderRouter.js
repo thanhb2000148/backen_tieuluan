@@ -9,6 +9,10 @@ router.get("/", verify.verityToken, orderController.getUserOrder);
 router.get("/all", verify.verifyTokenAdmin, orderController.getAllOrders);
 router.get("/orders/filter", verify.verifyTokenAdmin, orderController.filterOrders);
 
+router.get("/orders/count", orderController.getOrderCount);
+router.get("/orders/recent", orderController.getRecentOrders);
+
+
 // Route để admin cập nhật trạng thái thanh toán cho đơn hàng
 router.put("/confirm-payment/:id", verify.verifyTokenAdmin, orderController.confirmPayment);
 //cac router trạng thái

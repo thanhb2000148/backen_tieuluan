@@ -1,4 +1,5 @@
-  const OrderService = require("../services/order.service");
+const OrderService = require("../services/order.service");
+  // const AccountModel = require("../models/account");
 
   class OrderController {
     static addOrder = async (req, res) => {
@@ -35,6 +36,36 @@
         res.status(400).json({ error: error.message }); // Trả về lỗi chi tiết hơn
       }
     };
+
+
+    static getOrderCount = async (req, res) => {
+        try {
+          const orderCount = await OrderService.countOrders();
+          res.status(200).json({
+            success: true,
+            message: "Lấy số lượng đơn hàng thành công",
+            data: orderCount,
+          });
+        } catch (error) {
+          console.error("Error in getOrderCount:", error.message);
+          res.status(500).json({ success: false, error: error.message });
+        }
+    };
+    
+    static getRecentOrders = async (req, res) => {
+    try {
+      const recentOrders = await OrderService.getRecentOrders(); // Lấy đơn hàng gần đây
+      res.status(200).json({
+        success: true,
+        message: "Lấy các đơn hàng gần đây thành công",
+        data: recentOrders,
+      });
+    } catch (error) {
+      console.error("Error in getRecentOrders:", error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  };
+
     static getUserOrder = async (req, res) => {
       try {
         const response = await OrderService.getUserOrder(req.user.id);
