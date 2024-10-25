@@ -89,6 +89,23 @@ class ProductController {
       res.status(500).json({ error: error.message });
     }
   };
+  //api số lượng các sản phẩm hiện có
+  static getTotalProducts = async (req, res) => {
+    try {
+      const totalProducts = await ProductService.getTotalProducts();
+      res.status(200).json({
+        message: "Lấy tổng số sản phẩm thành công",
+        success: true,
+        total: totalProducts,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Lỗi khi lấy tổng số sản phẩm.",
+        error: error.message,
+        success: false,
+      });
+    }
+  };
 // product.controller.js
 static updateProduct = async (req, res) => {
   try {

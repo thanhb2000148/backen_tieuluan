@@ -76,6 +76,17 @@ const getReviewsByRating = async (productId, rating) => {
   }
 };
 
+const getTotalReviewsCount = async () => {
+  try {
+    // Đếm tổng số đánh giá
+    const totalReviewsCount = await Review.countDocuments({});
+    return totalReviewsCount; // Trả về tổng số lượng đánh giá
+  } catch (error) {
+    throw new Error('Lỗi khi lấy tổng số lượng đánh giá');
+  }
+};
+
+
 
 
 const updateReview = async (reviewId, rating, comment) => {
@@ -144,4 +155,5 @@ module.exports = {
   getReviewsByRating,
   // getReviewsByUserId,
   getUserReviewByProductId,
+  getTotalReviewsCount,
 };

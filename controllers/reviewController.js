@@ -105,29 +105,20 @@ const deleteReview = async (req, res) => {
     res.status(500).json({ error: 'Lỗi khi xóa đánh giá', details: error.message });
   }
 };
-// const getReviewsByUser = async (req, res) => {
-//   try {
-//     const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
+const getTotalReviewsCount = async (req, res) => {
+  try {
+    const totalReviewsCount = await reviewService.getTotalReviewsCount();
+    res.status(200).json({
+      message: "Lấy tổng số lượng đánh giá thành công!",
+      success: true,
+      totalReviewsCount: totalReviewsCount, // Tổng số lượng đánh giá
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi khi lấy tổng số lượng đánh giá', details: error.message });
+  }
+};
 
-//     // Kiểm tra xem userId có hợp lệ không
-//     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-//       return res.status(400).json({ message: 'Không tìm thấy userId hoặc userId không hợp lệ.' });
-//     }
 
-//     const reviews = await reviewService.getReviewsByUserId(userId);
-
-//     // Kiểm tra nếu không tìm thấy đánh giá
-//     if (!reviews || reviews.length === 0) {
-//       return res.status(404).json({ message: 'Không tìm thấy đánh giá nào cho người dùng này.' });
-//     }
-
-//     res.status(200).json(reviews); // Trả về các đánh giá của người dùng
-//   } catch (error) {
-//     console.error("Error fetching reviews by user:", error);
-//     res.status(500).json({ error: 'Đã xảy ra lỗi khi lấy đánh giá của người dùng.', details: error.message });
-//   }
-// };
-// controllers/reviewController.js
 const getUserReviewByProductId = async (req, res) => {
   const { productId } = req.params;
   const userId = req.user.id_user; // Giả định rằng bạn có user ID từ token
@@ -162,5 +153,6 @@ module.exports = {
     getAllReviews,
   getReviewsByRating,
   // getReviewsByUser,
-    getUserReviewByProductId,
+  getUserReviewByProductId,
+   getTotalReviewsCount
 };

@@ -5,6 +5,7 @@ const verify = require("../middleware/verifyToken");
 router.get('/', productController.getProducts);
 router.get('/search', productController.searchProducts);
 router.get("/getAll", productController.getProductsAll);
+router.get("/products/count", productController.getTotalProducts);
 router.get('/:id', productController.getProductById);
 router.get('/category/:id', productController.getProductsByCategory);
 router.post('/fashion', verify.verityToken, productController.createProductFashion);

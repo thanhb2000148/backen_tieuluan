@@ -4,6 +4,8 @@ const UserService = require("../services/user.service");
 const verify = require("../middleware/verifyToken");
 const router = require("express").Router();
 router.get("/userLogin", verify.verityToken, userController.getLoginUser);
+
+router.get('/user-count', authController.getUserCount);// Route để lấy số lượng người dùng
 router.get("/", verify.verifyTokenAdmin, userController.getAllUsers);
 router.get("/:id", verify.verityToken, userController.getUserById);
 router.put('/users/:id', userController.updateUser);

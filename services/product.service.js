@@ -46,6 +46,10 @@ class ProductService {
     ]);
     return getProduct;
   };
+  //api tổng số lượng các sản phẩm hiện có
+    static async getTotalProducts() {
+    return await ProductModel.countDocuments({ IS_DELETED: false }); // Đếm số lượng sản phẩm không bị xóa
+  }
 
   static async searchProducts(searchQuery, page = 1, limit = 10) {
     page = Number(page);
