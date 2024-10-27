@@ -11,14 +11,16 @@ router.get("/orders/filter", verify.verifyTokenAdmin, orderController.filterOrde
 
 router.get("/orders/count", orderController.getOrderCount);
 router.get("/orders/recent", orderController.getRecentOrders);
-
+router.get('/total-revenue', orderController.getTotalRevenue);
+// Route để lấy tổng doanh thu của tất cả đơn hàng
+router.get('/totalall', orderController.getTotalRevenueAllTime);
 
 // Route để admin cập nhật trạng thái thanh toán cho đơn hàng
 router.put("/confirm-payment/:id", verify.verifyTokenAdmin, orderController.confirmPayment);
 //cac router trạng thái
 router.put("/orders/:id/proceed",verify.verifyTokenAdmin, orderController.updateOrderToProcessing);
 router.put("/orders/:id/shipping", verify.verifyTokenAdmin, orderController.updateOrderToShipping);
-router.patch("/orders/:id/success", verify.verifyTokenAdmin, orderController.updateOrderStatusSuccess);
+router.patch("/orders/:id/success", verify.verityToken, orderController.updateOrderStatusSuccess);
 router.delete('/orders/:id/cancel', verify.verityToken, orderController.cancelOrder);
 
 

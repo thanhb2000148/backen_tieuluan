@@ -36,9 +36,37 @@ const OrderService = require("../services/order.service");
         res.status(400).json({ error: error.message }); // Trả về lỗi chi tiết hơn
       }
     };
-
-
-    static getOrderCount = async (req, res) => {
+    static getTotalRevenueAllTime = async (req, res) => {
+    try {
+      const totalRevenue = await OrderService.getTotalRevenueAllTime();
+      res.status(200).json({
+        success: true,
+        message: "Tính tổng doanh thu thành công",
+        data: totalRevenue
+      });
+    } catch (error) {
+      console.error("Error in getTotalRevenueAllTime:", error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+    // doanh thu theo ngày
+   static getTotalRevenue = async (req, res) => {
+    const { fromDate, toDate } = req.body; // Lấy từ request body
+    try {
+        const { totalRevenue, orders } = await OrderService.getTotalRevenue(new Date(fromDate), new Date(toDate));
+        res.status(200).json({
+            success: true,
+            message: "Tính tổng doanh thu thành công",
+            data: totalRevenue,
+            orders: orders, // Trả về danh sách đơn hàng
+        });
+    } catch (error) {
+        console.error("Error in getTotalRevenue:", error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+  }
+    // lấy số lượng các đơn hàng
+     static getOrderCount = async (req, res) => {
         try {
           const orderCount = await OrderService.countOrders();
           res.status(200).json({
@@ -51,7 +79,7 @@ const OrderService = require("../services/order.service");
           res.status(500).json({ success: false, error: error.message });
         }
     };
-    
+    //lay dơn hàng gần nhất
     static getRecentOrders = async (req, res) => {
     try {
       const recentOrders = await OrderService.getRecentOrders(); // Lấy đơn hàng gần đây

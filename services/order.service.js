@@ -106,8 +106,73 @@ const payment_method = require("../models/payment_method");
     } catch (error) {
         console.error("Error in getRecentOrders:", error.message);
         throw error;
+    } 
+    }
+    static getTotalRevenueAllTime = async () => {
+    try {
+      const totalRevenue = await OrderModel.aggregate([
+        {
+          $unwind: '$LIST_PRODUCT' // Tách từng sản phẩm trong LIST_PRODUCT
+        },
+        {
+          $match: {
+            ORDER_STATUS: 'Đã giao' // Chỉ tính các đơn hàng đã giao
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: { $multiply: ['$LIST_PRODUCT.UNITPRICES', '$LIST_PRODUCT.QLT'] } }
+          }
+        }
+      ]);
+
+      const result = totalRevenue[0] || { totalRevenue: 0 }; // Nếu không có đơn hàng thì tổng doanh thu = 0
+      return result.totalRevenue;
+    } catch (error) {
+      console.error("Error in getTotalRevenueAllTime:", error.message);
+      throw error;
+    }
+  }
+    
+   // doanh thu theo ngày
+static getTotalRevenue = async (fromDate, toDate) => {
+    try {
+        const totalRevenue = await OrderModel.aggregate([
+            {
+                $unwind: '$LIST_PRODUCT', // Tách từng sản phẩm trong LIST_PRODUCT
+            },
+            {
+                $match: {
+                    'LIST_PRODUCT.FROM_DATE': { $gte: fromDate },
+                    $or: [
+                        { 'LIST_PRODUCT.TO_DATE': { $lte: toDate } }, // Kiểm tra TO_DATE trong khoảng thời gian
+                        { 'LIST_PRODUCT.TO_DATE': null }, // Bỏ qua trường hợp TO_DATE là null
+                    ],
+                    ORDER_STATUS: 'Đã giao', // Chỉ lấy các đơn hàng đã giao
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: { $sum: { $multiply: ['$LIST_PRODUCT.UNITPRICES', '$LIST_PRODUCT.QLT'] } },
+                    orders: { $push: '$$ROOT' }, // Lưu tất cả đơn hàng
+                },
+            },
+        ]);
+
+        const result = totalRevenue[0] || { totalRevenue: 0, orders: [] }; // Nếu không có đơn hàng thì tổng doanh thu = 0
+        return {
+            totalRevenue: result.totalRevenue,
+            orders: result.orders, // Trả về danh sách đơn hàng
+        };
+    } catch (error) {
+        console.error("Error in getTotalRevenue:", error.message);
+        throw error;
     }
 }
+
+
 
 
     static updateOrderCode = async (orderCode) => {
