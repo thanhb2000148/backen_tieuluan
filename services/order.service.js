@@ -410,7 +410,12 @@ static getTotalRevenue = async (fromDate, toDate) => {
                       STATUS_HISTORY: { // Thêm lịch sử trạng thái
                           status: 'Đã giao', 
                           updatedAt: new Date(), // Thêm thời gian cập nhật
-                      },
+                    },
+                    LIST_STATUS: { // Thêm trạng thái thanh toán
+                        STATUS_NAME: 'Đã thanh toán',
+                        STATUS_CODE: 2, // Mã trạng thái "Đã thanh toán" (có thể tùy chỉnh)
+                        FROM_DATE: new Date() // Thời gian cập nhật
+                    }
                   },
               },
               { new: true } // Trả về đơn hàng đã cập nhật
