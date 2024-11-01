@@ -101,7 +101,6 @@ static async updateProduct(id, updateData) {
     // Log sản phẩm hiện tại
     console.log("Sản phẩm hiện tại:", JSON.stringify(existingProduct, null, 2));
 
-
     // Tạo một đối tượng chứa các trường cần cập nhật
     const updatedFields = {};
 
@@ -126,12 +125,10 @@ static async updateProduct(id, updateData) {
       if (sizeMetadata) {
         const sizeIndex = existingProduct.LIST_PRODUCT_METADATA.findIndex(item => item.KEY === "Kích Thước");
         if (sizeIndex >= 0) {
-          // Đảm bảo VALUE là một mảng và không phải chuỗi
           existingProduct.LIST_PRODUCT_METADATA[sizeIndex].VALUE = Array.isArray(sizeMetadata.VALUE)
             ? sizeMetadata.VALUE
             : sizeMetadata.VALUE.split(','); // Nếu không phải mảng, tách chuỗi thành mảng
         } else {
-          // Thêm mới kích thước
           existingProduct.LIST_PRODUCT_METADATA.push({
             KEY: "Kích Thước",
             VALUE: Array.isArray(sizeMetadata.VALUE) ? sizeMetadata.VALUE : sizeMetadata.VALUE.split(',')
@@ -144,12 +141,10 @@ static async updateProduct(id, updateData) {
       if (colorMetadata) {
         const colorIndex = existingProduct.LIST_PRODUCT_METADATA.findIndex(item => item.KEY === "Màu Sắc");
         if (colorIndex >= 0) {
-          // Đảm bảo VALUE là một mảng và không phải chuỗi
           existingProduct.LIST_PRODUCT_METADATA[colorIndex].VALUE = Array.isArray(colorMetadata.VALUE)
             ? colorMetadata.VALUE
             : colorMetadata.VALUE.split(','); // Nếu không phải mảng, tách chuỗi thành mảng
         } else {
-          // Thêm mới màu sắc
           existingProduct.LIST_PRODUCT_METADATA.push({
             KEY: "Màu Sắc",
             VALUE: Array.isArray(colorMetadata.VALUE) ? colorMetadata.VALUE : colorMetadata.VALUE.split(',')
@@ -161,33 +156,48 @@ static async updateProduct(id, updateData) {
       updatedFields.LIST_PRODUCT_METADATA = existingProduct.LIST_PRODUCT_METADATA;
     }
 
-   // Cập nhật hoặc thay thế hình ảnh
-    if (updateData.LIST_FILE_ATTACHMENT) {
-      // Thay thế ảnh mặc định (thumbnail)
-      const thumbnailIndex = existingProduct.LIST_FILE_ATTACHMENT.findIndex(file => file.FILE_TYPE === "thumbnail");
-      const newThumbnail = updateData.LIST_FILE_ATTACHMENT.find(file => file.FILE_TYPE === "thumbnail");
-      if (newThumbnail) {
-        if (thumbnailIndex >= 0) {
-          existingProduct.LIST_FILE_ATTACHMENT[thumbnailIndex] = newThumbnail;
-        } else {
-          existingProduct.LIST_FILE_ATTACHMENT.push(newThumbnail);
-        }
-      }
-
-      // Thay thế toàn bộ ảnh chi tiết
-      const newDetailImages = updateData.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE === "detail");
-      if (newDetailImages && newDetailImages.length > 0) {
-        // Xoá tất cả ảnh chi tiết cũ
-        existingProduct.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE !== "detail");
-
-        // Thêm ảnh chi tiết mới
-        existingProduct.LIST_FILE_ATTACHMENT.push(...newDetailImages);
-      }
-
-      updatedFields.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT;
+    // Cập nhật hoặc thay thế hình ảnh
+    if (updateData.LIST_FILE_ATTACHMENT_DEFAULT) {
+      // Thay thế toàn bộ ảnh đại diện hiện tại
+      updatedFields.LIST_FILE_ATTACHMENT_DEFAULT = updateData.LIST_FILE_ATTACHMENT_DEFAULT.map(file => ({
+        FILE_URL: file.FILE_URL,
+        FILE_TYPE: file.FILE_TYPE,
+        FROM_DATE: file.FROM_DATE,
+        TO_DATE:  new Date(),
+        _id: file._id // Giữ lại ID để có thể xác định
+      }));
     }
 
+    // if (updateData.LIST_FILE_ATTACHMENT) {
+    //   // Thay thế toàn bộ ảnh chi tiết
+    //   const newDetailImages = updateData.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE === "detail");
+    //   if (newDetailImages && newDetailImages.length > 0) {
+    //     // Xoá tất cả ảnh chi tiết cũ
+    //     existingProduct.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE !== "detail");
 
+    //     // Thêm ảnh chi tiết mới
+    //     newDetailImages.forEach(detailImage => {
+    //       existingProduct.LIST_FILE_ATTACHMENT.push(detailImage);
+    //     });
+    //   }
+
+    //   updatedFields.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT;
+    // }
+   if (updateData.LIST_FILE_ATTACHMENT) {
+  // Tìm các ảnh chi tiết mới
+  const newDetailImages = updateData.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE === "detail");
+  
+  if (newDetailImages && newDetailImages.length > 0) {
+    // Xóa tất cả ảnh chi tiết cũ
+    existingProduct.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT.filter(file => file.FILE_TYPE !== "detail");
+
+    // Thêm tất cả ảnh chi tiết mới
+    existingProduct.LIST_FILE_ATTACHMENT.push(...newDetailImages);
+  }
+
+  // Cập nhật trường LIST_FILE_ATTACHMENT trong updatedFields
+  updatedFields.LIST_FILE_ATTACHMENT = existingProduct.LIST_FILE_ATTACHMENT;
+}
     // Cập nhật trường UPDATED_AT
     updatedFields.UPDATED_AT = new Date();
 
@@ -198,8 +208,7 @@ static async updateProduct(id, updateData) {
     }
 
     // Log sản phẩm sau khi cập nhật
-   console.log("Sản phẩm sau khi cập nhật:", JSON.stringify(updatedProduct, null, 2));
-
+    console.log("Sản phẩm sau khi cập nhật:", JSON.stringify(updatedProduct, null, 2));
 
     // Trả về sản phẩm sau khi cập nhật thành công
     return updatedProduct;
@@ -208,6 +217,8 @@ static async updateProduct(id, updateData) {
     throw error; // Ném lỗi để controller có thể xử lý
   }
 }
+
+
 
   static async createProductFashion(
     name,
@@ -432,6 +443,10 @@ static async updateProduct(id, updateData) {
     );
 
     return { deletedProduct };
+  };
+  static getActiveProducts = async () => {
+  const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
+  return activeProducts;
   };
 }
 

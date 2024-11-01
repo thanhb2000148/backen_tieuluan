@@ -3,6 +3,8 @@ const productController = require("../controllers/productController");
 const verify = require("../middleware/verifyToken");
 //các  router  sản phẩm
 router.get('/', productController.getProducts);
+// Route để lấy danh sách sản phẩm không bị xóa
+router.get('/delete_true', productController.getActiveProducts);
 router.get('/search', productController.searchProducts);
 router.get("/getAll", productController.getProductsAll);
 router.get("/products/count", productController.getTotalProducts);

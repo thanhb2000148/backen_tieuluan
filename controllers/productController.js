@@ -336,6 +336,20 @@ console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
     }
   };
 
+  //lay san pham không bị xóa
+  static getActiveProducts = async (req, res) => {
+    try {
+      const activeProducts = await ProductService.getActiveProducts();
+      return res.status(200).json({
+        message: "Lấy danh sách sản phẩm thành công!",
+        success: true,
+        products: activeProducts,
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  };
+
   static getAllTypeProducts = async (req, res) => {
     try {
       const type_Products = await TypeProductModel.find();
