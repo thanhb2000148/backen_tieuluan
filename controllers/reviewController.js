@@ -138,6 +138,21 @@ const getUserReviewByProductId = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy đánh giá', error });
   }
 };
+const getTopReviewedProducts = async (req, res) => {
+  try {
+    const topProducts = await reviewService.getTopReviewedProducts(req, res); // Truyền req và res vào đây
+    return res.status(200).json({
+      message: "Lấy danh sách sản phẩm được đánh giá nhiều nhất thành công!",
+      success: true,
+      products: topProducts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Lỗi khi lấy danh sách sản phẩm được đánh giá nhiều nhất',
+      details: error.message,
+    });
+  }
+};
 
 
 
@@ -154,5 +169,6 @@ module.exports = {
   getReviewsByRating,
   // getReviewsByUser,
   getUserReviewByProductId,
-   getTotalReviewsCount
+  getTotalReviewsCount,
+   getTopReviewedProducts
 };

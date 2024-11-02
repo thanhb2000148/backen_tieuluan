@@ -444,10 +444,39 @@ static async updateProduct(id, updateData) {
 
     return { deletedProduct };
   };
-  static getActiveProducts = async () => {
-  const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
-  return activeProducts;
+    static getActiveProducts = async () => {
+    const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
+    return activeProducts;
   };
+  static async getProductsCountByCategory() {
+    const categoriesWithCounts = await category.aggregate([
+        {
+            $lookup: {
+                from: 'products', // Tên bảng sản phẩm
+                localField: '_id', // Trường _id trong bảng category
+                foreignField: 'CATEGORY_ID', // Trường CATEGORY_ID trong bảng product
+                as: 'products'
+            }
+        },
+        {
+            $project: {
+                _id: 1, // Bao gồm trường _id của danh mục
+                CATEGORY_NAME: 1, // Bao gồm tên danh mục từ trường CATEGORY_NAME
+                productCount: {
+                    $size: {
+                        $filter: {
+                            input: '$products',
+                            as: 'product',
+                            cond: { $eq: ['$$product.IS_DELETED', false] } // Đếm sản phẩm không bị xóa
+                        }
+                    }
+                }
+            }
+        }
+    ]);
+    return categoriesWithCounts;
+}
+
 }
 
 module.exports = ProductService;

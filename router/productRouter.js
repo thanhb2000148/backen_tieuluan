@@ -8,6 +8,8 @@ router.get('/delete_true', productController.getActiveProducts);
 router.get('/search', productController.searchProducts);
 router.get("/getAll", productController.getProductsAll);
 router.get("/products/count", productController.getTotalProducts);
+// Thêm route cho việc lấy số lượng sản phẩm theo danh mục
+router.get('/category-count', productController.getProductsCountByCategory);
 router.get('/:id', productController.getProductById);
 router.get('/category/:id', productController.getProductsByCategory);
 router.post('/fashion', verify.verityToken, productController.createProductFashion);
@@ -16,5 +18,8 @@ router.post('/fashion', verify.verityToken, productController.createProductFashi
 // router.post('/earphone', verify.verityToken, productController.createProductEarphone);
 router.put('/:id', verify.verityToken,productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
+//xóa ảnh
+router.delete('/:productId/images/:imageId', productController.deleteImageFromProduct);
+
 module.exports = router;
 
