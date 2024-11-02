@@ -444,10 +444,30 @@ static async updateProduct(id, updateData) {
 
     return { deletedProduct };
   };
-  static getActiveProducts = async () => {
-  const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
-  return activeProducts;
+    static getActiveProducts = async () => {
+    const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
+    return activeProducts;
   };
+  static async deleteImageFromProduct(productId, imageId) {
+  try {
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      productId,
+      {
+        $pull: { LIST_FILE_ATTACHMENT: { _id: imageId } } // Xóa ảnh dựa trên _id
+      },
+      { new: true } // Trả về tài liệu đã cập nhật
+    );
+
+    if (!updatedProduct) {
+      throw new Error("Không tìm thấy sản phẩm");
+    }
+
+    return updatedProduct; // Trả về sản phẩm đã được cập nhật
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 }
 
 module.exports = ProductService;

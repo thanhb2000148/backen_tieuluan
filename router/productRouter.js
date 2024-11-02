@@ -16,5 +16,8 @@ router.post('/fashion', verify.verityToken, productController.createProductFashi
 // router.post('/earphone', verify.verityToken, productController.createProductEarphone);
 router.put('/:id', verify.verityToken,productController.updateProduct);
 router.delete('/:id', productController.deleteProduct);
+//xóa ảnh
+router.delete('/:productId/images/:imageId', productController.deleteImageFromProduct);
+
 module.exports = router;
 

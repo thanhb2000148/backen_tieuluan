@@ -349,6 +349,7 @@ console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
       return res.status(500).json({ error: error.message });
     }
   };
+  
 
   static getAllTypeProducts = async (req, res) => {
     try {
@@ -362,6 +363,26 @@ console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
       res.status(500).json({ error: error.message });
     }
   };
+  static deleteImageFromProduct = async (req, res) => {
+  try {
+    const { productId, imageId } = req.params;
+
+    const updatedProduct = await ProductService.deleteImageFromProduct(productId, imageId);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm hoặc ảnh để xóa" });
+    }
+
+    return res.status(200).json({
+      message: "Xóa ảnh thành công!",
+      success: true,
+      data: updatedProduct,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 }
 
 module.exports = ProductController;
