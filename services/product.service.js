@@ -448,24 +448,33 @@ static async updateProduct(id, updateData) {
     const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
     return activeProducts;
   };
-  static async deleteImageFromProduct(productId, imageId) {
-  try {
-    const updatedProduct = await ProductModel.findByIdAndUpdate(
-      productId,
-      {
-        $pull: { LIST_FILE_ATTACHMENT: { _id: imageId } } // Xóa ảnh dựa trên _id
-      },
-      { new: true } // Trả về tài liệu đã cập nhật
-    );
-
-    if (!updatedProduct) {
-      throw new Error("Không tìm thấy sản phẩm");
-    }
-
-    return updatedProduct; // Trả về sản phẩm đã được cập nhật
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  static async getProductsCountByCategory() {
+    const categoriesWithCounts = await category.aggregate([
+        {
+            $lookup: {
+                from: 'products', // Tên bảng sản phẩm
+                localField: '_id', // Trường _id trong bảng category
+                foreignField: 'CATEGORY_ID', // Trường CATEGORY_ID trong bảng product
+                as: 'products'
+            }
+        },
+        {
+            $project: {
+                _id: 1, // Bao gồm trường _id của danh mục
+                CATEGORY_NAME: 1, // Bao gồm tên danh mục từ trường CATEGORY_NAME
+                productCount: {
+                    $size: {
+                        $filter: {
+                            input: '$products',
+                            as: 'product',
+                            cond: { $eq: ['$$product.IS_DELETED', false] } // Đếm sản phẩm không bị xóa
+                        }
+                    }
+                }
+            }
+        }
+    ]);
+    return categoriesWithCounts;
 }
 
 }

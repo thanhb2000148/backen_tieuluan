@@ -124,24 +124,51 @@ const getUserReviewByProductId = async (productId, userId) => {
     throw new Error(`Không thể lấy đánh giá: ${error.message}`);
   }
 };
+const getTopReviewedProducts = async () => {
+  try {
+    const topProducts = await Review.aggregate([
+      {
+        $group: {
+          _id: "$product_id", // Nhóm theo product_id
+          totalReviews: { $sum: 1 }, // Đếm số lượng đánh giá
+        },
+      },
+      {
+        $lookup: {
+          from: "products", // Tên collection của sản phẩm
+          localField: "_id", // Trường trong aggregation
+          foreignField: "_id", // Trường trong collection sản phẩm
+          as: "productDetails", // Đặt tên cho trường mới
+        },
+      },
+      {
+        $unwind: "$productDetails", // Giải nén mảng productDetails
+      },
+      {
+        $project: {
+          _id: 0, // Không trả về trường _id của aggregation
+          productId: "$productDetails._id", // Lấy productId từ productDetails
+          productName: "$productDetails.NAME_PRODUCT", // Lấy tên sản phẩm
+          totalReviews: 1, // Trả về tổng số đánh giá
+        },
+      },
+      {
+        $sort: { totalReviews: -1 }, // Sắp xếp theo số lượng đánh giá giảm dần
+      },
+      {
+        $limit: 10, // Giới hạn số lượng sản phẩm được trả về
+      }
+    ]);
 
+    // // Log kết quả topProducts
+    // console.log("Top Reviewed Products:", topProducts);
 
-
-
-
-// const getReviewsByUserId = async (userId) => {
-//   try {
-//     if (!mongoose.Types.ObjectId.isValid(userId)) {
-//       throw new Error('userId không hợp lệ');
-//     }
-
-//     const reviews = await Review.find({ user_id: userId }).populate('product_id', 'name');
-//     return reviews;
-//   } catch (error) {
-//     throw error; // Ném lỗi nếu có
-//   }
-// };
-
+    return topProducts; // Trả về danh sách sản phẩm
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách sản phẩm được đánh giá nhiều nhất:", error);
+    throw error; // Ném lỗi ra ngoài để controller có thể xử lý
+  }
+};
 
 
 
@@ -156,4 +183,5 @@ module.exports = {
   // getReviewsByUserId,
   getUserReviewByProductId,
   getTotalReviewsCount,
+  getTopReviewedProducts
 };

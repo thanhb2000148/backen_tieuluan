@@ -12,6 +12,7 @@ router.post('/:productId/reviews', verify.verityToken,reviewController.addReview
 // Route để lấy tất cả đánh giá của sản phẩm
 router.get('/:productId/user', verify.verityToken, reviewController.getUserReviewByProductId);
 router.get('/reviews/total', reviewController.getTotalReviewsCount); // Thêm route mới
+router.get('/top-reviewed', reviewController.getTopReviewedProducts); // Thêm endpoint mới
 
 // Route để lấy tất cả đánh giá của sản phẩm
 router.get('/:productId', verify.verityToken, reviewController.getReviews);
