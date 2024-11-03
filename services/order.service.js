@@ -725,6 +725,51 @@ static getTotalRevenue = async (fromDate, toDate) => {
       );
       return update;
     };
+  static async getMonthlyRevenue(year) {
+    // Lấy doanh thu từ cơ sở dữ liệu
+    const monthlyRevenue = await OrderModel.aggregate([
+    {
+        $match: {
+            ORDER_STATUS: "Đã giao", // Chỉ tính đơn hàng đã giao
+            "LIST_PRODUCT.FROM_DATE": {
+                $gte: new Date("2024-01-01T00:00:00Z"),
+                $lt: new Date("2025-01-01T00:00:00Z")
+            }
+        }
+    },
+    {
+        $unwind: "$LIST_PRODUCT" // Giải nén danh sách sản phẩm
+    },
+    {
+        $group: {
+            _id: { $month: "$LIST_PRODUCT.FROM_DATE" }, // Nhóm theo tháng
+            totalRevenue: { $sum: { $multiply: ["$LIST_PRODUCT.UNITPRICES", "$LIST_PRODUCT.QLT"] } }
+        }
+    },
+    {
+        $sort: { _id: 1 } // Sắp xếp theo tháng
+    }
+]);
+
+
+    console.log("Monthly Revenue Data:", monthlyRevenue); // Ghi log dữ liệu doanh thu để kiểm tra
+
+    // Tạo danh sách tháng từ 1 đến 12
+   const revenueMap = new Array(12).fill(0);
+monthlyRevenue.forEach(item => {
+    revenueMap[item._id - 1] = item.totalRevenue; // Gán doanh thu cho tháng tương ứng
+});
+
+// Tạo mảng kết quả để trả về
+const result = revenueMap.map((totalRevenue, index) => ({
+    _id: index + 1,
+    totalRevenue: totalRevenue
+}));
+
+console.log("Final Revenue Result: ", result);
+return result;
+}
+
   }
 
   module.exports = OrderService;

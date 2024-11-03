@@ -30,6 +30,28 @@ class ProductService {
     ]);
     return getProduct;
   };
+  static getDeletedProducts = async (page = 1, limit = 10) => {
+    page = Number(page);
+    limit = Number(limit);
+
+    const deletedProducts = await ProductModel.aggregate([
+      {
+        $match: {
+          IS_DELETED: true, // Chỉ lấy sản phẩm bị xóa
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+      {
+        $project: {
+          IS_DELETED: 0, // Ẩn thuộc tính IS_DELETED nếu không cần thiết
+        },
+      },
+    ]);
+
+    return deletedProducts;
+};
+
   
   static getProductsAll = async () => {
     const getProduct = await ProductModel.aggregate([
@@ -50,6 +72,24 @@ class ProductService {
     static async getTotalProducts() {
     return await ProductModel.countDocuments({ IS_DELETED: false }); // Đếm số lượng sản phẩm không bị xóa
   }
+  //cap nhập trường is_deleted
+  static updateDeletedStatus = async (id, isDeleted) => {
+    try {
+      const updatedProduct = await ProductModel.findByIdAndUpdate(
+        id,
+        { IS_DELETED: isDeleted },
+        { new: true, fields: { IS_DELETED: 0 } } // Ẩn trường IS_DELETED trong dữ liệu trả về
+      );
+
+      if (!updatedProduct) {
+        throw new Error("Sản phẩm không tồn tại.");
+      }
+      
+      return updatedProduct;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   static async searchProducts(searchQuery, page = 1, limit = 10) {
     page = Number(page);
@@ -448,6 +488,24 @@ static async updateProduct(id, updateData) {
     const activeProducts = await ProductModel.find({ IS_DELETED: false }).exec();
     return activeProducts;
   };
+  static async deleteImageFromProduct(productId, imageId) {
+  try {
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      productId,
+      {
+        $pull: { LIST_FILE_ATTACHMENT: { _id: imageId } } // Xóa ảnh dựa trên _id
+      },
+      { new: true } // Trả về tài liệu đã cập nhật
+    );
+    if (!updatedProduct) {
+      throw new Error("Không tìm thấy sản phẩm");
+    }
+    return updatedProduct; // Trả về sản phẩm đã được cập nhật
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
   static async getProductsCountByCategory() {
     const categoriesWithCounts = await category.aggregate([
         {
