@@ -6,6 +6,7 @@ router.post("/", verify.verityToken, orderController.addOrder);
 router.post('/test-update-order',verify.verifyTokenAdmin, orderController.testUpdateOrder);
 
 router.get("/", verify.verityToken, orderController.getUserOrder);
+router.get('/monthly', orderController.getMonthlyRevenue);
 router.get("/all", verify.verifyTokenAdmin, orderController.getAllOrders);
 router.get("/orders/filter", verify.verifyTokenAdmin, orderController.filterOrders);
 

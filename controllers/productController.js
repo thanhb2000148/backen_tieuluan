@@ -23,7 +23,46 @@ class ProductController {
         error: error.message,
       });
     }
-    };
+  };
+  static getDeletedProducts = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const deletedProducts = await ProductService.getDeletedProducts(page, limit);
+
+    res.status(200).json({
+      message: "Lấy sản phẩm bị xóa thành công",
+      success: true,
+      data: deletedProducts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+  };
+  //cap nhap truong is_deleted  
+   static updateDeletedStatus = async (req, res) => {
+    try {
+      const { id } = req.params; // Lấy ID từ params
+      const { isDeleted } = req.body; // Lấy giá trị isDeleted từ body
+
+      const updatedProduct = await ProductService.updateDeletedStatus(id, isDeleted);
+
+      res.status(200).json({
+        message: "Cập nhật trạng thái IS_DELETED thành công",
+        success: true,
+        data: updatedProduct,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+        success: false,
+      });
+    }
+  };
+
    static searchProducts = async (req, res) => {
     try {
       const { query, page, limit } = req.query;
@@ -383,6 +422,7 @@ console.log("Dữ liệu cập nhật:", JSON.stringify(updateData, null, 2));
     res.status(500).json({ error: error.message });
     }
   };
+  //so lượng sp  theo danh muc vẽ biểu đồ
   static getProductsCountByCategory = async (req, res) => {
     try {
         const categoryCounts = await ProductService.getProductsCountByCategory();

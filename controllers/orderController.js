@@ -287,7 +287,23 @@ const OrderService = require("../services/order.service");
       console.error('Error updating order:', error);
       res.status(500).json({ message: 'Internal server error', error });
     }
+    }
+    
+  static getMonthlyRevenue = async (req, res) => {
+    const year = parseInt(req.query.year); // Lấy năm từ query parameters
+    try {
+      const monthlyRevenue = await OrderService.getMonthlyRevenue(year);
+      res.status(200).json({
+        success: true,
+        message: "Lấy doanh thu theo tháng thành công",
+        data: monthlyRevenue
+      });
+    } catch (error) {
+      console.error("Error in getMonthlyRevenue:", error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
+
 }
 
   module.exports = OrderController;
