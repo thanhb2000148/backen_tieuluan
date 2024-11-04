@@ -6,7 +6,7 @@
   const CartService = require("../services/cart.service");
   const UserService = require("../services/user.service");
   const Inventory_EntriesService = require("../services/inventory_entries.service");
-const payment_method = require("../models/payment_method");
+  const payment_method = require("../models/payment_method");
   const AccountModel = require("../models/account");
   const code = randomCode();
   class OrderService {
