@@ -17,6 +17,8 @@ const inventoryRouter = require("../router/inventory_entriesRouter");
 const testRouter = require("../router/testRouter");
 const reviewRouter = require("../router/reviewRouter"); // Thêm import cho review router
 const newRouter = require("../router/newRouter");
+const favoriteRouter = require('../router/favoriteRouter'); // Đường dẫn đến router yêu thích
+
 
 
 router.use("/v1/auth", authRouter);
@@ -38,4 +40,6 @@ router.use("/v1/order", orderRouter);
 router.use("/v1/review", reviewRouter); // Sử dụng review router cho sản phẩm
 router.use("/v1/news", newRouter)
 router.use("/v1/test", testRouter);
+router.use("/v1/favorite", favoriteRouter);
+
 module.exports = router;
