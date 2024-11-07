@@ -48,8 +48,11 @@ const getReviews = async (req, res) => {
 };
 
 const getAllReviews = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Lấy tham số page từ query, mặc định là 1
+  const limit = parseInt(req.query.limit) || 10; // Lấy tham số limit từ query, mặc định là 10
+
   try {
-    const reviews = await reviewService.getAllReviews();
+    const reviews = await reviewService.getAllReviews(page, limit);
     res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ error: 'Lỗi khi lấy tất cả đánh giá', details: error.message });
