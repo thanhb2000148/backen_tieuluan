@@ -12,6 +12,10 @@ var FAVORITE = new Schema({
     required: true,
     ref: 'product' // Giả sử bạn có một mô hình sản phẩm
   },
+  // IS_FAVORITED: {
+  //   type: Boolean,
+  //   default: true // Mặc định khi thêm vào là "yêu thích"
+  // },
   CREATED_AT: {
     type: Date,
     default: Date.now // Thời gian thêm vào danh sách yêu thích
