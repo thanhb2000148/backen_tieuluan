@@ -19,6 +19,8 @@ router.get('/:productId', verify.verityToken, reviewController.getReviews);
 router.get('/:productId/:rating', reviewController.getReviewsByRating);
 router.get('/', reviewController.getAllReviews); // Lấy tất cả các đánh giá
 router.put('/:reviewId', verify.verityToken,reviewController.updateReview); // Cập nhật đánh giá
-router.delete('/:reviewId',verify.verityToken, reviewController.deleteReview); // Xóa đánh giá
+router.delete('/:reviewId', verify.verityToken, reviewController.deleteReview); // Xóa đánh giá
+router.delete('/admin/:reviewId',verify.verifyTokenAdmin, reviewController.deleteReview); // Xóa đánh giá
+
 
 module.exports = router;

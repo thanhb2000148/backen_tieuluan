@@ -56,11 +56,6 @@ static async getFavoritesByUserId(userId) {
     }
 }
 
-
-
-
-
-
   // Xóa sản phẩm yêu thích
     static async removeFavorite(userId, productId) {
         try {

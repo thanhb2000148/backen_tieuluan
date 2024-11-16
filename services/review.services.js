@@ -57,14 +57,20 @@ const getProductReviews = async (productId) => {
   }
 };
 
-const getAllReviews = async () => {
+const getAllReviews = async (page = 1, limit = 10) => {
   try {
-    const reviews = await Review.find().populate('user_id', 'FULL_NAME EMAIL_USER AVT_URL');
+    const skip = (page - 1) * limit;
+    const reviews = await Review.find()
+      .skip(skip)
+      .limit(limit)
+      .populate('user_id', 'FULL_NAME EMAIL_USER AVT_URL');
+    
     return reviews;
   } catch (error) {
     throw error;
   }
 };
+
 
 const getReviewsByRating = async (productId, rating) => {
   try {
