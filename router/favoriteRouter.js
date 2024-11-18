@@ -10,7 +10,7 @@ router.get('/user/:userId',verify.verityToken,FavoriteController.getFavoritesByU
 // Thêm sản phẩm vào danh sách yêu thích
 router.post('/',verify.verityToken, FavoriteController.addFavorite);
 // Xóa sản phẩm yêu thích
-router.put('/user/:userId/:productId', FavoriteController.removeFavorite);
+router.delete('/user/:userId/:productId', FavoriteController.removeFavorite);
 
 
 module.exports = router;
